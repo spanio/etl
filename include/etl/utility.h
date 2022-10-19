@@ -47,7 +47,7 @@ SOFTWARE.
 
 namespace etl
 {
-#if ETL_USING_CPP11
+#if __cpp_rvalue_references
   //******************************************************************************
   template <typename T>
   constexpr typename etl::remove_reference<T>::type&& move(T&& t) ETL_NOEXCEPT
@@ -129,10 +129,11 @@ namespace etl
     {
     }
 
-#if ETL_USING_CPP11
     //***************************************************************************
     ///\brief Move constructor from parameters.
     //***************************************************************************
+#if __cpp_rvalue_references
+    /// Move constructor from parameters
     template <typename U1, typename U2>
     ETL_CONSTEXPR14 pair(U1&& a, U2&& b)
       : first(etl::forward<U1>(a))
@@ -160,7 +161,7 @@ namespace etl
     {
     }
 
-#if ETL_USING_CPP11
+#if __cpp_rvalue_references
     /// Move constructor
     template <typename U1, typename U2>
     ETL_CONSTEXPR14 pair(pair<U1, U2>&& other)
@@ -186,7 +187,7 @@ namespace etl
     {
     }
 
-#if ETL_USING_CPP11
+#if __cpp_rvalue_references
     /// Constructing to etl::pair
     template <typename U1, typename U2>
     pair(std::pair<U1, U2>&& other)
@@ -222,7 +223,7 @@ namespace etl
       return *this;
     }
 
-#if ETL_USING_CPP11
+#if __cpp_rvalue_references
     pair<T1, T2>& operator =(pair<T1, T2>&& other)
     {
       first = etl::forward<T1>(other.first);
@@ -242,6 +243,7 @@ namespace etl
 #endif
   };
 
+  //******************************************************************************
   //***************************************************************************
   ///\brief A convenience wrapper for creating a @ref pair from two objects.
   ///
@@ -250,7 +252,7 @@ namespace etl
   ///
   ///\return A newly-constructed @ref pair object of the appropriate type.
   //***************************************************************************
-#if ETL_USING_CPP11
+#if __cpp_rvalue_references
   template <typename T1, typename T2>
   inline pair<T1, T2> make_pair(T1&& a, T2&& b)
   {
@@ -425,7 +427,7 @@ namespace etl
   //***************************************************************************
   /// integer_sequence
   //***************************************************************************
-#if ETL_USING_CPP11
+#if __cpp_variadic_templates
   template <typename T, T... Integers>
   class integer_sequence
   {
@@ -510,7 +512,7 @@ namespace etl
     explicit ETL_CONSTEXPR in_place_t() {}
   };
 
-#if ETL_USING_CPP17
+#if __cpp_inline_variables && __cpp_constexpr
   inline constexpr in_place_t in_place{};
 #endif
   
@@ -520,7 +522,7 @@ namespace etl
     explicit ETL_CONSTEXPR in_place_type_t() {};
   };
 
-#if ETL_USING_CPP17
+#if __cpp_inline_variables && __cpp_constexpr
   template <typename T>
   inline constexpr in_place_type_t<T> in_place_type{};
 #endif
@@ -531,12 +533,12 @@ namespace etl
     explicit ETL_CONSTEXPR in_place_index_t() {}
   };
 
-#if ETL_USING_CPP17
+#if __cpp_inline_variables && __cpp_constexpr
   template <size_t I>
   inline constexpr in_place_index_t<I> in_place_index{};
 #endif
 
-#if ETL_USING_CPP11
+#if __cpp_variadic_templates
   //*************************************************************************
   /// A function wrapper for free/global functions.
   //*************************************************************************
@@ -568,7 +570,7 @@ namespace etl
   };
 #endif
 
-#if ETL_USING_CPP11
+#if __cpp_variadic_templates
   //*****************************************************************************
   // A wrapper for a member function
   // Creates a static member function that calls the specified member function.
@@ -589,7 +591,7 @@ namespace etl
   };
 #endif
 
-#if ETL_USING_CPP11
+#if __cpp_variadic_templates
   //*****************************************************************************
   // A wrapper for a functor
   // Creates a static member function that calls the specified functor.

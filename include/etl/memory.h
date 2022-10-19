@@ -926,7 +926,7 @@ namespace etl
 #endif
 
 #if ETL_NOT_USING_STL || ETL_CPP20_NOT_SUPPORTED
-#if ETL_USING_CPP11
+#if __cpp_rvalue_references && __cpp_variadic_templates
   //*****************************************************************************
   /// Constructs an item at address p with value constructed from 'args'.
   /// https://en.cppreference.com/w/cpp/memory/construct_at
@@ -1305,7 +1305,7 @@ namespace etl
     {
     }
 
-#if ETL_USING_CPP11
+#if __cpp_rvalue_references
     //*********************************
     unique_ptr(unique_ptr&& other) ETL_NOEXCEPT
     {
@@ -1336,7 +1336,7 @@ namespace etl
     {
     }
 
-#if ETL_USING_CPP11
+#if __cpp_rvalue_references
     //*********************************
     unique_ptr(pointer p_, typename etl::remove_reference<TDeleter>::type&& deleter_) ETL_NOEXCEPT
       : p(p_)
@@ -1430,7 +1430,7 @@ namespace etl
     }
 #endif
 
-#if ETL_USING_CPP11
+#if __cpp_rvalue_references
     //*********************************
     unique_ptr&	operator =(unique_ptr&& other) ETL_NOEXCEPT
     {
@@ -1511,7 +1511,7 @@ namespace etl
     {
     }
 
-#if ETL_USING_CPP11
+#if __cpp_rvalue_references
     //*********************************
     unique_ptr(unique_ptr&& other) ETL_NOEXCEPT
     {
@@ -1543,7 +1543,7 @@ namespace etl
     {
     }
 
-#if ETL_USING_CPP11
+#if __cpp_rvalue_references
     //*********************************
     unique_ptr(pointer p_, typename etl::remove_reference<TDeleter>::type&& deleter_) ETL_NOEXCEPT
       : p(p_)
@@ -1636,7 +1636,7 @@ namespace etl
     }
 #endif
 
-#if ETL_USING_CPP11
+#if __cpp_rvalue_references
     //*********************************
     unique_ptr& operator =(unique_ptr&& other) ETL_NOEXCEPT
     {
@@ -1805,7 +1805,7 @@ namespace etl
     ::new (p) T(value);
   }
 
-#if ETL_USING_CPP11
+#if __cpp_rvalue_references
   //*****************************************************************************
   /// Copy construct an item at address p.
   ///\ingroup memory
@@ -1862,7 +1862,7 @@ namespace etl
     return *reinterpret_cast<T*>(p);
   }
 
-#if ETL_USING_CPP11
+#if __cpp_rvalue_references
   //*****************************************************************************
   /// Construct an item at address p.
   ///\ingroup memory
@@ -1898,7 +1898,7 @@ namespace etl
     return *reinterpret_cast<T*>(p);
   }
 
-#if ETL_USING_CPP11
+#if __cpp_rvalue_references
   //*****************************************************************************
   /// Construct an item at address p.
   ///\ingroup memory
@@ -2231,7 +2231,7 @@ namespace etl
 #endif
   };
 
-#if ETL_USING_CPP11
+#if __cpp_alias_templates
   template <typename T, size_t N_Objects>
   using uninitialized_buffer_of_t = typename uninitialized_buffer_of<T, N_Objects>::buffer;
 #endif
