@@ -39,6 +39,7 @@ SOFTWARE.
 #include "nullptr.h"
 #include "alignment.h"
 #include "placement_new.h"
+
 #include "private/addressof.h"
 
 #include <assert.h>
@@ -1231,7 +1232,19 @@ namespace etl
   template <typename T>
   struct default_delete
   {
-    void operator()(T* p) const
+    //*********************************
+    ETL_CONSTEXPR default_delete() ETL_NOEXCEPT
+    {
+    }
+
+    //*********************************
+    template <typename U>
+    default_delete(const default_delete<U>&) ETL_NOEXCEPT 
+    {
+    }
+
+    //*********************************
+    void operator()(T * p) const ETL_NOEXCEPT
     {
       delete p;
     }
@@ -1246,6 +1259,18 @@ namespace etl
   template <typename T>
   struct default_delete<T[]>
   {
+    //*********************************
+    ETL_CONSTEXPR default_delete() ETL_NOEXCEPT
+    {
+    }
+
+    //*********************************
+    template <typename U>
+    default_delete(const default_delete<U>&) ETL_NOEXCEPT
+    {
+    }
+
+    //*********************************
     template <class U>
     void operator()(U* p) const
     {
@@ -1264,13 +1289,14 @@ namespace etl
   {
   public:
 
-    typedef T  element_type;
-    typedef T* pointer;
-    typedef T& reference;
+    typedef T        element_type;
+    typedef T*       pointer;
+    typedef T&       reference;
+    typedef TDeleter deleter_type;
 
     //*********************************
     ETL_CONSTEXPR unique_ptr() ETL_NOEXCEPT
-      : p(ETL_NULLPTR)
+      : p(pointer())
     {
     }
 
@@ -1282,9 +1308,29 @@ namespace etl
 
 #if ETL_USING_CPP11
     //*********************************
-    unique_ptr(unique_ptr&& p_) ETL_NOEXCEPT
+    unique_ptr(unique_ptr&& other) ETL_NOEXCEPT
+    {
+      if (&other != this)
+      {
+        p = other.release();
+        deleter = etl::move(other.deleter);
+      }
+    }
+#else
+    //*********************************
+    unique_ptr(unique_ptr& other) ETL_NOEXCEPT
+    {
+      if (&other != this)
+      {
+        p = other.release();
+        deleter = other.deleter;
+      }
+    }
+#else
+    //*********************************
+    unique_ptr(unique_ptr& p_) ETL_NOEXCEPT
       : p(p_.release())
-      , deleter(etl::move(p_.deleter))
+      , deleter(p_.deleter)
     {
     }
 #endif
@@ -1305,12 +1351,37 @@ namespace etl
       , deleter(etl::move(deleter_))
     {
     }
+#else
+    //*********************************
+    unique_ptr(pointer p_, const typename etl::remove_reference<TDeleter>::type& deleter_) ETL_NOEXCEPT
+      : p(p_)
+      , deleter(etl::move(deleter_))
+    {
+    }
+#endif
+
+#if ETL_USING_CPP11
+    //*********************************
+    template <typename U, typename E>
+    unique_ptr(unique_ptr<U, E>&& u) ETL_NOEXCEPT
+      : p(u.release())
+      , deleter(etl::forward<E>(u.get_deleter()))
+    {
+    }
+#else
+    //*********************************
+    template <typename U, typename E>
+    unique_ptr(unique_ptr<U, E>& u) ETL_NOEXCEPT
+      : p(u.release())
+      , deleter(u.get_deleter())
+    {
+    }
 #endif
 
     //*********************************
     ~unique_ptr()
     {
-      if (p != ETL_NULLPTR)
+      if (p != pointer())
       {
         deleter(p);
       }
@@ -1338,7 +1409,7 @@ namespace etl
     pointer	release() ETL_NOEXCEPT
     {
       pointer value = p;
-      p = ETL_NULLPTR;
+      p = pointer();
 
       return value;
     }
@@ -1346,11 +1417,12 @@ namespace etl
     //*********************************
     void reset(pointer p_ = pointer()) ETL_NOEXCEPT
     {
-      assert(p_ != p);
-
-      pointer value = p;
-      p = p_;
-      deleter(value);
+      if (p_ != p)
+      {
+        pointer value = p;
+        p = p_;
+        deleter(value);
+      }
     }
 
     //*********************************
@@ -1364,14 +1436,14 @@ namespace etl
     //*********************************
     ETL_CONSTEXPR operator bool() const ETL_NOEXCEPT
     {
-      return (p != ETL_NULLPTR);
+      return (p != pointer());
     }
 
 #if ETL_USING_STL && ETL_USING_CPP11
     //*********************************
     unique_ptr&	operator =(std::nullptr_t) ETL_NOEXCEPT
     {
-      reset(nullptr);
+      reset(pointer());
 
       return *this;
     }
@@ -1379,7 +1451,7 @@ namespace etl
     //*********************************
     unique_ptr&	operator =(void*) ETL_NOEXCEPT
     {
-      reset(NULL);
+      reset(pointer());
 
       return *this;
     }
@@ -1387,7 +1459,31 @@ namespace etl
 
 #if ETL_USING_CPP11
     //*********************************
-    unique_ptr&	operator =(unique_ptr&& p_) ETL_NOEXCEPT
+    unique_ptr&	operator =(unique_ptr&& other) ETL_NOEXCEPT
+    {
+      if (&other != this)
+      {
+        reset(other.release());
+        deleter = etl::move(other.deleter);
+      }
+
+      return *this;
+    }
+#else
+    //*********************************
+    unique_ptr& operator =(unique_ptr& other) ETL_NOEXCEPT
+    {
+      if (&other != this)
+      {
+        reset(other.release());
+        deleter = other.deleter;
+      }
+
+      return *this;
+    }
+#else
+    //*********************************
+    unique_ptr& operator =(unique_ptr& p_) ETL_NOEXCEPT
     {
       reset(p_.release());
 
@@ -1434,13 +1530,14 @@ namespace etl
   {
   public:
 
-    typedef T  element_type;
-    typedef T* pointer;
-    typedef T& reference;
+    typedef T        element_type;
+    typedef T*       pointer;
+    typedef T&       reference;
+    typedef TDeleter deleter_type;
 
     //*********************************
     ETL_CONSTEXPR		unique_ptr() ETL_NOEXCEPT
-      : p(ETL_NULLPTR)
+      : p(pointer())
     {
     }
 
@@ -1452,17 +1549,38 @@ namespace etl
 
 #if ETL_USING_CPP11
     //*********************************
-    unique_ptr(unique_ptr&& p_) ETL_NOEXCEPT
+    unique_ptr(unique_ptr&& other) ETL_NOEXCEPT
+    {
+      if (&other != this)
+      {
+        p = other.release();
+        deleter = etl::move(other.deleter);
+      }
+    }
+#else
+    //*********************************
+    unique_ptr(unique_ptr& other) ETL_NOEXCEPT
+    {
+      if (&other != this)
+      {
+        p = other.release();
+        deleter = other.deleter;
+      }
+    }
+#else
+    //*********************************
+    unique_ptr(unique_ptr& p_) ETL_NOEXCEPT
       : p(p_.release())
-      , deleter(etl::move(p_.deleter))
+      , deleter(p_.deleter)
     {
     }
 #endif
 
     //*********************************
-    unique_ptr(pointer p_, typename etl::conditional<etl::is_reference<TDeleter>::value,
-                                                     TDeleter,
-                                                     typename etl::add_lvalue_reference<const TDeleter>::type>::type deleter_) ETL_NOEXCEPT
+    unique_ptr(pointer p_, 
+               typename etl::conditional<etl::is_reference<TDeleter>::value,
+                                         TDeleter,
+                                         typename etl::add_lvalue_reference<const TDeleter>::type>::type deleter_) ETL_NOEXCEPT
       : p(p_)
       , deleter(deleter_)
     {
@@ -1475,12 +1593,37 @@ namespace etl
       , deleter(etl::move(deleter_))
     {
     }
+#else
+    //*********************************
+    unique_ptr(pointer p_, const typename etl::remove_reference<TDeleter>::type& deleter_) ETL_NOEXCEPT
+      : p(p_)
+      , deleter(deleter_)
+    {
+    }
+#endif
+
+#if ETL_USING_CPP11
+    //*********************************
+    template <typename U, typename E>
+    unique_ptr(unique_ptr<U, E>&& u) ETL_NOEXCEPT
+      : p(u.release())
+      , deleter(etl::forward<E>(u.get_deleter()))
+    {
+    }
+#else
+    //*********************************
+    template <typename U, typename E>
+    unique_ptr(unique_ptr<U, E>& u) ETL_NOEXCEPT
+      : p(u.release())
+      , deleter(u.get_deleter())
+    {
+    }
 #endif
 
     //*********************************
     ~unique_ptr()
     {
-      if (p != ETL_NULLPTR)
+      if (p != pointer())
       {
         deleter(p);
       }
@@ -1508,18 +1651,19 @@ namespace etl
     pointer	release() ETL_NOEXCEPT
     {
       pointer value = p;
-      p = ETL_NULLPTR;
+      p = pointer();
       return value;
     }
 
     //*********************************
     void reset(pointer p_) ETL_NOEXCEPT
     {
-      assert(p_ != p);
-
-      pointer value = p;
-      p = p_;
-      delete[] value;
+      if (p_ != p)
+      {
+        pointer value = p;
+        p = p_;
+        delete[] value;
+      }
     }
 
     //*********************************
@@ -1533,14 +1677,14 @@ namespace etl
     //*********************************
     ETL_CONSTEXPR operator bool() const ETL_NOEXCEPT
     {
-      return (p != ETL_NULLPTR);
+      return (p != pointer());
     }
 
 #if ETL_USING_STL && ETL_USING_CPP11
     //*********************************
     unique_ptr& operator =(std::nullptr_t) ETL_NOEXCEPT
     {
-      reset(nullptr);
+      reset(pointer());
 
       return *this;
     }
@@ -1548,7 +1692,7 @@ namespace etl
     //*********************************
     unique_ptr& operator =(void*) ETL_NOEXCEPT
     {
-      reset(NULL);
+      reset(pointer());
 
       return *this;
     }
@@ -1556,7 +1700,31 @@ namespace etl
 
 #if ETL_USING_CPP11
     //*********************************
-    unique_ptr& operator =(unique_ptr&& p_) ETL_NOEXCEPT
+    unique_ptr& operator =(unique_ptr&& other) ETL_NOEXCEPT
+    {
+      if (&other != this)
+      {
+        reset(other.release());
+        deleter = etl::move(other.deleter);
+      }
+
+      return *this;
+    }
+#else
+    //*********************************
+    unique_ptr& operator =(unique_ptr& other) ETL_NOEXCEPT
+    {
+      if (&other != this)
+      {
+        reset(other.release());
+        deleter = other.deleter;
+      }
+
+      return *this;
+    }
+#else
+    //*********************************
+    unique_ptr& operator =(unique_ptr& p_) ETL_NOEXCEPT
     {
       reset(p_.release());
 
@@ -1588,7 +1756,7 @@ namespace etl
     unique_ptr(const unique_ptr&) ETL_DELETE;
     unique_ptr&	operator =(const unique_ptr&) ETL_DELETE;
 
-    pointer	p; 
+    pointer	 p; 
     TDeleter deleter;
   };
 }
