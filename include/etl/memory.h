@@ -1326,13 +1326,6 @@ namespace etl
         deleter = other.deleter;
       }
     }
-#else
-    //*********************************
-    unique_ptr(unique_ptr& p_) ETL_NOEXCEPT
-      : p(p_.release())
-      , deleter(p_.deleter)
-    {
-    }
 #endif
 
     //*********************************
@@ -1481,14 +1474,6 @@ namespace etl
 
       return *this;
     }
-#else
-    //*********************************
-    unique_ptr& operator =(unique_ptr& p_) ETL_NOEXCEPT
-    {
-      reset(p_.release());
-
-      return *this;
-    }
 #endif
 
     //*********************************
@@ -1566,13 +1551,6 @@ namespace etl
         p = other.release();
         deleter = other.deleter;
       }
-    }
-#else
-    //*********************************
-    unique_ptr(unique_ptr& p_) ETL_NOEXCEPT
-      : p(p_.release())
-      , deleter(p_.deleter)
-    {
     }
 #endif
 
@@ -1719,14 +1697,6 @@ namespace etl
         reset(other.release());
         deleter = other.deleter;
       }
-
-      return *this;
-    }
-#else
-    //*********************************
-    unique_ptr& operator =(unique_ptr& p_) ETL_NOEXCEPT
-    {
-      reset(p_.release());
 
       return *this;
     }
