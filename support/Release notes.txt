@@ -1,4 +1,85 @@
 ===============================================================================
+20.36.0
+#663 Make unit tests compile for C++20
+#675 Compilation error in optional.h
+#684 Added sanitization fix for MinGW
+#687 Build failure
+#689 Add as_bytes and as_writable_bytes
+Unit tests compile for C++11
+Fixed C++11 constexpr compatibility
+Removed redundant 'const' in template parameters
+Updated CI scripts to enable C++ standard and optimisation selection
+Updated static definitions
+Fixed incorrect return types for reverse iterator begin() & end()
+Updated C++ standard conditional compilation for reverse iterator functions
+Fixed latest Address Sanitizer issues
+Message packet unused parameter fix
+Added ETL_OR_STD17 macro as the namespace for size()
+Added Tasking compiler
+Fix type traits generator
+Fix test array sizes
+Changed some ETL_ASSERT macros to ETL_ASSERT_OR_RETURN
+Updated CMake files to allow C++ standard selection
+Replaced ETL_ASSERT_AND_RETURN with ETL_ASSERT_OR_RETURN
+Changed native char8_t check
+Renamed Github vs2022.yml to visual-studio.yml
+Updated Unittest++ checks
+Comments and noexcept updates to placement new
+
+===============================================================================
+20.35.15
+#627 Make tests build with C++14
+#663 Make unit tests compile for C++20
+#675 Compilation error in optional.h line 405
+
+===============================================================================
+20.35.14
+Convert the Visual Studio project to VS2022
+
+===============================================================================
+20.35.13
+#649 Fixed the false positive 'array-bounds' errors for ETL unit tests.
+#652 Fixed false positives 'maybe-uninitialized' errors for ETL unit tests.
+Moved virtual functions in etl::fixed_sized_memory_block_allocator from 'private' to 'protected'. 
+
+===============================================================================
+20.35.12
+#615 Addition of etl::expected
+#649 Changed intrusive_list and intrusive_forward_list iterator constructor parameter from reference to pointer.
+#667 etl::span copy constructor with original span with fixed extent causes pend iterator to be invalid
+#668 byte_stream changes that add error exceptions have changed previous behaviour
+#670 span equality operators
+#672 HFSM-specific start() and reset()
+Fixed span templated copy constructor
+Added destination_router_id parameter overrides to receive() virtual functions
+Added ""_sv string view operators
+Added M17 CRC
+Added repair() to etl::circular_buffer
+Added etl::contruct_object_at, etl::get_object_at and etl::destroy_object_at
+Added etl::is_aligned, etl::alignment_exception and etl::alignment_error
+Removed unnecessary code in etl::vector_ext::repair()
+Updated sanity check make files
+C++03 compatibility improvements
+
+===============================================================================
+20.35.11
+Added emplace by index to variant (variadic)
+#660 byte_stream_reader::skip error
+
+===============================================================================
+20.35.10
+#659 emplace member functions return reference to emplaced value
+
+===============================================================================
+20.35.9
+#657 -Wpedantic-failure. Removed superfluous semicolons
+#653 CMake - Don't warn on tag missing when subproject
+#651 result<T, void> specialization
+#650 Fix result<void, E> default ctor
+Removed Ubuntu 18.04 from Github Actions
+Added Ubuntu 22.04 to Github Actions
+
+===============================================================================
 20.35.8
 #648 Improve is_constructible, is_copy_constructible, is_move_constructible for type traits with default definitions 
 #645 Avoid 'missing return statement at end of non-void function' in `etl::visit<>()`.

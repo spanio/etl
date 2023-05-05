@@ -1,6 +1,15 @@
 cmake_minimum_required(VERSION 3.5.0)
 project(etl_unit_tests LANGUAGES CXX)
 
+#include(FetchContent)
+#FetchContent_Declare(
+#  googletest
+#  URL https://github.com/google/googletest/archive/refs/heads/main.zip
+#)
+
+#set(gtest_force_shared_crt ON CACHE BOOL "" FORCE)
+#FetchContent_MakeAvailable(googletest)
+
 add_executable(etl_tests
 	main.cpp
 	murmurhash3.cpp
@@ -10,7 +19,7 @@ add_executable(etl_tests
 	test_array_view.cpp
 	test_array_wrapper.cpp
 	test_atomic.cpp
-	test_binary.cpp
+    test_binary.cpp
 	test_bip_buffer_spsc_atomic.cpp
 	test_bit.cpp
 	test_bitset_legacy.cpp
@@ -34,12 +43,12 @@ add_executable(etl_tests
 	test_callback_timer_atomic.cpp
 	test_callback_timer_interrupt.cpp
 	test_callback_timer_locked.cpp
+	test_char_traits.cpp
 	test_checksum.cpp
 	test_circular_buffer.cpp
 	test_circular_buffer_external_buffer.cpp
 	test_circular_iterator.cpp
 	test_compare.cpp
-	test_compiler_settings.cpp
 	test_constant.cpp
 	test_container.cpp
 	test_correlation.cpp
@@ -59,6 +68,7 @@ add_executable(etl_tests
 	test_crc16_en13757.cpp
 	test_crc16_genibus.cpp
 	test_crc16_kermit.cpp
+	test_crc16_m17.cpp
 	test_crc16_maxim.cpp
 	test_crc16_mcrf4xx.cpp
 	test_crc16_modbus.cpp
@@ -102,6 +112,7 @@ add_executable(etl_tests
 	test_error_handler.cpp
 	test_etl_traits.cpp
 	test_exception.cpp
+	test_expected.cpp
 	test_fixed_iterator.cpp
 	test_fixed_sized_memory_block_allocator.cpp
 	test_flags.cpp
@@ -144,7 +155,7 @@ add_executable(etl_tests
 	test_mean.cpp
 	test_mem_cast.cpp
 	test_mem_cast_ptr.cpp
-    test_memory.cpp
+	test_memory.cpp
 	test_message_broker.cpp
 	test_message_bus.cpp
 	test_message_packet.cpp
@@ -152,7 +163,7 @@ add_executable(etl_tests
 	test_message_router_registry.cpp
 	test_message_timer.cpp
 	test_message_timer_atomic.cpp
-    test_message_timer_interrupt.cpp
+	test_message_timer_interrupt.cpp
 	test_message_timer_locked.cpp
 	test_multimap.cpp
 	test_multiset.cpp
@@ -194,6 +205,7 @@ add_executable(etl_tests
 	test_reference_flat_multiset.cpp
 	test_reference_flat_set.cpp
 	test_rescale.cpp
+	test_result.cpp
 	test_rms.cpp
 	test_scaled_rounding.cpp
 	test_set.cpp
@@ -272,6 +284,26 @@ target_compile_definitions(etl_tests PRIVATE -DETL_DEBUG)
 
 option(ETL_NO_STL "No STL" OFF)
 
+if (ETL_CXX_STANDARD MATCHES "98")
+	message(STATUS "Compiling for C++98")
+    set_property(TARGET etl_tests PROPERTY CXX_STANDARD 98)
+elseif (ETL_CXX_STANDARD MATCHES "03")
+	message(STATUS "Compiling for C++03 (C++98)")    
+	set_property(TARGET etl_tests PROPERTY CXX_STANDARD 98)
+elseif (ETL_CXX_STANDARD MATCHES "11")
+	message(STATUS "Compiling for C++11")    
+	set_property(TARGET etl_tests PROPERTY CXX_STANDARD 11)
+elseif (ETL_CXX_STANDARD MATCHES "14")
+	message(STATUS "Compiling for C++14")    
+	set_property(TARGET etl_tests PROPERTY CXX_STANDARD 14)
+elseif (ETL_CXX_STANDARD MATCHES "17")
+	message(STATUS "Compiling for C++17")    
+	set_property(TARGET etl_tests PROPERTY CXX_STANDARD 17)
+else()
+	message(STATUS "Compiling for C++20")
+	set_property(TARGET etl_tests PROPERTY CXX_STANDARD 20)
+endif()
+
 if (NO_STL OR ETL_NO_STL)
 	message(STATUS "Compiling for No STL")
 	target_compile_definitions(etl_tests PRIVATE -DETL_NO_STL)
@@ -294,6 +326,21 @@ if (ETL_FORCE_TEST_CPP03_IMPLEMENTATION)
 	target_compile_definitions(etl_tests PRIVATE -DETL_FORCE_TEST_CPP03_IMPLEMENTATION)
 endif()
 
+if (ETL_OPTIMISATION MATCHES "-O1")
+	message(STATUS "Compiling with -O1 optimisations")
+	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -O1")
+endif()
+
+if (ETL_OPTIMISATION MATCHES "-O2")
+	message(STATUS "Compiling with -O2 optimisations")
+	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -O2")
+endif()
+
+if (ETL_OPTIMISATION MATCHES "-O3")
+	message(STATUS "Compiling with -O3 optimisations")
+	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -O3")
+endif()
+
 target_include_directories(etl_tests
 		PRIVATE
 		${PROJECT_SOURCE_DIR}/../include)
@@ -301,19 +348,36 @@ target_include_directories(etl_tests
 add_subdirectory(UnitTest++)
 target_link_libraries(etl_tests PRIVATE UnitTestpp)
 
+if ((CMAKE_CXX_COMPILER_ID MATCHES "MSVC"))
+	target_compile_options(etl_tests
+			PRIVATE
+			/Zc:__cplusplus
+			)
+endif ()
+
 if ((CMAKE_CXX_COMPILER_ID MATCHES "GNU") OR (CMAKE_CXX_COMPILER_ID MATCHES "Clang"))
 	target_compile_options(etl_tests
 			PRIVATE
-			-fsanitize=address,undefined
+			-fno-omit-frame-pointer
+			-fno-common
 			-Wall
 			-Wextra
 			-Wsign-conversion
 			-Werror
 			)
-	target_link_options(etl_tests
+	
+	# MinGW doesn't presently support sanitization
+	if (NOT MINGW)
+		target_compile_options(etl_tests
 			PRIVATE
-			-fsanitize=address,undefined
+			-fsanitize=address,undefined,bounds
 			)
+
+		target_link_options(etl_tests
+			PRIVATE
+			-fsanitize=address,undefined,bounds
+			)	
+	endif()
 endif ()
 
 # Enable the 'make test' CMake target using the executable defined above
@@ -324,4 +388,4 @@ add_test(etl_unit_tests etl_tests)
 # as they appear from UnitTest++
 add_custom_target(test_verbose COMMAND ${CMAKE_CTEST_COMMAND} --verbose)
 
-set_property(TARGET etl_tests PROPERTY CXX_STANDARD 17)
+ 

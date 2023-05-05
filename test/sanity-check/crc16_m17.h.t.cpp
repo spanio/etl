@@ -5,7 +5,7 @@ Embedded Template Library.
 https://github.com/ETLCPP/etl
 https://www.etlcpp.com
 
-Copyright(c) 2019 John Wellbelove
+Copyright(c) 2023 John Wellbelove
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files(the "Software"), to deal
@@ -26,23 +26,4 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 ******************************************************************************/
 
-#include "unit_test_framework.h"
-
-#include "etl/platform.h"
-
-namespace
-{
-  const bool cpp11_supported = ETL_USING_CPP11;
-  const bool cpp14_supported = ETL_USING_CPP14;
-  const bool cpp17_supported = ETL_USING_CPP17;
-
-  SUITE(test_compiler_settings)
-  {
-    TEST(test_cpp)
-    {
-        CHECK(cpp11_supported);
-        CHECK(cpp14_supported);
-        CHECK(cpp17_supported);
-    }
-  };
-}
+#include <etl/crc16_m17.h>

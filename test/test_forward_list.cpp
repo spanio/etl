@@ -695,6 +695,16 @@ namespace
     }
 
     //*************************************************************************
+    TEST_FIXTURE(SetupFixture, test_emplace_front_return)
+    {
+      DataNDC data;
+
+      data.emplace_front("24");
+      auto& front = data.emplace_front("42");
+      CHECK_EQUAL(front, data.front());
+    }
+
+    //*************************************************************************
     TEST_FIXTURE(SetupFixture, test_emplace_after)
     {
       CompareDataNDC compare_data;
@@ -1393,7 +1403,7 @@ namespace
 
       auto v = *data.begin();
       using Type = decltype(v);
-      CHECK((std::is_same_v<ItemNDC, Type>));
+      CHECK((std::is_same<ItemNDC, Type>::value));
 
       decltype(data)::const_iterator itr = data.begin();
 

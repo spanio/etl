@@ -71,6 +71,19 @@ namespace etl
   };
 
   //***************************************************************************
+  /// Incompatible type exception.
+  //***************************************************************************
+  class circular_buffer_incompatible_type : public circular_buffer_exception
+  {
+  public:
+
+    circular_buffer_incompatible_type(string_type file_name_, numeric_type line_number_)
+      : circular_buffer_exception(ETL_ERROR_TEXT("circular_buffer:type", ETL_CIRCULAR_BUFFER_FILE_ID"B"), file_name_, line_number_)
+    {
+    }
+  };
+
+  //***************************************************************************
   ///
   //***************************************************************************
   class circular_buffer_base
@@ -157,7 +170,7 @@ namespace etl
     size_type buffer_size;
     size_type in;            ///< Index to the next write.
     size_type out;           ///< Index to the next read.
-    ETL_DECLARE_DEBUG_COUNT; ///< Internal debugging.
+    ETL_DECLARE_DEBUG_COUNT  ///< Internal debugging.
   };
 
   //***************************************************************************
@@ -962,6 +975,13 @@ namespace etl
       etl::fill(begin(), end(), value);
     }
 
+#ifdef ETL_ICIRCULAR_BUFFER_REPAIR_ENABLE
+    //*************************************************************************
+    /// Fix the internal pointers after a low level memory copy.
+    //*************************************************************************
+    virtual void repair() = 0;
+#endif
+
     //*************************************************************************
     /// - operator for iterator
     //*************************************************************************
@@ -1035,6 +1055,14 @@ namespace etl
       {
         return index - reference_index;
       }
+    }
+
+    //*************************************************************************
+    /// Fix the internal pointers after a low level memory copy.
+    //*************************************************************************
+    void repair_buffer(T* pbuffer_)
+    {
+      pbuffer = pbuffer_;
     }
 
     pointer pbuffer;
@@ -1176,11 +1204,30 @@ namespace etl
       this->clear();
     }
 
+    //*************************************************************************
+    /// Fix the internal pointers after a low level memory copy.
+    //*************************************************************************
+#ifdef ETL_ICIRCULAR_BUFFER_REPAIR_ENABLE
+    virtual
+#endif
+      void repair()
+#ifdef ETL_ICIRCULAR_BUFFER_REPAIR_ENABLE
+      ETL_OVERRIDE
+#endif
+    {
+      ETL_ASSERT(etl::is_trivially_copyable<T>::value, ETL_ERROR(etl::circular_buffer_incompatible_type));
+
+      etl::icircular_buffer<T>::repair_buffer(buffer);
+    }
+
   private:
 
     /// The uninitialised storage.
     etl::uninitialized_buffer_of<T, MAX_SIZE + 1> buffer;
   };
+
+  template <typename T, size_t MAX_SIZE_>
+  ETL_CONSTANT typename icircular_buffer<T>::size_type circular_buffer<T, MAX_SIZE_>::MAX_SIZE;
 
   //***************************************************************************
   /// A fixed capacity circular buffer.
@@ -1342,6 +1389,19 @@ namespace etl
     ~circular_buffer_ext()
     {
       this->clear();
+    }
+
+    //*************************************************************************
+    /// Fix the internal pointers after a low level memory copy.
+    //*************************************************************************
+#ifdef ETL_ICIRCULAR_BUFFER_REPAIR_ENABLE
+    virtual
+#endif
+      void repair()
+#ifdef ETL_ICIRCULAR_BUFFER_REPAIR_ENABLE
+      ETL_OVERRIDE
+#endif
+    {
     }
   };
 

@@ -97,7 +97,7 @@
    })                                                                                                                                                \
    UNITTEST_MULTILINE_MACRO_END
 
-#define UNITTEST_CHECK_FALSE_EQUAL(expected, actual)                                                                                                                \
+#define UNITTEST_CHECK_NOT_EQUAL(expected, actual)                                                                                                                \
    UNITTEST_MULTILINE_MACRO_BEGIN                                                                                                                    \
    UNITTEST_IMPL_TRY                                                                                                                                            \
    ({                                                                                                                                                \
@@ -254,16 +254,16 @@
       #define CHECK_EQUAL_HEX UNITTEST_CHECK_EQUAL_HEX
    #endif
 
-   #ifdef CHECK_FALSE_EQUAL
-      #error CHECK_FALSE_EQUAL already defined, re-configure with UNITTEST_ENABLE_SHORT_MACROS set to 0 and use UNITTEST_CHECK_FALSE_EQUAL instead
+   #ifdef CHECK_NOT_EQUAL
+      #error CHECK_NOT_EQUAL already defined, re-configure with UNITTEST_ENABLE_SHORT_MACROS set to 0 and use UNITTEST_CHECK_NOT_EQUAL instead
    #else
-      #define CHECK_FALSE_EQUAL UNITTEST_CHECK_FALSE_EQUAL
+      #define CHECK_NOT_EQUAL UNITTEST_CHECK_NOT_EQUAL
    #endif
 
-   #ifdef CHECK_FALSE_EQUAL_HEX
-      #error CHECK_FALSE_EQUAL_HEX already defined, re-configure with UNITTEST_ENABLE_SHORT_MACROS set to 0 and use UNITTEST_CHECK_FALSE_EQUAL_HEX instead
+   #ifdef CHECK_NOT_EQUAL_HEX
+      #error CHECK_NOT_EQUAL_HEX already defined, re-configure with UNITTEST_ENABLE_SHORT_MACROS set to 0 and use UNITTEST_CHECK_NOT_EQUAL_HEX instead
    #else
-      #define CHECK_FALSE_EQUAL_HEX UNITTEST_CHECK_FALSE_EQUAL_HEX
+      #define CHECK_NOT_EQUAL_HEX UNITTEST_CHECK_NOT_EQUAL_HEX
    #endif
 
    #ifdef CHECK_CLOSE
@@ -341,5 +341,16 @@ if (caught_) \
    #endif
 #endif
 
+#define CHECK_MESSAGE(m1)              std::cerr << (m1) << "\n";
+#define CHECK_MESSAGE1(m1)             std::cerr << (m1) << "\n";
+#define CHECK_MESSAGE2(m1, m2)         std::cerr << (m1) << (m2) << "\n";
+#define CHECK_MESSAGE3(m1, m2, m3)     std::cerr << (m1) << (m2) << (m3) << "\n";
+#define CHECK_MESSAGE4(m1, m2, m3, m4) std::cerr << (m1) << (m2) << (m3) << (m4) << "\n";
+
+#define CHECK_MESSAGE_IF(b, m1)           { if (b) std::cerr << (m1) << "\n"; }
+#define CHECK_MESSAGE1_IF(m1)             { if (b) std::cerr << (m1) << "\n"; }
+#define CHECK_MESSAGE2_IF(m1, m2)         { if (b) std::cerr << (m1) << (m2) << "\n"; }
+#define CHECK_MESSAGE3_IF(m1, m2, m3)     { if (b) std::cerr << (m1) << (m2) << (m3) << "\n"; }
+#define CHECK_MESSAGE4_IF(m1, m2, m3, m4) { if (b) std::cerr << (m1) << (m2) << (m3) << (m4) << "\n"; }
 #endif
 
