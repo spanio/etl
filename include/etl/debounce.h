@@ -117,7 +117,7 @@ namespace etl
       /// Constructor.
       //*************************************************************************
       debounce_base(bool initial_state)
-        : flags(initial_state ? On : Off),
+        : flags(static_cast<uint_least8_t>(initial_state ? On : Off)),
           count(0)
       {
       }

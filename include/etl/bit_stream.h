@@ -46,6 +46,11 @@ SOFTWARE.
 
 #include "private/minmax_push.h"
 
+#if defined(ETL_COMPILER_MICROSOFT)
+  #pragma warning(push)
+  #pragma warning(disable : 4127)
+#endif
+
 namespace etl
 {
   //***************************************************************************
@@ -1376,5 +1381,9 @@ namespace etl
 }
 
 #include "private/minmax_pop.h"
+
+#if defined(ETL_COMPILER_MICROSOFT)
+  #pragma warning(pop)
+#endif
 
 #endif

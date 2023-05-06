@@ -381,8 +381,8 @@ namespace
     //*************************************************************************
     TEST(test_atomic_operator_integer_and_equals)
     {
-      std::atomic<int> compare(0x0000FFFFUL);
-      etl::atomic<int> test(0x0000FFFFUL);
+      std::atomic<int> compare(0x0000FFFFL);
+      etl::atomic<int> test(0x0000FFFFL);
 
       compare &= 0x55AA55AAUL;
       test &= 0x55AA55AAUL;
@@ -393,8 +393,8 @@ namespace
     //*************************************************************************
     TEST(test_atomic_operator_integer_or_equals)
     {
-      std::atomic<int> compare(0x0000FFFFUL);
-      etl::atomic<int> test(0x0000FFFFUL);
+      std::atomic<int> compare(0x0000FFFFL);
+      etl::atomic<int> test(0x0000FFFFL);
 
       compare |= 0x55AA55AAUL;
       test |= 0x55AA55AAUL;
@@ -405,8 +405,8 @@ namespace
     //*************************************************************************
     TEST(test_atomic_operator_integer_xor_equals)
     {
-      std::atomic<int> compare(0x0000FFFFUL);
-      etl::atomic<int> test(0x0000FFFFUL);
+      std::atomic<int> compare(0x0000FFFFL);
+      etl::atomic<int> test(0x0000FFFFL);
 
       compare ^= 0x55AA55AAUL;
       test ^= 0x55AA55AAUL;
@@ -437,28 +437,28 @@ namespace
     //*************************************************************************
     TEST(test_atomic_operator_fetch_and)
     {
-      std::atomic<int> compare(0xFFFFFFFFUL);
-      etl::atomic<int> test(0xFFFFFFFFUL);
+      std::atomic<int> compare(0xFFFFFFFFL);
+      etl::atomic<int> test(0xFFFFFFFFL);
 
-      CHECK_EQUAL((int)compare.fetch_and(0x55AA55AAUL), (int)test.fetch_and(0x55AA55AAUL));
+      CHECK_EQUAL((int)compare.fetch_and(0x55AA55AAL), (int)test.fetch_and(0x55AA55AAL));
     }
 
     //*************************************************************************
     TEST(test_atomic_operator_fetch_or)
     {
-      std::atomic<int> compare(0x0000FFFFUL);
-      etl::atomic<int> test(0x0000FFFFUL);
+      std::atomic<int> compare(0x0000FFFFL);
+      etl::atomic<int> test(0x0000FFFFL);
 
-      CHECK_EQUAL((int)compare.fetch_or(0x55AA55AAUL), (int)test.fetch_or(0x55AA55AAUL));
+      CHECK_EQUAL((int)compare.fetch_or(0x55AA55AAL), (int)test.fetch_or(0x55AA55AAL));
     }
 
     //*************************************************************************
     TEST(test_atomic_operator_fetch_xor)
     {
-      std::atomic<int> compare(0x0000FFFFUL);
-      etl::atomic<int> test(0x0000FFFFUL);
+      std::atomic<int> compare(0x0000FFFFL);
+      etl::atomic<int> test(0x0000FFFFL);
 
-      CHECK_EQUAL((int)compare.fetch_xor(0x55AA55AAUL), (int)test.fetch_xor(0x55AA55AAUL));
+      CHECK_EQUAL((int)compare.fetch_xor(0x55AA55AAL), (int)test.fetch_xor(0x55AA55AAL));
     }
 
     //*************************************************************************

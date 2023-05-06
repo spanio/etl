@@ -465,23 +465,23 @@ namespace etl
     // Add
     T* operator +=(ptrdiff_t v)
     {
-      return reinterpret_cast<T*>(__atomic_fetch_add(&value, v * sizeof(T), etl::memory_order_seq_cst));
+      return reinterpret_cast<T*>(__atomic_fetch_add(&value, v * ptrdiff_t(sizeof(T)), etl::memory_order_seq_cst));
     }
 
     T* operator +=(ptrdiff_t v) volatile
     {
-      return reinterpret_cast<T*>(__atomic_fetch_add(&value, v * sizeof(T), etl::memory_order_seq_cst));
+      return reinterpret_cast<T*>(__atomic_fetch_add(&value, v * ptrdiff_t(sizeof(T)), etl::memory_order_seq_cst));
     }
 
     // Subtract
     T* operator -=(ptrdiff_t v)
     {
-      return reinterpret_cast<T*>(__atomic_fetch_sub(&value, v * sizeof(T), etl::memory_order_seq_cst));
+      return reinterpret_cast<T*>(__atomic_fetch_sub(&value, v * ptrdiff_t(sizeof(T)), etl::memory_order_seq_cst));
     }
 
     T* operator -=(ptrdiff_t v) volatile
     {
-      return reinterpret_cast<T*>(__atomic_fetch_sub(&value, v * sizeof(T), etl::memory_order_seq_cst));
+      return reinterpret_cast<T*>(__atomic_fetch_sub(&value, v * ptrdiff_t(sizeof(T)), etl::memory_order_seq_cst));
     }
 
     // Conversion operator

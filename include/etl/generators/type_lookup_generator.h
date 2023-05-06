@@ -96,7 +96,7 @@ namespace etl
     struct nulltype {};
 
     // For N type pairs.
-    template <size_t ID, typename T1, typename... TRest>
+    template <int ID, typename T1, typename... TRest>
     struct type_from_id_helper
     {
       using type = typename etl::conditional<ID == T1::ID,
@@ -105,7 +105,7 @@ namespace etl
     };
 
     // Specialisation for 1 type pair.
-    template <size_t ID, typename T1>
+    template <int ID, typename T1>
     struct type_from_id_helper<ID, T1>
     {
       using type = typename etl::conditional<ID == T1::ID,
@@ -131,20 +131,20 @@ namespace etl
 
   private:
 
-    static constexpr size_t UNKNOWN = etl::integral_limits<size_t>::max;
+    static constexpr int UNKNOWN = etl::integral_limits<int>::max;
 
     // For N type pairs.
     template <typename T, typename T1, typename... TRest>
     struct id_from_type_helper
     {
-      static constexpr size_t value = etl::is_same<T, typename T1::type>::value ? size_t(T1::ID) : id_from_type_helper<T, TRest...>::value;
+      static constexpr int value = etl::is_same<T, typename T1::type>::value ? size_t(T1::ID) : id_from_type_helper<T, TRest...>::value;
     };
 
     // Specialisation for 1 type pair.
     template <typename T, typename T1>
     struct id_from_type_helper<T, T1>
     {
-      static constexpr size_t value = etl::is_same<T, typename T1::type>::value ? size_t(T1::ID) : UNKNOWN;
+      static constexpr int value = etl::is_same<T, typename T1::type>::value ? size_t(T1::ID) : UNKNOWN;
     };
 
   public:

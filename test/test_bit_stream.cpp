@@ -139,7 +139,7 @@ namespace
       std::array<unsigned char, 256> storage;
 
       std::array<unsigned char, 256> compare_data;
-      std::iota(compare_data.begin(), compare_data.end(), 0);
+      std::iota(compare_data.begin(), compare_data.end(), static_cast<unsigned char>(0));
 
       etl::bit_stream bit_stream(storage.data(), storage.size());
 
@@ -163,7 +163,7 @@ namespace
       std::array<unsigned char, 256> storage;
 
       std::array<unsigned char, 256> compare_data;
-      std::iota(compare_data.begin(), compare_data.end(), 0);
+      std::iota(compare_data.begin(), compare_data.end(), static_cast<unsigned char>(0));
 
       etl::bit_stream bit_stream(storage.data(), storage.size());
 
@@ -194,8 +194,8 @@ namespace
 
       CHECK(bit_stream.put(int16_t(0x0001)));
       CHECK(bit_stream.put(int16_t(0x5AA5)));
-      CHECK(bit_stream.put(int16_t(0xA55A)));
-      CHECK(bit_stream.put(int16_t(0xFFFF)));
+      CHECK(bit_stream.put(int16_t(-0x5AA6)));
+      CHECK(bit_stream.put(int16_t(-0x0001)));
 
       // One too many.
       CHECK(!bit_stream.put(int16_t(0)));
@@ -247,8 +247,8 @@ namespace
 
       CHECK(bit_stream.put(int32_t(0x00000001)));
       CHECK(bit_stream.put(int32_t(0x5AA5A55A)));
-      CHECK(bit_stream.put(int32_t(0xA55A5AA5)));
-      CHECK(bit_stream.put(int32_t(0xFFFFFFFF)));
+      CHECK(bit_stream.put(int32_t(-0x5AA5A55B)));
+      CHECK(bit_stream.put(int32_t(-0x00000001)));
 
       // One too many.
       CHECK(!bit_stream.put(int32_t(0)));
@@ -373,7 +373,7 @@ namespace
     TEST(put_get_int8_t)
     {
       std::array<unsigned char, 4 * sizeof(int8_t)> storage;
-      std::array<int8_t, 4> put_data = { int8_t(0x01), int8_t(0x5A), int8_t(0xA5), int8_t(0xFF) };
+      std::array<int8_t, 4> put_data = { int8_t(0x01), int8_t(0x5A), int8_t(-0x5B), int8_t(-0x01) };
       std::array<int8_t, 4> get_data = { int8_t(0x00), int8_t(0x00), int8_t(0x00), int8_t(0x00) };
 
       etl::bit_stream bit_stream(storage.data(), storage.size());
@@ -403,8 +403,8 @@ namespace
     TEST(put_get_int8_t_5bits)
     {
       std::array<unsigned char, 4 * sizeof(int8_t)> storage;
-      std::array<int8_t, 4> put_data    = { int8_t(0x01), int8_t(0x15), int8_t(0xA5), int8_t(0x1F) }; // 1, -11, 10, -1
-      std::array<int8_t, 4> expect_data = { int8_t(0x01), int8_t(0xF5), int8_t(0x05), int8_t(0xFF) }; // 1, -11, 10, -1
+      std::array<int8_t, 4> put_data    = { int8_t(0x01), int8_t(0x15), int8_t(-0x5B), int8_t(0x1F) }; // 1, -11, 10, -1
+      std::array<int8_t, 4> expect_data = { int8_t(0x01), int8_t(-0x0B), int8_t(0x05), int8_t(-0x01) }; // 1, -11, 10, -1
       std::array<int8_t, 4> get_data    = { int8_t(0x00), int8_t(0x00), int8_t(0x00), int8_t(0x00) };
 
       etl::bit_stream bit_stream(storage.data(), storage.size());
@@ -495,7 +495,7 @@ namespace
     TEST(put_get_int16_t)
     {
       std::array<unsigned char, 4 * sizeof(int16_t)> storage;
-      std::array<int16_t, 4> put_data = { int16_t(0x0001), int16_t(0xA55A), int16_t(0x5AA5), int16_t(0xFFFF) };
+      std::array<int16_t, 4> put_data = { int16_t(0x0001), int16_t(-0x5AA6), int16_t(0x5AA5), int16_t(-0x0001) };
       std::array<int16_t, 4> get_data = { int16_t(0x0000), int16_t(0x0000), int16_t(0x0000), int16_t(0x0000) };
 
       etl::bit_stream bit_stream(storage.data(), storage.size());
@@ -525,8 +525,8 @@ namespace
     TEST(put_get_int16_t_10bits)
     {
       std::array<unsigned char, 4 * sizeof(int16_t)> storage;
-      std::array<int16_t, 4> put_data    = { int16_t(0x0001), int16_t(0xA55A), int16_t(0x5AA5), int16_t(0xFFFF) };
-      std::array<int16_t, 4> expect_data = { int16_t(0x0001), int16_t(0x015A), int16_t(0xFEA5), int16_t(0xFFFF) };
+      std::array<int16_t, 4> put_data    = { int16_t(0x0001), int16_t(-0x5AA6), int16_t(0x5AA5), int16_t(-0x0001) };
+      std::array<int16_t, 4> expect_data = { int16_t(0x0001), int16_t(0x015A), int16_t(-0x015B), int16_t(-0x0001) };
       std::array<int16_t, 4> get_data    = { int16_t(0x0000), int16_t(0x0000), int16_t(0x0000), int16_t(0x0000) };
 
       etl::bit_stream bit_stream(storage.data(), storage.size());

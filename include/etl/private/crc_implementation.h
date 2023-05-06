@@ -42,7 +42,12 @@ SOFTWARE.
 #include "crc_parameters.h"
 
 #if defined(ETL_COMPILER_KEIL)
-#pragma diag_suppress 1300
+  #pragma diag_suppress 1300
+#endif
+
+#if defined(ETL_COMPILER_MICROSOFT)
+  #pragma warning(push)
+  #pragma warning(disable : 4310)
 #endif
 
 namespace etl
@@ -709,5 +714,9 @@ namespace etl
     }
   };
 }
+
+#if defined(ETL_COMPILER_MICROSOFT)
+  #pragma warning(pop)
+#endif
 
 #endif

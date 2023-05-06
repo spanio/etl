@@ -50,6 +50,11 @@ SOFTWARE.
   #include <bit>
 #endif
 
+#if defined(ETL_COMPILER_MICROSOFT)
+  #pragma warning(push)
+  #pragma warning(disable : 4310)
+#endif
+
 namespace etl
 {
   //***************************************************************************
@@ -279,7 +284,7 @@ namespace etl
       signed value : NBITS;
     } s = {0};
 
-    return (s.value = value);
+    return TReturn(s.value = value);
   }
 
   //***************************************************************************
@@ -301,7 +306,7 @@ namespace etl
       signed value : NBITS;
     } s = {0};
 
-    return (s.value = (value >> SHIFT));
+    return TReturn(s.value = (value >> SHIFT));
   }
 
   //***************************************************************************
@@ -558,7 +563,7 @@ namespace etl
 
   public:
 
-    static ETL_CONSTANT int8_t value = int8_t((value2 >> 4U) | ((value2 & 0x0FU) << 4U));
+    static ETL_CONSTANT int8_t value = int8_t(int8_t(value2 >> 4U) | int8_t((value2 & 0x0FU) << 4U));
   };
 
   template <int8_t Value>
@@ -929,7 +934,7 @@ namespace etl
   //***************************************************************************
   template <typename T>
   ETL_CONSTEXPR14
-    typename etl::enable_if<etl::is_integral<T>::value && etl::is_unsigned<T>::value && (etl::integral_limits<T>::bits == 8U), uint_least8_t>::type
+    typename etl::enable_if<etl::is_integral<T>::value && etl::is_unsigned<T>::value && (etl::integral_limits<T>::bits == 8U), int>::type
     count_bits(T value)
   {
 #if ETL_CPP23_SUPPORTED && ETL_USING_STL
@@ -952,7 +957,7 @@ namespace etl
   //***************************************************************************
   template <typename T>
   ETL_CONSTEXPR14
-    typename etl::enable_if<etl::is_integral<T>::value && etl::is_unsigned<T>::value && (etl::integral_limits<T>::bits == 16U), uint_least8_t>::type
+    typename etl::enable_if<etl::is_integral<T>::value && etl::is_unsigned<T>::value && (etl::integral_limits<T>::bits == 16U), int>::type
     count_bits(T value)
   {
 #if ETL_USING_CPP20 && ETL_USING_STL
@@ -965,7 +970,7 @@ namespace etl
     count = ((count >> 4U) + count) & 0x0F0FU;
     count = ((count >> 8U) + count) & 0x00FFU;
 
-    return static_cast<uint_least8_t>(count);
+    return static_cast<int>(count);
 #endif
   }
 
@@ -975,7 +980,7 @@ namespace etl
   //***************************************************************************
   template <typename T>
   ETL_CONSTEXPR14
-    typename etl::enable_if<etl::is_integral<T>::value && etl::is_unsigned<T>::value && (etl::integral_limits<T>::bits == 32U), uint_least8_t>::type
+    typename etl::enable_if<etl::is_integral<T>::value && etl::is_unsigned<T>::value && (etl::integral_limits<T>::bits == 32U), int>::type
     count_bits(T value)
   {
 #if ETL_USING_CPP20 && ETL_USING_STL
@@ -989,7 +994,7 @@ namespace etl
     count = ((count >> 8U)  + count) & 0x00FF00FFUL;
     count = ((count >> 16U) + count) & 0x0000FFUL;
 
-    return static_cast<uint_least8_t>(count);
+    return static_cast<int>(count);
 #endif
   }
 
@@ -1000,7 +1005,7 @@ namespace etl
   //***************************************************************************
   template <typename T>
   ETL_CONSTEXPR14
-    typename etl::enable_if<etl::is_integral<T>::value && etl::is_unsigned<T>::value && (etl::integral_limits<T>::bits == 64U), uint_least8_t>::type
+    typename etl::enable_if<etl::is_integral<T>::value && etl::is_unsigned<T>::value && (etl::integral_limits<T>::bits == 64U), int>::type
     count_bits(T value)
   {
 #if ETL_USING_CPP20 && ETL_USING_STL
@@ -1015,7 +1020,7 @@ namespace etl
     count = ((count >> 16U) + count) & 0x0000FFFF0000FFFFULL;
     count = ((count >> 32U) + count) & 0x00000000FFFFFFFFULL;
 
-    return static_cast<uint_least8_t>(count);
+    return static_cast<int>(count);
 #endif
   }
 #endif
@@ -1026,12 +1031,12 @@ namespace etl
   //***************************************************************************
   template <typename T>
   ETL_CONSTEXPR14
-    typename etl::enable_if<etl::is_integral<T>::value && etl::is_signed<T>::value, uint_least8_t>::type
+    typename etl::enable_if<etl::is_integral<T>::value && etl::is_signed<T>::value, int>::type
     count_bits(T value)
   {
     typedef typename etl::make_unsigned<T>::type unsigned_t;
 
-    return static_cast<T>(count_bits(static_cast<unsigned_t>(value)));
+    return static_cast<int>(count_bits(static_cast<unsigned_t>(value)));
   }
 
 #if ETL_USING_8BIT_TYPES
@@ -1041,7 +1046,7 @@ namespace etl
   //***************************************************************************
   template <typename T>
   ETL_CONSTEXPR14
-    typename etl::enable_if<etl::is_integral<T>::value && etl::is_unsigned<T>::value && (etl::integral_limits<T>::bits == 8U), uint_least8_t>::type
+    typename etl::enable_if<etl::is_integral<T>::value && etl::is_unsigned<T>::value && (etl::integral_limits<T>::bits == 8U), int>::type
     parity(T value)
   {
     value ^= value >> 4U;
@@ -1056,7 +1061,7 @@ namespace etl
   //***************************************************************************
   template <typename T>
   ETL_CONSTEXPR14
-    typename etl::enable_if<etl::is_integral<T>::value && etl::is_unsigned<T>::value && (etl::integral_limits<T>::bits == 16U), uint_least8_t>::type
+    typename etl::enable_if<etl::is_integral<T>::value && etl::is_unsigned<T>::value && (etl::integral_limits<T>::bits == 16U), int>::type
     parity(T value)
   {
     value ^= value >> 8U;
@@ -1071,7 +1076,7 @@ namespace etl
   //***************************************************************************
   template <typename T>
   ETL_CONSTEXPR14
-    typename etl::enable_if<etl::is_integral<T>::value && etl::is_unsigned<T>::value && (etl::integral_limits<T>::bits == 32U), uint_least8_t>::type
+    typename etl::enable_if<etl::is_integral<T>::value && etl::is_unsigned<T>::value && (etl::integral_limits<T>::bits == 32U), int>::type
     parity(T value)
   {
     value ^= value >> 16U;
@@ -1088,7 +1093,7 @@ namespace etl
   //***************************************************************************
   template <typename T>
   ETL_CONSTEXPR14
-    typename etl::enable_if<etl::is_integral<T>::value && etl::is_unsigned<T>::value && (etl::integral_limits<T>::bits == 64U), uint_least8_t>::type
+    typename etl::enable_if<etl::is_integral<T>::value && etl::is_unsigned<T>::value && (etl::integral_limits<T>::bits == 64U), int>::type
     parity(T value)
   {
     value ^= value >> 32U;
@@ -1106,7 +1111,7 @@ namespace etl
   //***************************************************************************
   template <typename T>
   ETL_CONSTEXPR14
-    typename etl::enable_if<etl::is_integral<T>::value && etl::is_signed<T>::value, uint_least8_t>::type
+    typename etl::enable_if<etl::is_integral<T>::value && etl::is_signed<T>::value, int>::type
     parity(T value)
   {
     typedef typename etl::make_unsigned<T>::type unsigned_t;
@@ -1122,7 +1127,7 @@ namespace etl
   //***************************************************************************
   template <typename T>
   ETL_CONSTEXPR14
-    typename etl::enable_if<etl::is_integral<T>::value && etl::is_unsigned<T>::value && (etl::integral_limits<T>::bits == 8U), uint_least8_t>::type
+    typename etl::enable_if<etl::is_integral<T>::value && etl::is_unsigned<T>::value && (etl::integral_limits<T>::bits == 8U), int>::type
     count_trailing_zeros(T value)
   {
 #if ETL_USING_CPP20 && ETL_USING_STL
@@ -1171,7 +1176,7 @@ namespace etl
   //***************************************************************************
   template <typename T>
   ETL_CONSTEXPR14
-    typename etl::enable_if<etl::is_integral<T>::value && etl::is_unsigned<T>::value && (etl::integral_limits<T>::bits == 16U), uint_least8_t>::type
+    typename etl::enable_if<etl::is_integral<T>::value && etl::is_unsigned<T>::value && (etl::integral_limits<T>::bits == 16U), int>::type
     count_trailing_zeros(T value)
   {
 #if ETL_USING_CPP20 && ETL_USING_STL
@@ -1225,7 +1230,7 @@ namespace etl
   //***************************************************************************
   template <typename T>
   ETL_CONSTEXPR14
-    typename etl::enable_if<etl::is_integral<T>::value && etl::is_unsigned<T>::value && (etl::integral_limits<T>::bits == 32U), uint_least8_t>::type
+    typename etl::enable_if<etl::is_integral<T>::value && etl::is_unsigned<T>::value && (etl::integral_limits<T>::bits == 32U), int>::type
     count_trailing_zeros(T value)
   {
 #if ETL_USING_CPP20 && ETL_USING_STL
@@ -1286,7 +1291,7 @@ namespace etl
   //***************************************************************************
   template <typename T>
   ETL_CONSTEXPR14
-    typename etl::enable_if<etl::is_integral<T>::value && etl::is_unsigned<T>::value && (etl::integral_limits<T>::bits == 64U), uint_least8_t>::type
+    typename etl::enable_if<etl::is_integral<T>::value && etl::is_unsigned<T>::value && (etl::integral_limits<T>::bits == 64U), int>::type
     count_trailing_zeros(T value)
   {
 #if ETL_USING_CPP20 && ETL_USING_STL
@@ -1352,12 +1357,12 @@ namespace etl
   //***************************************************************************
   template <typename T>
   ETL_CONSTEXPR14
-    typename etl::enable_if<etl::is_integral<T>::value && etl::is_signed<T>::value, uint_least8_t>::type
+    typename etl::enable_if<etl::is_integral<T>::value && etl::is_signed<T>::value, int>::type
     count_trailing_zeros(T value)
   {
     typedef typename etl::make_unsigned<T>::type unsigned_t;
 
-    return static_cast<T>(count_trailing_zeros(static_cast<unsigned_t>(value)));
+    return count_trailing_zeros(static_cast<unsigned_t>(value));
   }
 
 #if ETL_USING_8BIT_TYPES
@@ -1368,7 +1373,7 @@ namespace etl
   //***************************************************************************
   template <typename T>
   ETL_CONSTEXPR14
-    typename etl::enable_if<etl::is_integral<T>::value && etl::is_unsigned<T>::value && (etl::integral_limits<T>::bits == 8U), uint_least8_t>::type
+    typename etl::enable_if<etl::is_integral<T>::value && etl::is_unsigned<T>::value && (etl::integral_limits<T>::bits == 8U), int>::type
     count_trailing_ones(T value)
   {
 #if ETL_USING_CPP20 && ETL_USING_STL
@@ -1417,7 +1422,7 @@ namespace etl
   //***************************************************************************
   template <typename T>
   ETL_CONSTEXPR14
-    typename etl::enable_if<etl::is_integral<T>::value && etl::is_unsigned<T>::value && (etl::integral_limits<T>::bits == 16U), uint_least8_t>::type
+    typename etl::enable_if<etl::is_integral<T>::value && etl::is_unsigned<T>::value && (etl::integral_limits<T>::bits == 16U), int>::type
     count_trailing_ones(T value)
   {
 #if ETL_USING_CPP20 && ETL_USING_STL
@@ -1471,7 +1476,7 @@ namespace etl
   //***************************************************************************
   template <typename T>
   ETL_CONSTEXPR14
-    typename etl::enable_if<etl::is_integral<T>::value && etl::is_unsigned<T>::value && (etl::integral_limits<T>::bits == 32U), uint_least8_t>::type
+    typename etl::enable_if<etl::is_integral<T>::value && etl::is_unsigned<T>::value && (etl::integral_limits<T>::bits == 32U), int>::type
     count_trailing_ones(T value)
   {
 #if ETL_USING_CPP20 && ETL_USING_STL
@@ -1532,7 +1537,7 @@ namespace etl
   //***************************************************************************
   template <typename T>
   ETL_CONSTEXPR14
-    typename etl::enable_if<etl::is_integral<T>::value && etl::is_unsigned<T>::value && (etl::integral_limits<T>::bits == 64U), uint_least8_t>::type
+    typename etl::enable_if<etl::is_integral<T>::value && etl::is_unsigned<T>::value && (etl::integral_limits<T>::bits == 64U), int>::type
     count_trailing_ones(T value)
   {
 #if ETL_USING_CPP20 && ETL_USING_STL
@@ -1592,7 +1597,7 @@ namespace etl
   //***************************************************************************
   template <typename T>
   ETL_CONSTEXPR14
-    typename etl::enable_if<etl::is_integral<T>::value&& etl::is_signed<T>::value, uint_least8_t>::type
+    typename etl::enable_if<etl::is_integral<T>::value&& etl::is_signed<T>::value, int>::type
     count_trailing_ones(T value)
   {
     typedef typename etl::make_unsigned<T>::type unsigned_t;
@@ -1608,7 +1613,7 @@ namespace etl
   //***************************************************************************
   template <typename T>
   ETL_CONSTEXPR14
-    typename etl::enable_if<etl::is_integral<T>::value && etl::is_unsigned<T>::value && (etl::integral_limits<T>::bits == 8U), uint_least8_t>::type
+    typename etl::enable_if<etl::is_integral<T>::value && etl::is_unsigned<T>::value && (etl::integral_limits<T>::bits == 8U), int>::type
     count_leading_zeros(T value)
   {
 #if ETL_USING_CPP20 && ETL_USING_STL
@@ -1657,7 +1662,7 @@ namespace etl
   //***************************************************************************
   template <typename T>
   ETL_CONSTEXPR14
-    typename etl::enable_if<etl::is_integral<T>::value && etl::is_unsigned<T>::value && (etl::integral_limits<T>::bits == 16U), uint_least8_t>::type
+    typename etl::enable_if<etl::is_integral<T>::value && etl::is_unsigned<T>::value && (etl::integral_limits<T>::bits == 16U), int>::type
     count_leading_zeros(T value)
   {
 #if ETL_USING_CPP20 && ETL_USING_STL
@@ -1711,7 +1716,7 @@ namespace etl
   //***************************************************************************
   template <typename T>
   ETL_CONSTEXPR14
-    typename etl::enable_if<etl::is_integral<T>::value && etl::is_unsigned<T>::value && (etl::integral_limits<T>::bits == 32U), uint_least8_t>::type
+    typename etl::enable_if<etl::is_integral<T>::value && etl::is_unsigned<T>::value && (etl::integral_limits<T>::bits == 32U), int>::type
     count_leading_zeros(T value)
   {
 #if ETL_USING_CPP20 && ETL_USING_STL
@@ -1772,7 +1777,7 @@ namespace etl
   //***************************************************************************
   template <typename T>
   ETL_CONSTEXPR14
-    typename etl::enable_if<etl::is_integral<T>::value && etl::is_unsigned<T>::value && (etl::integral_limits<T>::bits == 64U), uint_least8_t>::type
+    typename etl::enable_if<etl::is_integral<T>::value && etl::is_unsigned<T>::value && (etl::integral_limits<T>::bits == 64U), int>::type
     count_leading_zeros(T value)
   {
 #if ETL_USING_CPP20 && ETL_USING_STL
@@ -1838,7 +1843,7 @@ namespace etl
   //***************************************************************************
   template <typename T>
   ETL_CONSTEXPR14
-    typename etl::enable_if<etl::is_integral<T>::value && etl::is_signed<T>::value, uint_least8_t>::type
+    typename etl::enable_if<etl::is_integral<T>::value && etl::is_signed<T>::value, int>::type
     count_leading_zeros(T value)
   {
     typedef typename etl::make_unsigned<T>::type unsigned_t;
@@ -1854,7 +1859,7 @@ namespace etl
   //***************************************************************************
   template <typename T>
   ETL_CONSTEXPR14
-    typename etl::enable_if<etl::is_integral<T>::value && etl::is_unsigned<T>::value && (etl::integral_limits<T>::bits == 8U), uint_least8_t>::type
+    typename etl::enable_if<etl::is_integral<T>::value && etl::is_unsigned<T>::value && (etl::integral_limits<T>::bits == 8U), int>::type
     count_leading_ones(T value)
   {
 #if ETL_USING_CPP20 && ETL_USING_STL
@@ -1903,7 +1908,7 @@ namespace etl
   //***************************************************************************
   template <typename T>
   ETL_CONSTEXPR14
-    typename etl::enable_if<etl::is_integral<T>::value && etl::is_unsigned<T>::value && (etl::integral_limits<T>::bits == 16U), uint_least8_t>::type
+    typename etl::enable_if<etl::is_integral<T>::value && etl::is_unsigned<T>::value && (etl::integral_limits<T>::bits == 16U), int>::type
     count_leading_ones(T value)
   {
 #if ETL_USING_CPP20 && ETL_USING_STL
@@ -1957,7 +1962,7 @@ namespace etl
   //***************************************************************************
   template <typename T>
   ETL_CONSTEXPR14
-    typename etl::enable_if<etl::is_integral<T>::value && etl::is_unsigned<T>::value && (etl::integral_limits<T>::bits == 32U), uint_least8_t>::type
+    typename etl::enable_if<etl::is_integral<T>::value && etl::is_unsigned<T>::value && (etl::integral_limits<T>::bits == 32U), int>::type
     count_leading_ones(T value)
   {
 #if ETL_USING_CPP20 && ETL_USING_STL
@@ -2018,7 +2023,7 @@ namespace etl
   //***************************************************************************
   template <typename T>
   ETL_CONSTEXPR14
-    typename etl::enable_if<etl::is_integral<T>::value && etl::is_unsigned<T>::value && (etl::integral_limits<T>::bits == 64U), uint_least8_t>::type
+    typename etl::enable_if<etl::is_integral<T>::value && etl::is_unsigned<T>::value && (etl::integral_limits<T>::bits == 64U), int>::type
     count_leading_ones(T value)
   {
 #if ETL_USING_CPP20 && ETL_USING_STL
@@ -2084,7 +2089,7 @@ namespace etl
   //***************************************************************************
   template <typename T>
   ETL_CONSTEXPR14
-    typename etl::enable_if<etl::is_integral<T>::value && etl::is_signed<T>::value, uint_least8_t>::type
+    typename etl::enable_if<etl::is_integral<T>::value && etl::is_signed<T>::value, int>::type
     count_leading_ones(T value)
   {
     typedef typename etl::make_unsigned<T>::type unsigned_t;
@@ -2550,5 +2555,9 @@ namespace etl
     b31 = 0x80000000UL
   };
 }
+
+#if defined(ETL_COMPILER_MICROSOFT)
+  #pragma warning(pop)
+#endif
 
 #endif

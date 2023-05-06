@@ -212,8 +212,8 @@ namespace
     //*************************************************************************
     TEST(test_move_constructor)
     {
-      const size_t SIZE = 10U;
-      typedef etl::vector<std::unique_ptr<uint32_t>, SIZE> Data;
+      const size_t Size = 10U;
+      typedef etl::vector<std::unique_ptr<uint32_t>, Size> Data;
 
       std::unique_ptr<uint32_t> p1(new uint32_t(1U));
       std::unique_ptr<uint32_t> p2(new uint32_t(2U));
@@ -255,8 +255,8 @@ namespace
     //*************************************************************************
     TEST(test_move_assignment)
     {
-      const size_t SIZE = 10U;
-      typedef etl::vector<std::unique_ptr<uint32_t>, SIZE> Data;
+      const size_t Size = 10U;
+      typedef etl::vector<std::unique_ptr<uint32_t>, Size> Data;
 
       std::unique_ptr<uint32_t> p1(new uint32_t(1U));
       std::unique_ptr<uint32_t> p2(new uint32_t(2U));
@@ -302,8 +302,8 @@ namespace
     //*************************************************************************
     TEST(test_move_assignment_interface)
     {
-      const size_t SIZE = 10U;
-      typedef etl::vector<std::unique_ptr<uint32_t>, SIZE> Data;
+      const size_t Size = 10U;
+      typedef etl::vector<std::unique_ptr<uint32_t>, Size> Data;
       typedef etl::ivector<std::unique_ptr<uint32_t>> IData;
 
       std::unique_ptr<uint32_t> p1(new uint32_t(1U));

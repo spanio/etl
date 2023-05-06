@@ -1569,18 +1569,20 @@ namespace
     //*************************************************************************
     TEST(test_shift_left_operator_all_shifts_full_size)
     {
-      int64_t value = 0x0123456789ABCDEFULL;
-      uint64_t mask = 0xFFFFFFFFFFFFFFFFULL;
+      int64_t value = 0x0123456789ABCDEFLL;
+      uint64_t mask = 0xFFFFFFFFFFFFFFFFLL;
 
       etl::bitset_ext<64>::buffer_type buffer1;
       etl::bitset_ext<64>::buffer_type buffer2;
 
       etl::bitset_ext<64> original(0x0123456789ABCDEFULL, buffer1);
 
-      for (ull shift = 0U; shift < 64U; ++shift)
+      for (int shift = 0; shift < 64; ++shift)
       {
         etl::bitset_ext<64> data(original, buffer2);
-        CHECK_EQUAL_HEX(((value & mask) << shift), (data <<= shift).value<int64_t>());
+        CHECK_EQUAL_HEX(((value & mask)
+          << shift), 
+          (data <<= shift).value<int64_t>());
         mask >>= 1;
       }
 
@@ -1591,7 +1593,7 @@ namespace
     //*************************************************************************
     TEST(test_shift_left_operator_all_shifts_partial_size)
     {
-      int64_t value = 0x0123456789ABCDEFULL;
+      int64_t value = 0x0123456789ABCDEFLL;
       uint64_t mask = 0x0FFFFFFFFFFFFFFFULL;
 
       etl::bitset_ext<60>::buffer_type buffer1;
@@ -1599,7 +1601,7 @@ namespace
 
       etl::bitset_ext<60> original(0x0123456789ABCDEFULL, buffer1);
 
-      for (ull shift = 0U; shift < 64U; ++shift)
+      for (int shift = 0; shift < 64; ++shift)
       {        
         etl::bitset_ext<60> data(original, buffer2);
         CHECK_EQUAL_HEX(((value & mask) << shift), (data <<= shift).value<int64_t>());
@@ -1613,14 +1615,14 @@ namespace
     //*************************************************************************
     TEST(test_shift_right_operator_all_shifts_full_size)
     {
-      int64_t value = 0x0123456789ABCDEFULL;
+      int64_t value = 0x0123456789ABCDEFLL;
 
       etl::bitset_ext<64>::buffer_type buffer1;
       etl::bitset_ext<64>::buffer_type buffer2;
 
       etl::bitset_ext<64> original(0x0123456789ABCDEFULL, buffer1);
 
-      for (ull shift = 0U; shift < 64U; ++shift)
+      for (int shift = 0; shift < 64; ++shift)
       {
         etl::bitset_ext<64> data(original, buffer2);
         CHECK_EQUAL_HEX((value >> shift), (data >>= shift).value<int64_t>());
@@ -1633,14 +1635,14 @@ namespace
     //*************************************************************************
     TEST(test_shift_right_operator_all_shifts_partial_size)
     {
-      int64_t value = 0x0123456789ABCDEFULL;
+      int64_t value = 0x0123456789ABCDEFLL;
 
       etl::bitset_ext<60>::buffer_type buffer1;
       etl::bitset_ext<60>::buffer_type buffer2;
 
       etl::bitset_ext<60> original(0x0123456789ABCDEFULL, buffer1);
 
-      for (ull shift = 0U; shift < 64U; ++shift)
+      for (int shift = 0; shift < 64; ++shift)
       {
         etl::bitset_ext<60> data(original, buffer2);
         CHECK_EQUAL_HEX((value >> shift), (data >>= shift).value<int64_t>());

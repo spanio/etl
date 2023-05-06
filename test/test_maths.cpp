@@ -38,7 +38,7 @@ SOFTWARE.
 
 namespace
 {
-  int sqrt(int v)
+  size_t sqrt(int v)
   {
     int i = 1;
 

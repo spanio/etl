@@ -44,6 +44,10 @@ SOFTWARE.
 #include <random>
 #include <memory>
 
+#if defined(ETL_COMPILER_MICROSOFT)
+  #pragma warning(disable : 4459)
+#endif
+
 namespace
 {
   using NDC = TestDataNDC<int>;

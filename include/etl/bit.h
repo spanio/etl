@@ -147,13 +147,13 @@ namespace etl
   //***************************************************************************
   template <typename T>
   ETL_CONSTEXPR14
-    typename etl::enable_if<etl::is_unsigned<T>::value, T>::type
+    typename etl::enable_if<etl::is_unsigned<T>::value, int>::type
     bit_width(T value) ETL_NOEXCEPT
   {
 #if ETL_USING_CPP20 && ETL_USING_STL
     return std::bit_width(value);
 #else
-    return etl::integral_limits<T>::bits - etl::countl_zero(value);
+    return int(etl::integral_limits<T>::bits - etl::countl_zero(value));
 #endif
   }
 

@@ -3407,6 +3407,9 @@
     <ClCompile Include="..\etl_error_handler\log_errors_and_exceptions\test_error_handler.cpp">
       <Filter>Tests\Error Handler\Exceptions_And_Log_Errors</Filter>
     </ClCompile>
+    <ClCompile Include="..\test_hfsm_recurse_to_inner_state_on_start.cpp">
+      <Filter>Tests</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <None Include="..\..\library.properties">

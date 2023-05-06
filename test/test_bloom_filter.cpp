@@ -199,7 +199,7 @@ namespace
       Bloom bloom;
 
       CHECK_EQUAL(256U, bloom.width());
-      CHECK_EQUAL(256U, Bloom::WIDTH);
+      CHECK_EQUAL(256, Bloom::WIDTH);
     }
 
     //*************************************************************************

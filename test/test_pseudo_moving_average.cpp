@@ -257,7 +257,7 @@ namespace
     {
       std::array<unsigned int, 9> data{ 9U, 1U, 8U, 2U, 7U, 3U, 6U, 4U, 5U };
 
-      using PMA = etl::pseudo_moving_average<int, 0U, SCALING>;
+      using PMA = etl::pseudo_moving_average<unsigned int, 0U, SCALING>;
       PMA cma(0U, SAMPLE_SIZE * 2U);
 
       CHECK_EQUAL(0U, cma.value());

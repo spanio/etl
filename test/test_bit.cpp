@@ -133,7 +133,7 @@ namespace
   //***********************************
   // Count the bit width the long way.
   template <typename T>
-  T test_bit_width(T value)
+  int test_bit_width(T value)
   {
     value = etl::reverse_bits(value);
 
@@ -203,7 +203,7 @@ namespace
 
       i  = 0x12345678;
       ui = etl::bit_cast<uint32_t>(i);
-      CHECK_EQUAL(i, ui);
+      CHECK_EQUAL(i, static_cast<int32_t>(ui));
 
       i  = -1234567890;
       ui = etl::bit_cast<uint32_t>(i);
@@ -230,55 +230,55 @@ namespace
 
       value = 0x00U;
       value = etl::rotl(value, 1);
-      CHECK_EQUAL(0, int(value));
+      CHECK_EQUAL(0, value);
 
       value = 0x21U;
       value = etl::rotl(value, 1);
-      CHECK_EQUAL(0x42U, int(value));
+      CHECK_EQUAL(0x42U, value);
 
       value = 0x42U;
       value = etl::rotl(value, 1);
-      CHECK_EQUAL(0x84U, int(value));
+      CHECK_EQUAL(0x84U, value);
 
       value = 0x84U;
       value = etl::rotl(value, 1);
-      CHECK_EQUAL(0x09U, int(value));
+      CHECK_EQUAL(0x09U, value);
 
       value = 0xB7U;
       value = etl::rotl(value, 2);
-      CHECK_EQUAL(0xDEU, int(value));
+      CHECK_EQUAL(0xDEU, value);
 
       value = 0xB7U;
       value = etl::rotl(value, 3);
-      CHECK_EQUAL(0xBDU, int(value));
+      CHECK_EQUAL(0xBDU, value);
 
       value = 0xB7U;
       value = etl::rotl(value, 4);
-      CHECK_EQUAL(0x7BU, int(value));
+      CHECK_EQUAL(0x7BU, value);
 
       value = 0xB7U;
       value = etl::rotl(value, 5);
-      CHECK_EQUAL(0xF6U, int(value));
+      CHECK_EQUAL(0xF6U, value);
 
       value = 0xB7U;
       value = etl::rotl(value, 6);
-      CHECK_EQUAL(0xEDU, int(value));
+      CHECK_EQUAL(0xEDU, value);
 
       value = 0xB7U;
       value = etl::rotl(value, 7);
-      CHECK_EQUAL(0xDBU, int(value));
+      CHECK_EQUAL(0xDBU, value);
 
       value = 0xB7U;
       value = etl::rotl(value, 8);
-      CHECK_EQUAL(0xB7U, int(value));
+      CHECK_EQUAL(0xB7U, value);
 
       value = 0xB7U;
       value = etl::rotl(value, 9);
-      CHECK_EQUAL(0x6FU, int(value));
+      CHECK_EQUAL(0x6FU, value);
 
       value = 0xB7U;
       value = etl::rotl(value, -1);
-      CHECK_EQUAL(0xDBU, int(value));
+      CHECK_EQUAL(0xDBU, value);
     }
 
 #if !defined(ETL_FORCE_NO_ADVANCED_CPP)
@@ -314,75 +314,75 @@ namespace
 
       value = 0xB73CU;
       value = etl::rotl(value, 2);
-      CHECK_EQUAL(0xDCF2U, int(value));
+      CHECK_EQUAL(0xDCF2U, value);
 
       value = 0xB73CU;
       value = etl::rotl(value, 3);
-      CHECK_EQUAL(0xB9E5U, int(value));
+      CHECK_EQUAL(0xB9E5U, value);
 
       value = 0xB73CU;
       value = etl::rotl(value, 4);
-      CHECK_EQUAL(0x73CBU, int(value));
+      CHECK_EQUAL(0x73CBU, value);
 
       value = 0xB73CU;
       value = etl::rotl(value, 5);
-      CHECK_EQUAL(0xE796U, int(value));
+      CHECK_EQUAL(0xE796U, value);
 
       value = 0xB73CU;
       value = etl::rotl(value, 6);
-      CHECK_EQUAL(0xCF2DU, int(value));
+      CHECK_EQUAL(0xCF2DU, value);
 
       value = 0xB73CU;
       value = etl::rotl(value, 7);
-      CHECK_EQUAL(0x9E5BU, int(value));
+      CHECK_EQUAL(0x9E5BU, value);
 
       value = 0xB73CU;
       value = etl::rotl(value, 8);
-      CHECK_EQUAL(0x3CB7U, int(value));
+      CHECK_EQUAL(0x3CB7U, value);
 
       value = 0xB73CU;
       value = etl::rotl(value, 9);
-      CHECK_EQUAL(0x796EU, int(value));
+      CHECK_EQUAL(0x796EU, value);
 
       value = 0xB73CU;
       value = etl::rotl(value, 9);
-      CHECK_EQUAL(0x796EU, int(value));
+      CHECK_EQUAL(0x796EU, value);
 
       value = 0xB73CU;
       value = etl::rotl(value, 10);
-      CHECK_EQUAL(0xF2DCU, int(value));
+      CHECK_EQUAL(0xF2DCU, value);
 
       value = 0xB73CU;
       value = etl::rotl(value, 11);
-      CHECK_EQUAL(0xE5B9U, int(value));
+      CHECK_EQUAL(0xE5B9U, value);
 
       value = 0xB73CU;
       value = etl::rotl(value, 12);
-      CHECK_EQUAL(0xCB73U, int(value));
+      CHECK_EQUAL(0xCB73U, value);
 
       value = 0xB73CU;
       value = etl::rotl(value, 13);
-      CHECK_EQUAL(0x96E7U, int(value));
+      CHECK_EQUAL(0x96E7U, value);
 
       value = 0xB73CU;
       value = etl::rotl(value, 14);
-      CHECK_EQUAL(0x2DCFU, int(value));
+      CHECK_EQUAL(0x2DCFU, value);
 
       value = 0xB73CU;
       value = etl::rotl(value, 15);
-      CHECK_EQUAL(0x5B9EU, int(value));
+      CHECK_EQUAL(0x5B9EU, value);
 
       value = 0xB73CU;
       value = etl::rotl(value, 16);
-      CHECK_EQUAL(0xB73CU, int(value));
+      CHECK_EQUAL(0xB73CU, value);
 
       value = 0xB73CU;
       value = etl::rotl(value, 17);
-      CHECK_EQUAL(0x6E79U, int(value));
+      CHECK_EQUAL(0x6E79U, value);
 
       value = 0xB73CU;
       value = etl::rotl(value, -1);
-      CHECK_EQUAL(0x5B9EU, int(value));
+      CHECK_EQUAL(0x5B9EU, value);
     }
 
 #if !defined(ETL_FORCE_NO_ADVANCED_CPP)
@@ -402,55 +402,55 @@ namespace
 
       value = 0x00U;
       value = etl::rotr(value, 1);
-      CHECK_EQUAL(0, int(value));
+      CHECK_EQUAL(0, value);
 
       value = 0x21U;
       value = etl::rotr(value, 1);
-      CHECK_EQUAL(0x90U, int(value));
+      CHECK_EQUAL(0x90U, value);
 
       value = 0x42U;
       value = etl::rotr(value, 1);
-      CHECK_EQUAL(0x21U, int(value));
+      CHECK_EQUAL(0x21U, value);
 
       value = 0x84U;
       value = etl::rotr(value, 1);
-      CHECK_EQUAL(0x42U, int(value));
+      CHECK_EQUAL(0x42U, value);
 
       value = 0xB7U;
       value = etl::rotr(value, 2);
-      CHECK_EQUAL(0xEDU, int(value));
+      CHECK_EQUAL(0xEDU, value);
 
       value = 0xB7U;
       value = etl::rotr(value, 3);
-      CHECK_EQUAL(0xF6U, int(value));
+      CHECK_EQUAL(0xF6U, value);
 
       value = 0xB7U;
       value = etl::rotr(value, 4);
-      CHECK_EQUAL(0x7BU, int(value));
+      CHECK_EQUAL(0x7BU, value);
 
       value = 0xB7U;
       value = etl::rotr(value, 5);
-      CHECK_EQUAL(0xBDU, int(value));
+      CHECK_EQUAL(0xBDU, value);
 
       value = 0xB7U;
       value = etl::rotr(value, 6);
-      CHECK_EQUAL(0xDEU, int(value));
+      CHECK_EQUAL(0xDEU, value);
 
       value = 0xB7U;
       value = etl::rotr(value, 7);
-      CHECK_EQUAL(0x6FU, int(value));
+      CHECK_EQUAL(0x6FU, value);
 
       value = 0xB7U;
       value = etl::rotr(value, 8);
-      CHECK_EQUAL(0xB7U, int(value));
+      CHECK_EQUAL(0xB7U, value);
 
       value = 0xB7U;
       value = etl::rotr(value, 9);
-      CHECK_EQUAL(0xDBU, int(value));
+      CHECK_EQUAL(0xDBU, value);
 
       value = 0xB7U;
       value = etl::rotr(value, -1);
-      CHECK_EQUAL(0x6FU, int(value));
+      CHECK_EQUAL(0x6FU, value);
     }
 
 #if !defined(ETL_FORCE_NO_ADVANCED_CPP)
@@ -486,75 +486,75 @@ namespace
 
       value = 0xB73CU;
       value = etl::rotr(value, 2);
-      CHECK_EQUAL(0x2DCFU, int(value));
+      CHECK_EQUAL(0x2DCFU, value);
 
       value = 0xB73CU;
       value = etl::rotr(value, 3);
-      CHECK_EQUAL(0x96E7U, int(value));
+      CHECK_EQUAL(0x96E7U, value);
 
       value = 0xB73CU;
       value = etl::rotr(value, 4);
-      CHECK_EQUAL(0xCB73U, int(value));
+      CHECK_EQUAL(0xCB73U, value);
 
       value = 0xB73CU;
       value = etl::rotr(value, 5);
-      CHECK_EQUAL(0xE5B9U, int(value));
+      CHECK_EQUAL(0xE5B9U, value);
 
       value = 0xB73CU;
       value = etl::rotr(value, 6);
-      CHECK_EQUAL(0xF2DCU, int(value));
+      CHECK_EQUAL(0xF2DCU, value);
 
       value = 0xB73CU;
       value = etl::rotr(value, 7);
-      CHECK_EQUAL(0x796EU, int(value));
+      CHECK_EQUAL(0x796EU, value);
 
       value = 0xB73CU;
       value = etl::rotr(value, 8);
-      CHECK_EQUAL(0x3CB7U, int(value));
+      CHECK_EQUAL(0x3CB7U, value);
 
       value = 0xB73CU;
       value = etl::rotr(value, 9);
-      CHECK_EQUAL(0x9E5BU, int(value));
+      CHECK_EQUAL(0x9E5BU, value);
 
       value = 0xB73CU;
       value = etl::rotr(value, 9);
-      CHECK_EQUAL(0x9E5BU, int(value));
+      CHECK_EQUAL(0x9E5BU, value);
 
       value = 0xB73CU;
       value = etl::rotr(value, 10);
-      CHECK_EQUAL(0xCF2DU, int(value));
+      CHECK_EQUAL(0xCF2DU, value);
 
       value = 0xB73CU;
       value = etl::rotr(value, 11);
-      CHECK_EQUAL(0xE796U, int(value));
+      CHECK_EQUAL(0xE796U, value);
 
       value = 0xB73CU;
       value = etl::rotr(value, 12);
-      CHECK_EQUAL(0x73CBU, int(value));
+      CHECK_EQUAL(0x73CBU, value);
 
       value = 0xB73CU;
       value = etl::rotr(value, 13);
-      CHECK_EQUAL(0xB9E5U, int(value));
+      CHECK_EQUAL(0xB9E5U, value);
 
       value = 0xB73CU;
       value = etl::rotr(value, 14);
-      CHECK_EQUAL(0xDCF2U, int(value));
+      CHECK_EQUAL(0xDCF2U, value);
 
       value = 0xB73CU;
       value = etl::rotr(value, 15);
-      CHECK_EQUAL(0x6E79U, int(value));
+      CHECK_EQUAL(0x6E79U, value);
 
       value = 0xB73CU;
       value = etl::rotr(value, 16);
-      CHECK_EQUAL(0xB73CU, int(value));
+      CHECK_EQUAL(0xB73CU, value);
 
       value = 0xB73CU;
       value = etl::rotr(value, 17);
-      CHECK_EQUAL(0x5B9EU, int(value));
+      CHECK_EQUAL(0x5B9EU, value);
 
       value = 0xB73CU;
       value = etl::rotr(value, -1);
-      CHECK_EQUAL(0x6E79U, int(value));
+      CHECK_EQUAL(0x6E79U, value);
     }
 
 #if !defined(ETL_FORCE_NO_ADVANCED_CPP)
@@ -576,12 +576,12 @@ namespace
       offset = 4;
       value = 0xB73CU;
       value = etl::rotate(value, offset);
-      CHECK_EQUAL(0x73CBU, int(value));
+      CHECK_EQUAL(0x73CBU, value);
 
       offset = -4;
       value = 0xB73CU;
       value = etl::rotate(value, offset);
-      CHECK_EQUAL(0xCB73U, int(value));
+      CHECK_EQUAL(0xCB73U, value);
     }
 
 #if !defined(ETL_FORCE_NO_ADVANCED_CPP)
@@ -713,7 +713,7 @@ namespace
     {
       char temp[etl::popcount(uint8_t(0xFFU))];
 
-      CHECK_EQUAL(etl::popcount(uint8_t(0xFFU)), sizeof(temp));
+      CHECK_EQUAL(etl::popcount(uint8_t(0xFFU)), int(sizeof(temp)));
     }
 #endif
 
@@ -732,7 +732,7 @@ namespace
     {
       char temp[etl::popcount(uint16_t(0xFFU))];
 
-      CHECK_EQUAL(etl::popcount(uint16_t(0xFFU)), sizeof(temp));
+      CHECK_EQUAL(etl::popcount(uint16_t(0xFFU)), int(sizeof(temp)));
     }
 #endif
 
@@ -757,7 +757,7 @@ namespace
     {
       char temp[etl::popcount(uint32_t(0xFFU))];
 
-      CHECK_EQUAL(etl::popcount(uint32_t(0xFFU)), sizeof(temp));
+      CHECK_EQUAL(etl::popcount(uint32_t(0xFFU)), int(sizeof(temp)));
     }
 #endif
 
@@ -782,7 +782,7 @@ namespace
     {
       char temp[etl::popcount(uint64_t(0xFFU))];
 
-      CHECK_EQUAL(etl::popcount(uint64_t(0xFFU)), sizeof(temp));
+      CHECK_EQUAL(etl::popcount(uint64_t(0xFFU)), int(sizeof(temp)));
     }
 #endif
 
@@ -805,7 +805,7 @@ namespace
     {
       char temp[etl::countr_zero(uint8_t(0x08))];
 
-      CHECK_EQUAL(etl::countr_zero(uint8_t(0x08)), sizeof(temp));
+      CHECK_EQUAL(etl::countr_zero(uint8_t(0x08)), int(sizeof(temp)));
     }
 #endif
 
@@ -826,7 +826,7 @@ namespace
     {
       char temp[etl::countr_zero(uint16_t(0x08))];
 
-      CHECK_EQUAL(etl::countr_zero(uint16_t(0x08)), sizeof(temp));
+      CHECK_EQUAL(etl::countr_zero(uint16_t(0x08)), int(sizeof(temp)));
     }
 #endif
 
@@ -851,7 +851,7 @@ namespace
     {
       char temp[etl::countr_zero(uint32_t(0x08))];
 
-      CHECK_EQUAL(etl::countr_zero(uint32_t(0x08)), sizeof(temp));
+      CHECK_EQUAL(etl::countr_zero(uint32_t(0x08)), int(sizeof(temp)));
     }
 #endif
 
@@ -876,7 +876,7 @@ namespace
     {
       char temp[etl::countr_zero(uint64_t(0x08))];
 
-      CHECK_EQUAL(etl::countr_zero(uint64_t(0x08)), sizeof(temp));
+      CHECK_EQUAL(etl::countr_zero(uint64_t(0x08)), int(sizeof(temp)));
     }
 #endif
 
@@ -902,7 +902,7 @@ namespace
     {
       char temp[etl::countr_one(uint8_t(0x0F))];
 
-      CHECK_EQUAL(test_trailing_ones(uint8_t(0x0F)), sizeof(temp));
+      CHECK_EQUAL(test_trailing_ones(uint8_t(0x0F)), int(sizeof(temp)));
     }
 #endif
 
@@ -928,7 +928,7 @@ namespace
     {
       char temp[etl::countr_one(uint16_t(0x000F))];
 
-      CHECK_EQUAL(test_trailing_ones(uint16_t(0x000F)), sizeof(temp));
+      CHECK_EQUAL(test_trailing_ones(uint16_t(0x000F)), int(sizeof(temp)));
     }
 #endif
 
@@ -958,7 +958,7 @@ namespace
     {
       char temp[etl::countr_one(uint32_t(0x0000000F))];
 
-      CHECK_EQUAL(test_trailing_ones(uint32_t(0x0000000F)), sizeof(temp));
+      CHECK_EQUAL(test_trailing_ones(uint32_t(0x0000000F)), int(sizeof(temp)));
     }
 #endif
 
@@ -987,7 +987,7 @@ namespace
     {
       char temp[etl::countr_one(uint64_t(0x000000000000000F))];
 
-      CHECK_EQUAL(test_trailing_ones(uint64_t(0x000000000000000F)), sizeof(temp));
+      CHECK_EQUAL(test_trailing_ones(uint64_t(0x000000000000000F)), int(sizeof(temp)));
     }
 #endif
 
@@ -1013,7 +1013,7 @@ namespace
     {
       char temp[etl::countl_zero(uint8_t(0x01U))];
 
-      CHECK_EQUAL(test_leading_zeros(uint8_t(0x01U)), sizeof(temp));
+      CHECK_EQUAL(test_leading_zeros(uint8_t(0x01U)), int(sizeof(temp)));
     }
 #endif
 
@@ -1039,7 +1039,7 @@ namespace
     {
       char temp[etl::countl_zero(uint16_t(0x0800U))];
 
-      CHECK_EQUAL(test_leading_zeros(uint16_t(0x0800U)), sizeof(temp));
+      CHECK_EQUAL(test_leading_zeros(uint16_t(0x0800U)), int(sizeof(temp)));
     }
 #endif
 
@@ -1069,7 +1069,7 @@ namespace
     {
       char temp[etl::countl_zero(uint32_t(0x08000000U))];
 
-      CHECK_EQUAL(test_leading_zeros(uint32_t(0x08000000U)), sizeof(temp));
+      CHECK_EQUAL(test_leading_zeros(uint32_t(0x08000000U)), int(sizeof(temp)));
     }
 #endif
 
@@ -1099,7 +1099,7 @@ namespace
     {
       char temp[etl::countl_zero(uint64_t(0x0800000000000000U))];
 
-      CHECK_EQUAL(test_leading_zeros(uint64_t(0x0800000000000000U)), sizeof(temp));
+      CHECK_EQUAL(test_leading_zeros(uint64_t(0x0800000000000000U)), int(sizeof(temp)));
     }
 #endif
 
@@ -1125,7 +1125,7 @@ namespace
     {
       char temp[etl::countl_one(uint8_t(0xF0U))];
 
-      CHECK_EQUAL(test_leading_ones(uint8_t(0xF0U)), sizeof(temp));
+      CHECK_EQUAL(test_leading_ones(uint8_t(0xF0U)), int(sizeof(temp)));
     }
 #endif
 
@@ -1151,7 +1151,7 @@ namespace
     {
       char temp[etl::countl_one(uint16_t(0xF000U))];
 
-      CHECK_EQUAL(test_leading_ones(uint16_t(0xF000U)), sizeof(temp));
+      CHECK_EQUAL(test_leading_ones(uint16_t(0xF000U)), int(sizeof(temp)));
     }
 #endif
 
@@ -1181,7 +1181,7 @@ namespace
     {
       char temp[etl::countl_one(uint32_t(0xF0000000UL))];
 
-      CHECK_EQUAL(test_leading_ones(uint32_t(0xF0000000UL)), sizeof(temp));
+      CHECK_EQUAL(test_leading_ones(uint32_t(0xF0000000UL)), int(sizeof(temp)));
     }
 #endif
 
@@ -1211,7 +1211,7 @@ namespace
     {
       char temp[etl::countl_one(uint64_t(0xF000000000000000UL))];
 
-      CHECK_EQUAL(test_leading_ones(uint64_t(0xF000000000000000UL)), sizeof(temp));
+      CHECK_EQUAL(test_leading_ones(uint64_t(0xF000000000000000UL)), int(sizeof(temp)));
     }
 #endif
 
@@ -1346,7 +1346,7 @@ namespace
       {
         hash.add(1);
 
-        uint16_t value = hash.value();
+        uint16_t value = uint16_t(hash.value());
 
         CHECK_EQUAL(test_bit_floor(value), etl::bit_floor(value));
 
@@ -1444,7 +1444,7 @@ namespace
     {
       char temp[etl::bit_width(uint8_t(0xAU))];
 
-      CHECK_EQUAL(test_bit_width(uint8_t(0xAU)), sizeof(temp));
+      CHECK_EQUAL(test_bit_width(uint8_t(0xAU)), int(sizeof(temp)));
     }
 #endif
 
@@ -1457,7 +1457,7 @@ namespace
       {
         hash.add(1);
 
-        uint16_t value = hash.value();
+        uint16_t value = uint16_t(hash.value());
 
         CHECK_EQUAL(test_bit_width(value), etl::bit_width(value));
       }
@@ -1469,7 +1469,7 @@ namespace
     {
       char temp[etl::bit_width(uint16_t(0xAU))];
 
-      CHECK_EQUAL(test_bit_width(uint16_t(0xAU)), sizeof(temp));
+      CHECK_EQUAL(test_bit_width(uint16_t(0xAU)), int(sizeof(temp)));
     }
 #endif
 
@@ -1494,7 +1494,7 @@ namespace
     {
       char temp[etl::bit_width(uint32_t(0xAU))];
 
-      CHECK_EQUAL(test_bit_width(uint32_t(0xAU)), sizeof(temp));
+      CHECK_EQUAL(test_bit_width(uint32_t(0xAU)), int(sizeof(temp)));
     }
 #endif
 
@@ -1519,7 +1519,7 @@ namespace
     {
       char temp[etl::bit_width(uint64_t(0xAU))];
 
-      CHECK_EQUAL(test_bit_width(uint64_t(0xAU)), sizeof(temp));
+      CHECK_EQUAL(test_bit_width(uint64_t(0xAU)), int(sizeof(temp)));
     }
 #endif
   };
