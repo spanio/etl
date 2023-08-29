@@ -1368,6 +1368,9 @@
     <ClInclude Include="..\..\include\etl\stringify.h">
       <Filter>ETL\Utilities</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\include\etl\function_wrapper.h">
+      <Filter>ETL\Utilities</Filter>
+    </ClInclude>
     <ClInclude Include="..\..\include\etl\base64.h">
       <Filter>ETL\Codecs</Filter>
     </ClInclude>
@@ -2467,6 +2470,9 @@
     </ClCompile>
     <ClCompile Include="..\test_macros.cpp">
       <Filter>Tests\Misc</Filter>
+    </ClCompile>
+    <ClCompile Include="..\test_function_wrapper.cpp">
+      <Filter>Tests\Callbacks &amp; Delegates</Filter>
     </ClCompile>
     <ClCompile Include="..\test_base64.cpp">
       <Filter>Tests\Codecs</Filter>

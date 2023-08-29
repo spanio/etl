@@ -3083,6 +3083,7 @@
     <ClInclude Include="..\..\include\etl\crc8_wcdma.h" />
     <ClInclude Include="..\..\include\etl\expected.h" />
     <ClInclude Include="..\..\include\etl\math.h" />
+    <ClInclude Include="..\..\include\etl\function_wrapper.h" />
     <ClInclude Include="..\..\include\etl\message_broker.h" />
     <ClInclude Include="..\..\include\etl\poly_span.h" />
     <ClInclude Include="..\..\include\etl\private\bitset_legacy.h" />
@@ -7746,6 +7747,7 @@
     <ClCompile Include="..\test_crc8_rohc.cpp" />
     <ClCompile Include="..\test_crc8_wcdma.cpp" />
     <ClCompile Include="..\test_expected.cpp" />
+    <ClCompile Include="..\test_function_wrapper.cpp" />
     <ClCompile Include="..\test_hfsm_recurse_to_inner_state_on_start.cpp" />
     <ClCompile Include="..\test_intrusive_links.cpp" />
     <ClCompile Include="..\test_macros.cpp" />
