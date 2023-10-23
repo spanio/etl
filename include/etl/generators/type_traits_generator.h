@@ -1380,7 +1380,7 @@ typedef integral_constant<bool, true>  true_type;
   import cog
   cog.outl("//***************************************************************************")
   cog.outl("/// Template to determine if a type is one of a specified list.")
-  cog.outl("///\ingroup types")
+  cog.outl("///\\ingroup types")
   cog.outl("template <typename T,")
   cog.out("          ")
   cog.out("typename T1, ")
@@ -1994,8 +1994,7 @@ typedef integral_constant<bool, true>  true_type;
 
     template <class T, class... Args>
     struct is_constructible_<void_t<decltype(T(etl::declval<Args>()...))>, T, Args...> : etl::true_type {};
-  };
-
+  }
 
   //*********************************************
   // is_constructible

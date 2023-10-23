@@ -292,26 +292,9 @@ test/sanity-check/c++11/bclang
 test/sanity-check/c++11/bgcc
 test/sanity-check/c++14/bclang
 test/sanity-check/c++14/bgcc
-test/sanity-check/c++17/bclang
-test/sanity-check/c++17/bgcc
 test/log.txt
 log.txt
-test/sanity-check/c++17/CMakeFiles
 test/CMakeFiles
-test/sanity-check/c++11/CMakeFiles
-test/sanity-check/c++14/CMakeFiles
-test/sanity-check/c++11/cmake_install.cmake
-test/sanity-check/c++11/CMakeCache.txt
-test/sanity-check/c++11/libt11.a
-test/sanity-check/c++11/Makefile
-test/sanity-check/c++14/cmake_install.cmake
-test/sanity-check/c++14/CMakeCache.txt
-test/sanity-check/c++14/libt14.a
-test/sanity-check/c++14/Makefile
-test/sanity-check/c++17/cmake_install.cmake
-test/sanity-check/c++17/CMakeCache.txt
-test/sanity-check/c++17/libt17.a
-test/sanity-check/c++17/Makefile
 test/vs2019/Debug LLVM
 test/vs2019/DebugLLVMNoSTL
 test/vs2019/DebugNoSTL
@@ -383,3 +366,23 @@ build-test-Desktop_x86_windows_msvc2019_pe_64bit-Debug
 test/vs2022/Debug MSVC C++14 - No STL
 test/log.txt
 test/etl_error_handler/log.txt
+test/syntax_check/c++03/bgcc
+test/syntax_check/c++11/bclang
+test/syntax_check/c++14/bclang
+test/syntax_check/c++17/bclang
+test/syntax_check/c++03/bclang
+test/syntax_check/c++14/bgcc
+test/syntax_check/c++20/bclang
+test/syntax_check/c++11/bgcc
+test/syntax_check/c++17/bgcc
+test/syntax_check/c++20/bgcc
+test/vs2022/Debug MSVC C++17
+test/vs2022/Debug MSVC C++17 - No STL
+test/vs2022/Release MSVC C++20 - No STL - Optimised -O2
+test/vs2022/Release MSVC C++20 - Optimised O2
+test/vs2022/Debug MSVC C++ 20 - No Tests
+test/vs2022/enc_temp_folder
+test/vs2022/Debug MSVC C++20 - No virtual messages
+examples/MutexMessageRouter/.vs
+support/time remaining test.xlsx
+test/vs2022/Debug MSVC C++20 - Force C++03

@@ -15,7 +15,7 @@ testname="Test Name Not Set"
 
 FailColour='\033[38;2;255;128;128m'
 PassColour='\033[38;2;128;255;128m'
-TitleColour='\033[38;2;100;173;254m'
+TitleColour='\033[38;2;107;210;255m'
 HelpColour='\033[38;2;250;180;250m'
 NoColour='\033[0m'
 
@@ -31,70 +31,71 @@ Bell()
 
 PrintHeader()
 {
-	echo "${TitleColour}"
-	echo "----------------------------------------------------------------------------" | tee -a log.txt
-	echo " $testname" | tee -a log.txt
-	echo " Language standard : C++${cxx_standard}" | tee -a log.txt
-    echo " Optimisation      : ${opt}" | tee -a log.txt
-	echo "----------------------------------------------------------------------------" | tee -a log.txt
-	echo "${NoColour}"
+	echo "$TitleColour"
+	echo "============================================================================" | tee -a log.txt
+	echo " $testname                                                                  " | tee -a log.txt
+	echo " Language standard : C++$cxx_standard                                       " | tee -a log.txt
+    echo " Optimisation      : $opt                                                   " | tee -a log.txt
+	echo "============================================================================" | tee -a log.txt
+	echo "$NoColour"
 }
 
 PrintHelp()
 {
-	echo "${HelpColour}"
+	echo "$HelpColour"
 	echo "----------------------------------------------------------------------------"
-	echo " Syntax       : ./runtests.sh <C++ Standard> <Optimisation>"
-	echo " C++ Standard : 11, 14, 17 or 20"
-	echo " Optimisation : 0, 1, 2 or 3. Default = 0"
+	echo " Syntax       : ./runtests.sh <C++ Standard> <Optimisation>                 "
+	echo " C++ Standard : 11, 14, 17 or 20                                            "
+	echo " Optimisation : 0, 1, 2 or 3. Default = 0                                   "
 	echo "----------------------------------------------------------------------------"
-	echo "${NoColour}"
+	echo "$NoColour"
 }
 
 PassedCompilation()
 {
-	echo "${PassColour}"
+	echo "$PassColour"
 	echo "-----------------------------------------------" | tee -a log.txt
-	echo " Passed Compilation - $testname" | tee -a ../log.txt
+	echo " Passed Compilation - $testname                " | tee -a ../log.txt
 	echo "-----------------------------------------------" | tee -a log.txt
-	echo "${NoColour}"
+	echo "$NoColour"
 }
 
 PassedTests()
 {
-	echo "${PassColour}"
+	echo "$PassColour"
 	echo "-----------------------------------------------" | tee -a log.txt
-	echo " Passed Tests - $testname" | tee -a ../log.txt
+	echo " Passed Tests - $testname                      " | tee -a ../log.txt
 	echo "-----------------------------------------------" | tee -a log.txt
+	echo "$NoColour"
 }
 
 FailedCompilation()
 {
-	echo "${FailColour}"
+	echo "$FailColour"
 	echo "****************************************************************************" | tee -a log.txt
-    echo "**** Failed Compilation $testname" | tee -a log.txt
+    echo "**** Failed Compilation $testname                                           " | tee -a log.txt
 	echo "****************************************************************************" | tee -a ../log.txt
-	echo "${NoColour}"
+	echo "$NoColour"
 	Bell
 }
 
 FailedTests()
 {
-	echo "${FailColour}"
+	echo "$FailColour"
 	echo "****************************************************************************" | tee -a log.txt
-    echo "**** Failed Tests $testname" | tee -a log.txt
+    echo "**** Failed Tests $testname                                                 " | tee -a log.txt
 	echo "****************************************************************************" | tee -a ../log.txt
-	echo "${NoColour}"
+	echo "$NoColour"
 	Bell
 }
 
 TestsCompleted()
 {
-	echo "${PassColour}"
+	echo "$PassColour"
 	echo "-----------------------------------------------" | tee -a log.txt
-	echo " All Tests Completed OK" | tee -a log.txt
+	echo " All Tests Completed OK                        " | tee -a log.txt
 	echo "-----------------------------------------------" | tee -a log.txt
-	echo "${NoColour}"
+	echo "$NoColour"
 }
 
 #******************************************************************************
@@ -127,14 +128,56 @@ else
 fi
 
 #******************************************************************************
+# Set the number of concurrent processes to use.
+#******************************************************************************
+if [ $# -eq 2 ]; then
+  export CMAKE_BUILD_PARALLEL_LEVEL=4
+else
+  export CMAKE_BUILD_PARALLEL_LEVEL=$3
+fi
+
+echo ""
+echo "Using "${CMAKE_BUILD_PARALLEL_LEVEL}" concurrent processes"
+
+#******************************************************************************
+# Set the sanitizer enable. Default OFF
+#******************************************************************************
+if [ "$4" = "S" ]; then
+  sanitize="ON"
+else
+  sanitize="OFF"
+fi
+
+#******************************************************************************
 # GCC
 #******************************************************************************
 SetTestName "GCC - STL"
 PrintHeader
 rm * -rf
 gcc --version | grep gcc | tee -a log.txt
-cmake -DCMAKE_CXX_COMPILER="g++" -DNO_STL=OFF -DETL_USE_TYPE_TRAITS_BUILTINS=OFF -DETL_USER_DEFINED_TYPE_TRAITS=OFF -DETL_FORCE_TEST_CPP03_IMPLEMENTATION=OFF -DETL_OPTIMISATION=$opt -DETL_CXX_STANDARD=$cxx_standard ..
-make -j4
+cmake -DCMAKE_CXX_COMPILER="g++" -DNO_STL=OFF -DETL_USE_TYPE_TRAITS_BUILTINS=OFF -DETL_USER_DEFINED_TYPE_TRAITS=OFF -DETL_FORCE_TEST_CPP03_IMPLEMENTATION=OFF -DETL_OPTIMISATION=$opt -DETL_CXX_STANDARD=$cxx_standard -DETL_ENABLE_SANITIZER=$sanitize -DETL_MESSAGES_ARE_NOT_VIRTUAL=OFF ..
+cmake --build .
+if [ $? -eq 0 ]; then
+  PassedCompilation
+else
+  FailedCompilation
+  exit $?
+fi
+./etl_tests
+if [ $? -eq 0 ]; then
+  PassedTests
+else
+  FailedTests
+  exit $?
+fi
+
+#******************************************************************************
+SetTestName "GCC - STL - Non-virtual messages"
+PrintHeader
+rm * -rf
+gcc --version | grep gcc | tee -a log.txt
+cmake -DCMAKE_CXX_COMPILER="g++" -DNO_STL=OFF -DETL_USE_TYPE_TRAITS_BUILTINS=OFF -DETL_USER_DEFINED_TYPE_TRAITS=OFF -DETL_FORCE_TEST_CPP03_IMPLEMENTATION=OFF -DETL_OPTIMISATION=$opt -DETL_CXX_STANDARD=$cxx_standard -DETL_ENABLE_SANITIZER=$sanitize -DETL_MESSAGES_ARE_NOT_VIRTUAL=ON ..
+cmake --build .
 if [ $? -eq 0 ]; then
   PassedCompilation
 else
@@ -154,8 +197,8 @@ SetTestName "GCC - STL - Force C++03"
 PrintHeader
 rm * -rf
 gcc --version | grep gcc | tee -a log.txt
-cmake -DCMAKE_CXX_COMPILER="g++" -DNO_STL=OFF -DETL_USE_TYPE_TRAITS_BUILTINS=OFF -DETL_USER_DEFINED_TYPE_TRAITS=OFF -DETL_FORCE_TEST_CPP03_IMPLEMENTATION=ON -DETL_OPTIMISATION=$opt -DETL_CXX_STANDARD=$cxx_standard ..
-make -j4
+cmake -DCMAKE_CXX_COMPILER="g++" -DNO_STL=OFF -DETL_USE_TYPE_TRAITS_BUILTINS=OFF -DETL_USER_DEFINED_TYPE_TRAITS=OFF -DETL_FORCE_TEST_CPP03_IMPLEMENTATION=ON -DETL_OPTIMISATION=$opt -DETL_CXX_STANDARD=$cxx_standard -DETL_ENABLE_SANITIZER=$sanitize -DETL_MESSAGES_ARE_NOT_VIRTUAL=OFF ..
+cmake --build .
 if [ $? -eq 0 ]; then
   PassedCompilation
 else
@@ -175,8 +218,8 @@ SetTestName "GCC - No STL"
 PrintHeader
 rm * -rf
 gcc --version | grep gcc | tee -a log.txt
-cmake -DCMAKE_CXX_COMPILER="g++" -DNO_STL=ON -DETL_USE_TYPE_TRAITS_BUILTINS=OFF -DETL_USER_DEFINED_TYPE_TRAITS=OFF -DETL_FORCE_TEST_CPP03_IMPLEMENTATION=OFF -DETL_OPTIMISATION=$opt -DETL_CXX_STANDARD=$cxx_standard ..
-make -j4
+cmake -DCMAKE_CXX_COMPILER="g++" -DNO_STL=ON -DETL_USE_TYPE_TRAITS_BUILTINS=OFF -DETL_USER_DEFINED_TYPE_TRAITS=OFF -DETL_FORCE_TEST_CPP03_IMPLEMENTATION=OFF -DETL_OPTIMISATION=$opt -DETL_CXX_STANDARD=$cxx_standard -DETL_ENABLE_SANITIZER=$sanitize -DETL_MESSAGES_ARE_NOT_VIRTUAL=OFF ..
+cmake --build .
 if [ $? -eq 0 ]; then
   PassedCompilation
 else
@@ -196,8 +239,8 @@ SetTestName "GCC - No STL - Force C++03"
 PrintHeader
 rm * -rf
 gcc --version | grep gcc | tee -a log.txt
-cmake -DCMAKE_CXX_COMPILER="g++" -DNO_STL=ON -DETL_USE_TYPE_TRAITS_BUILTINS=OFF -DETL_USER_DEFINED_TYPE_TRAITS=OFF -DETL_FORCE_TEST_CPP03_IMPLEMENTATION=ON -DETL_OPTIMISATION=$opt -DETL_CXX_STANDARD=$cxx_standard ..
-make -j4
+cmake -DCMAKE_CXX_COMPILER="g++" -DNO_STL=ON -DETL_USE_TYPE_TRAITS_BUILTINS=OFF -DETL_USER_DEFINED_TYPE_TRAITS=OFF -DETL_FORCE_TEST_CPP03_IMPLEMENTATION=ON -DETL_OPTIMISATION=$opt -DETL_CXX_STANDARD=$cxx_standard -DETL_ENABLE_SANITIZER=$sanitize -DETL_MESSAGES_ARE_NOT_VIRTUAL=OFF ..
+cmake --build .
 if [ $? -eq 0 ]; then
   PassedCompilation
 else
@@ -219,8 +262,8 @@ SetTestName "Clang - STL"
 PrintHeader
 rm * -rf
 clang --version | grep clang | tee -a log.txt
-cmake -DCMAKE_CXX_COMPILER="clang++" -DNO_STL=OFF -DETL_USE_TYPE_TRAITS_BUILTINS=OFF -DETL_USER_DEFINED_TYPE_TRAITS=OFF -DETL_FORCE_TEST_CPP03_IMPLEMENTATION=OFF -DETL_OPTIMISATION=$opt -DETL_CXX_STANDARD=$cxx_standard ..
-make -j4
+cmake -DCMAKE_CXX_COMPILER="clang++" -DNO_STL=OFF -DETL_USE_TYPE_TRAITS_BUILTINS=OFF -DETL_USER_DEFINED_TYPE_TRAITS=OFF -DETL_FORCE_TEST_CPP03_IMPLEMENTATION=OFF -DETL_OPTIMISATION=$opt -DETL_CXX_STANDARD=$cxx_standard -DETL_ENABLE_SANITIZER=$sanitize -DETL_MESSAGES_ARE_NOT_VIRTUAL=OFF ..
+cmake --build .
 if [ $? -eq 0 ]; then
   PassedCompilation
 else
@@ -240,8 +283,8 @@ SetTestName "Clang - STL - Force C++03"
 PrintHeader
 rm * -rf
 clang --version | grep clang | tee -a log.txt
-cmake -DCMAKE_CXX_COMPILER="clang++" -DNO_STL=OFF -DETL_USE_TYPE_TRAITS_BUILTINS=OFF -DETL_USER_DEFINED_TYPE_TRAITS=OFF -DETL_FORCE_TEST_CPP03_IMPLEMENTATION=ON -DETL_OPTIMISATION=$opt -DETL_CXX_STANDARD=$cxx_standard ..
-make -j4
+cmake -DCMAKE_CXX_COMPILER="clang++" -DNO_STL=OFF -DETL_USE_TYPE_TRAITS_BUILTINS=OFF -DETL_USER_DEFINED_TYPE_TRAITS=OFF -DETL_FORCE_TEST_CPP03_IMPLEMENTATION=ON -DETL_OPTIMISATION=$opt -DETL_CXX_STANDARD=$cxx_standard -DETL_ENABLE_SANITIZER=$sanitize -DETL_MESSAGES_ARE_NOT_VIRTUAL=OFF ..
+cmake --build .
 if [ $? -eq 0 ]; then
   PassedCompilation
 else
@@ -261,8 +304,8 @@ SetTestName "Clang - No STL"
 PrintHeader
 rm * -rf
 clang --version | grep clang | tee -a log.txt
-cmake -DCMAKE_CXX_COMPILER="clang++" -DNO_STL=ON -DETL_USE_TYPE_TRAITS_BUILTINS=OFF -DETL_USER_DEFINED_TYPE_TRAITS=OFF -DETL_FORCE_TEST_CPP03_IMPLEMENTATION=OFF -DETL_OPTIMISATION=$opt -DETL_CXX_STANDARD=$cxx_standard ..
-make -j4
+cmake -DCMAKE_CXX_COMPILER="clang++" -DNO_STL=ON -DETL_USE_TYPE_TRAITS_BUILTINS=OFF -DETL_USER_DEFINED_TYPE_TRAITS=OFF -DETL_FORCE_TEST_CPP03_IMPLEMENTATION=OFF -DETL_OPTIMISATION=$opt -DETL_CXX_STANDARD=$cxx_standard -DETL_ENABLE_SANITIZER=$sanitize -DETL_MESSAGES_ARE_NOT_VIRTUAL=OFF ..
+cmake --build .
 if [ $? -eq 0 ]; then
   PassedCompilation
 else
@@ -282,8 +325,8 @@ SetTestName "Clang - No STL - Force C++03"
 PrintHeader
 rm * -rf
 clang --version | grep clang | tee -a log.txt
-cmake -DCMAKE_CXX_COMPILER="clang++" -DNO_STL=ON -DETL_USE_TYPE_TRAITS_BUILTINS=OFF -DETL_USER_DEFINED_TYPE_TRAITS=OFF -DETL_FORCE_TEST_CPP03_IMPLEMENTATION=ON -DETL_OPTIMISATION=$opt -DETL_CXX_STANDARD=$cxx_standard ..
-make -j4
+cmake -DCMAKE_CXX_COMPILER="clang++" -DNO_STL=ON -DETL_USE_TYPE_TRAITS_BUILTINS=OFF -DETL_USER_DEFINED_TYPE_TRAITS=OFF -DETL_FORCE_TEST_CPP03_IMPLEMENTATION=ON -DETL_OPTIMISATION=$opt -DETL_CXX_STANDARD=$cxx_standard -DETL_ENABLE_SANITIZER=$sanitize -DETL_MESSAGES_ARE_NOT_VIRTUAL=OFF ..
+cmake --build .
 if [ $? -eq 0 ]; then
   PassedCompilation
 else
@@ -306,8 +349,8 @@ mkdir -p build-make || exit 1
 cd build-make || exit 1
 rm * -rf
 gcc --version | grep gcc | tee -a log.txt
-cmake -DCMAKE_CXX_COMPILER="g++" -DETL_OPTIMISATION=$opt -DETL_CXX_STANDARD=$cxx_standard ..
-make -j4
+cmake -DCMAKE_CXX_COMPILER="g++" -DETL_OPTIMISATION=$opt -DETL_CXX_STANDARD=$cxx_standard -DETL_ENABLE_SANITIZER=$sanitize ..
+cmake --build .
 if [ $? -eq 0 ]; then
   PassedCompilation
 else
@@ -327,8 +370,8 @@ SetTestName "Clang - Initializer list test"
 PrintHeader
 rm * -rf
 clang --version | grep clang | tee -a log.txt
-cmake -DCMAKE_CXX_COMPILER="clang++" -DETL_OPTIMISATION=$opt -DETL_CXX_STANDARD=$cxx_standard ..
-make -j4
+cmake -DCMAKE_CXX_COMPILER="clang++" -DETL_OPTIMISATION=$opt -DETL_CXX_STANDARD=$cxx_standard -DETL_ENABLE_SANITIZER=$sanitize ..
+cmake --build .
 if [ $? -eq 0 ]; then
   PassedCompilation
 else
@@ -351,8 +394,8 @@ mkdir -p build-make || exit 1
 cd build-make || exit 1
 rm * -rf
 gcc --version | grep gcc | tee -a log.txt
-cmake -DCMAKE_CXX_COMPILER="g++" -DETL_OPTIMISATION=$opt -DETL_CXX_STANDARD=$cxx_standard ..
-make -j4
+cmake -DCMAKE_CXX_COMPILER="g++" -DETL_OPTIMISATION=$opt -DETL_CXX_STANDARD=$cxx_standard -DETL_ENABLE_SANITIZER=$sanitize ..
+cmake --build .
 if [ $? -eq 0 ]; then
   PassedCompilation
 else
@@ -375,8 +418,8 @@ mkdir -p build-make || exit 1
 cd build-make || exit 1
 rm * -rf
 gcc --version | grep gcc | tee -a log.txt
-cmake -DCMAKE_CXX_COMPILER="g++" -DETL_OPTIMISATION=$opt -DETL_CXX_STANDARD=$cxx_standard ..
-make -j4
+cmake -DCMAKE_CXX_COMPILER="g++" -DETL_OPTIMISATION=$opt -DETL_CXX_STANDARD=$cxx_standard -DETL_ENABLE_SANITIZER=$sanitize ..
+cmake --build .
 if [ $? -eq 0 ]; then
   PassedCompilation
 else
@@ -399,8 +442,8 @@ mkdir -p build-make || exit 1
 cd build-make || exit 1
 rm * -rf
 gcc --version | grep gcc | tee -a log.txt
-cmake -DCMAKE_CXX_COMPILER="g++" -DETL_OPTIMISATION=$opt -DETL_CXX_STANDARD=$cxx_standard ..
-make -j4
+cmake -DCMAKE_CXX_COMPILER="g++" -DETL_OPTIMISATION=$opt -DETL_CXX_STANDARD=$cxx_standard -DETL_ENABLE_SANITIZER=$sanitize ..
+cmake --build .
 if [ $? -eq 0 ]; then
   PassedCompilation
 else
@@ -423,8 +466,8 @@ mkdir -p build-make || exit 1
 cd build-make || exit 1
 rm * -rf
 clang --version | grep clang | tee -a log.txt
-cmake -DCMAKE_CXX_COMPILER="clang++" -DETL_OPTIMISATION=$opt -DETL_CXX_STANDARD=$cxx_standard ..
-make -j4
+cmake -DCMAKE_CXX_COMPILER="clang++" -DETL_OPTIMISATION=$opt -DETL_CXX_STANDARD=$cxx_standard -DETL_ENABLE_SANITIZER=$sanitize ..
+cmake --build .
 if [ $? -eq 0 ]; then
   PassedCompilation
 else
@@ -447,8 +490,8 @@ mkdir -p build-make || exit 1
 cd build-make || exit 1
 rm * -rf
 clang --version | grep clang | tee -a log.txt
-cmake -DCMAKE_CXX_COMPILER="clang++" -DETL_OPTIMISATION=$opt -DETL_CXX_STANDARD=$cxx_standard ..
-make -j4
+cmake -DCMAKE_CXX_COMPILER="clang++" -DETL_OPTIMISATION=$opt -DETL_CXX_STANDARD=$cxx_standard -DETL_ENABLE_SANITIZER=$sanitize ..
+cmake --build .
 if [ $? -eq 0 ]; then
   PassedCompilation
 else
@@ -471,8 +514,8 @@ mkdir -p build-make || exit 1
 cd build-make || exit 1
 rm * -rf
 clang --version | grep clang | tee -a log.txt
-cmake -DCMAKE_CXX_COMPILER="clang++" -DETL_OPTIMISATION=$opt -DETL_CXX_STANDARD=$cxx_standard ..
-make -j4
+cmake -DCMAKE_CXX_COMPILER="clang++" -DETL_OPTIMISATION=$opt -DETL_CXX_STANDARD=$cxx_standard -DETL_ENABLE_SANITIZER=$sanitize ..
+cmake --build .
 if [ $? -eq 0 ]; then
   PassedCompilation
 else

@@ -1,9 +1,11 @@
 cmake_minimum_required(VERSION 3.5.0)
-project(etl_17sanity_tests)
+project(etl_11_syntax_check)
 
 add_definitions(-DETL_DEBUG)
 
 option(NO_STL "No STL" OFF)
+
+message(STATUS "Compiling for C++11")
 
 if (NO_STL)
 	message(STATUS "Compiling for No STL")
@@ -23,20 +25,20 @@ if (ETL_USER_DEFINED_TYPE_TRAITS)
 endif()
 
 if (ETL_FORCE_TEST_CPP03_IMPLEMENTATION)
-	message(STATUS "Compiling for C++03 tests")
+	message(STATUS "Force C++03 implementations")
 	add_definitions(-DETL_FORCE_TEST_CPP03_IMPLEMENTATION)
 endif()
 
-add_library(t17 OBJECT)
-target_compile_definitions(t17 PRIVATE __STDC_LIMIT_MACROS __STDC_CONSTANT_MACROS __STDC_FORMAT_MACROS)
-target_include_directories(t17 PRIVATE "")
-target_include_directories(t17 SYSTEM PRIVATE ../../../include)
-set_target_properties(t17 PROPERTIES
-        CXX_STANDARD 17
+add_library(t11 OBJECT)
+target_compile_definitions(t11 PRIVATE __STDC_LIMIT_MACROS __STDC_CONSTANT_MACROS __STDC_FORMAT_MACROS)
+target_include_directories(t11 PRIVATE "")
+target_include_directories(t11 SYSTEM PRIVATE ../../../include)
+set_target_properties(t11 PROPERTIES
+        CXX_STANDARD 11
         CXX_STANDARD_REQUIRED ON
         CXX_EXTENSIONS ON
         )
-target_sources(t17 PRIVATE etl_profile.h
+target_sources(t11 PRIVATE etl_profile.h
         ../absolute.h.t.cpp
         ../algorithm.h.t.cpp
         ../alignment.h.t.cpp

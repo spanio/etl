@@ -321,6 +321,11 @@ if (ETL_USER_DEFINED_TYPE_TRAITS)
 	target_compile_definitions(etl_tests PRIVATE -DETL_USER_DEFINED_TYPE_TRAITS)
 endif()
 
+if (ETL_MESSAGES_ARE_NOT_VIRTUAL)
+	message(STATUS "Compiling for non-virtual messages")
+	target_compile_definitions(etl_tests PRIVATE -DETL_MESSAGES_ARE_NOT_VIRTUAL)
+endif()
+
 if (ETL_FORCE_TEST_CPP03_IMPLEMENTATION)
 	message(STATUS "Compiling for C++03 tests")
 	target_compile_definitions(etl_tests PRIVATE -DETL_FORCE_TEST_CPP03_IMPLEMENTATION)
@@ -341,18 +346,20 @@ if (ETL_OPTIMISATION MATCHES "-O3")
 	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -O3")
 endif()
 
-target_include_directories(etl_tests
-		PRIVATE
-		${PROJECT_SOURCE_DIR}/../include)
-
-add_subdirectory(UnitTest++)
-target_link_libraries(etl_tests PRIVATE UnitTestpp)
-
 if ((CMAKE_CXX_COMPILER_ID MATCHES "MSVC"))
+	message(STATUS "Using MSVC compiler")
 	target_compile_options(etl_tests
 			PRIVATE
 			/Zc:__cplusplus
 			)
+endif ()
+
+if (CMAKE_CXX_COMPILER_ID MATCHES "GNU")
+	message(STATUS "Using GCC compiler")
+endif ()
+
+if (CMAKE_CXX_COMPILER_ID MATCHES "Clang")
+    message(STATUS "Using Clang compiler")
 endif ()
 
 if ((CMAKE_CXX_COMPILER_ID MATCHES "GNU") OR (CMAKE_CXX_COMPILER_ID MATCHES "Clang"))
@@ -365,20 +372,30 @@ if ((CMAKE_CXX_COMPILER_ID MATCHES "GNU") OR (CMAKE_CXX_COMPILER_ID MATCHES "Cla
 			-Wsign-conversion
 			-Werror
 			)
-	
-	# MinGW doesn't presently support sanitization
-	if (NOT MINGW)
-		target_compile_options(etl_tests
-			PRIVATE
-			-fsanitize=address,undefined,bounds
-			)
 
-		target_link_options(etl_tests
-			PRIVATE
-			-fsanitize=address,undefined,bounds
-			)	
-	endif()
+	if (ETL_ENABLE_SANITIZER)
+		message(STATUS "Compiling with Sanitizer enabled")
+		# MinGW doesn't presently support sanitization
+		if (NOT MINGW)
+			target_compile_options(etl_tests
+				PRIVATE
+				-fsanitize=address,undefined,bounds
+				)
+
+			target_link_options(etl_tests
+				PRIVATE
+				-fsanitize=address,undefined,bounds
+				)	
+		endif()
+	endif ()
 endif ()
+
+target_include_directories(etl_tests
+		PRIVATE
+		${PROJECT_SOURCE_DIR}/../include)
+
+add_subdirectory(UnitTest++)
+target_link_libraries(etl_tests PRIVATE UnitTestpp)
 
 # Enable the 'make test' CMake target using the executable defined above
 add_test(etl_unit_tests etl_tests)
@@ -388,4 +405,3 @@ add_test(etl_unit_tests etl_tests)
 # as they appear from UnitTest++
 add_custom_target(test_verbose COMMAND ${CMAKE_CTEST_COMMAND} --verbose)
 
- 

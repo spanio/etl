@@ -63,6 +63,9 @@ SOFTWARE.
   #include "etl_profile.h"
 #endif
 
+// Null statement
+#define ETL_DO_NOTHING static_cast<void>(0)
+
 // Determine the bit width of the platform.
 #define ETL_PLATFORM_16BIT (UINT16_MAX == UINTPTR_MAX)
 #define ETL_PLATFORM_32BIT (UINT32_MAX == UINTPTR_MAX)
@@ -70,7 +73,7 @@ SOFTWARE.
 
 //*************************************
 // Define debug macros.
-#if (defined(_DEBUG) || defined(DEBUG)) && !defined(ETL_DEBUG) 
+#if (defined(_DEBUG) || defined(DEBUG)) && !defined(ETL_DEBUG)
   #define ETL_DEBUG
 #endif
 
@@ -232,10 +235,19 @@ SOFTWARE.
 #endif
 
 //*************************************
+// Indicate if etl::imassage is to be non-virtual.
+#if defined(ETL_MESSAGES_ARE_NOT_VIRTUAL)
+  #define ETL_HAS_VIRTUAL_MESSAGES 0
+#else
+  #define ETL_HAS_VIRTUAL_MESSAGES 1
+#endif
+
+//*************************************
 // The macros below are dependent on the profile.
 // C++11
 #if ETL_USING_CPP11 && !defined(ETL_FORCE_NO_ADVANCED_CPP)
   #define ETL_CONSTEXPR                   constexpr
+  #define ETL_CONSTEXPR11                 constexpr // Synonym for ETL_CONSTEXPR
   #define ETL_CONSTANT                    constexpr
   #define ETL_STATIC_CONSTANT             constexpr
   #define ETL_DELETE                      = delete
@@ -246,16 +258,18 @@ SOFTWARE.
   #define ETL_MOVE(x)                     etl::move(x)
   #define ETL_ENUM_CLASS(name)            enum class name
   #define ETL_ENUM_CLASS_TYPE(name, type) enum class name : type
+  #define ETL_LVALUE_REF_QUALIFIER        &
 
   #if ETL_USING_EXCEPTIONS
-    #define ETL_NOEXCEPT                  noexcept
-    #define ETL_NOEXCEPT_EXPR(expression) noexcept(expression)
+    #define ETL_NOEXCEPT           noexcept
+    #define ETL_NOEXCEPT_EXPR(...) noexcept(__VA_ARGS__)
   #else
     #define ETL_NOEXCEPT
-    #define ETL_NOEXCEPT_EXPR(expression)
+    #define ETL_NOEXCEPT_EXPR(...)
   #endif
 #else
   #define ETL_CONSTEXPR
+  #define ETL_CONSTEXPR11
   #define ETL_CONSTANT                    const
   #define ETL_STATIC_CONSTANT             static const
   #define ETL_DELETE
@@ -264,10 +278,11 @@ SOFTWARE.
   #define ETL_FINAL
   #define ETL_NORETURN
   #define ETL_NOEXCEPT
-  #define ETL_NOEXCEPT_EXPR(expression)
+  #define ETL_NOEXCEPT_EXPR(...)
   #define ETL_MOVE(x) x
   #define ETL_ENUM_CLASS(name)            enum name
   #define ETL_ENUM_CLASS_TYPE(name, type) enum name
+  #define ETL_LVALUE_REF_QUALIFIER
 #endif
 
 //*************************************
@@ -303,12 +318,13 @@ SOFTWARE.
 //*************************************
 // C++20
 #if ETL_USING_CPP20 && !defined(ETL_FORCE_NO_ADVANCED_CPP)
-  #define ETL_LIKELY            [[likely]]
-  #define ETL_UNLIKELY          [[unlikely]]
-  #define ETL_CONSTEXPR20       constexpr
-  #define ETL_CONSTEVAL         consteval
-  #define ETL_CONSTINIT         constinit
-  #define ETL_NO_UNIQUE_ADDRESS [[no_unique_address]]
+  #define ETL_LIKELY             [[likely]]
+  #define ETL_UNLIKELY           [[unlikely]]
+  #define ETL_CONSTEXPR20        constexpr
+  #define ETL_CONSTEVAL          consteval
+  #define ETL_CONSTINIT          constinit
+  #define ETL_NO_UNIQUE_ADDRESS  [[no_unique_address]]
+  #define ETL_EXPLICIT_EXPR(...) explicit(__VA_ARGS__)
 #else
   #define ETL_LIKELY
   #define ETL_UNLIKELY
@@ -316,12 +332,21 @@ SOFTWARE.
   #define ETL_CONSTEVAL
   #define ETL_CONSTINIT
   #define ETL_NO_UNIQUE_ADDRESS
+  #define ETL_EXPLICIT_EXPR(...) explicit
 #endif
 
 #if ETL_USING_CPP20 && ETL_USING_STL
   #define ETL_CONSTEXPR20_STL constexpr
 #else
   #define ETL_CONSTEXPR20_STL
+#endif
+
+//*************************************
+// C++23
+#if ETL_USING_CPP23 && !defined(ETL_FORCE_NO_ADVANCED_CPP)
+  #define ETL_ASSUME(expression) [[assume(expression)]]
+#else
+  #define ETL_ASSUME ETL_DO_NOTHING
 #endif
 
 //*************************************
@@ -461,10 +486,10 @@ namespace etl
     static ETL_CONSTANT bool has_ivector_repair               = (ETL_HAS_IVECTOR_REPAIR == 1);
     static ETL_CONSTANT bool has_mutable_array_view           = (ETL_HAS_MUTABLE_ARRAY_VIEW == 1);
     static ETL_CONSTANT bool has_ideque_repair                = (ETL_HAS_IDEQUE_REPAIR == 1);
+    static ETL_CONSTANT bool has_virtual_messages             = (ETL_HAS_VIRTUAL_MESSAGES == 1);
 
     // Is...
     static ETL_CONSTANT bool is_debug_build                   = (ETL_IS_DEBUG_BUILD == 1);
-   
   }
 }
 

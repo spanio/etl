@@ -35,6 +35,9 @@ SOFTWARE.
 #include <vector>
 #include <algorithm>
 #include <iterator>
+#if ETL_USING_CPP20
+  #include <span>
+#endif
 
 namespace
 {
@@ -42,12 +45,16 @@ namespace
   {
     static const size_t SIZE = 10UL;
 
-    typedef etl::array<int, SIZE> EtlData;
-    typedef std::array<int, SIZE> StlData;
-    typedef std::vector<int> StlVData;
+    using EtlData  = etl::array<int, SIZE>;
+    using StlData  = std::array<int, SIZE>;
+    using StlVData = std::vector<int>;
 
-    typedef etl::span<int> View;
-    typedef etl::span<const int> CView;
+    using View  = etl::span<int>;
+    using CView = etl::span<const int>;
+
+#if ETL_USING_CPP20
+    using StdView = std::span<int>;
+#endif
 
     EtlData etldata = { 0, 1, 2, 3, 4, 5, 6, 7, 8, 9 };
     StlData stldata = { 0, 1, 2, 3, 4, 5, 6, 7, 8, 9 };
@@ -77,6 +84,21 @@ namespace
       CHECK_EQUAL(0U, view.max_size());
       CHECK(view.empty());
     }
+
+#if ETL_USING_CPP20
+    //*************************************************************************
+    TEST(test_construct_from_std_span)
+    {
+      StdView stdview(stldata);
+      View view(stdview);
+
+      CHECK_EQUAL(stdview.size(), view.size());
+      CHECK_EQUAL(stdview.size(), view.size());
+
+      bool isEqual = std::equal(view.begin(), view.end(), stdview.begin());
+      CHECK(isEqual);
+    }
+#endif
 
     //*************************************************************************
     TEST(test_constructor_etl_array_1)
@@ -302,6 +324,36 @@ namespace
       CHECK_EQUAL(etldata.size() - 4, view.max_size());
 
       bool isEqual = std::equal(view.begin(), view.end(), etldata.begin() + 2);
+      CHECK(isEqual);
+    }
+
+    //*************************************************************************
+    TEST(test_copy_constructor_from_same_span_type)
+    {
+      etl::array<char, 10> data = { 0, 1, 2, 3, 4, 5, 6, 7, 8, 9 };
+
+      const etl::span<char> view1(data.data(), data.data() + data.size());
+      etl::span<char> view2(view1);
+
+      CHECK_EQUAL(data.size(), view1.size());
+      CHECK_EQUAL(data.size(), view2.size());
+
+      bool isEqual = std::equal(view1.begin(), view1.end(), view2.begin());
+      CHECK(isEqual);
+    }
+
+    //*************************************************************************
+    TEST(test_copy_constructor_from_different_span_type)
+    {
+      etl::array<char, 10> data = { 0, 1, 2, 3, 4, 5, 6, 7, 8, 9 };
+
+      const etl::span<char> view1(data.data(), data.data() + data.size());
+      etl::span<const char> view2(view1);
+
+      CHECK_EQUAL(data.size(), view1.size());
+      CHECK_EQUAL(data.size(), view2.size());
+
+      bool isEqual = std::equal(view1.begin(), view1.end(), view2.begin());
       CHECK(isEqual);
     }
 
@@ -980,7 +1032,7 @@ namespace
       etl::array<int, 10> data3{ 0, 1, 2, 3, 4, 4, 6, 7, 8, 9 };
       etl::array<int, 9>  data4{ 0, 1, 2, 3, 5, 6, 7, 8, 9 };
 
-      int i;
+      int i = 1;
 
       View view1{ data1 };
       View view2{ data1 };
@@ -1018,7 +1070,7 @@ namespace
       etl::array<int, 10> data3{ 0, 1, 2, 3, 4, 4, 6, 7, 8, 9 };
       etl::array<int, 9>  data4{ 0, 1, 2, 3, 5, 6, 7, 8, 9 };
 
-      int i;
+      int i = 1;
 
       View view1{ data1 };
       CView view2{ data1 };
@@ -1056,7 +1108,7 @@ namespace
       etl::array<int, 10> data3{ 0, 1, 2, 3, 4, 4, 6, 7, 8, 9 };
       etl::array<int, 10> data4{ 0, 1, 2, 3, 5, 6, 7, 8, 9 };
 
-      int i;
+      int i = 1;
 
       View view1{ data1 };
       View view2{ data1 };
@@ -1094,7 +1146,7 @@ namespace
       etl::array<int, 10> data3{ 0, 1, 2, 3, 4, 4, 6, 7, 8, 9 };
       etl::array<int, 9>  data4{ 0, 1, 2, 3, 5, 6, 7, 8, 9 };
 
-      int i;
+      int i = 1;
 
       View view1{ data1 };
       CView view2{ data1 };

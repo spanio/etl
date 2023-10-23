@@ -1,15 +1,110 @@
 ===============================================================================
+#776 Add missing semicolons
+
+===============================================================================
+20.38.4
+#773 Return raw pointer for etl::multi_span::operator->()
+
+===============================================================================
+20.38.3
+#767 etl::pool silently produces unaligned allocations for types with stricter alignment requirements than built in types 
+
+===============================================================================
+20.38.2
+#749 Code change causes warning with armcc compiler
+#753 IAR's overload resolution struggles with etl::span::span(etl::array&)
+#754 ambiguous etl::bit_stream_reader::bit_stream_reader() for some etl::span
+#755 warning about constexpr in array.h
+#756 Parameter pack compilation error
+#758 Move assignment not working for non-empty containers
+#761 Make "private" includes relative
+#765 etl::optional cannot be constexpr
+#766 etl::unique_ptr::reset() can call deleter with nullptr argument 
+Re-enabled bit_stream_writer tests
+
+===============================================================================
+20.38.1
+Deleted
+
+===============================================================================
+20.38.0
+#696 fsm/hfsm self-transitions
+#702 etl::message not trivially_copyable
+#744 Feature request: Get time when next timer will expire etl::callback_timer
+#745 Assertion triggered in hash.h when compiling for MSP430
+#746 Missing etl::legacy::variant overload of emplace with 0 Arguments
+#748 armcc error on vector::insert
+Fixed unexpected pool release behavior when the pool is empty
+Added C++03 compatible etl::move and etl::move_backward
+Allow C++03 delegate in etl::callback_timer
+Change to require semicolons after debug count macros
+Re-enabled tests for etl::string_ext
+Removed redundant #includes
+Added MutexMessageRouter example
+
+===============================================================================
+20.37.3
+#737 etl::equal specialisation for etl::span is deduced wrongly when using STL and CPP20. Added C++20 four iterator std::equal variants.
+#738 etl::expected assignment operator won't work when TValue and TError are the same type. Changed assignment from etl::unexpected to use variant::emplace instead of direct assignment.
+#739 Could not compile ETL with gcc 9.4.0 (C++11). Added compatibility for GCC-9 + C++11. Added missing return reference from emplace member function int variant_variadic.h
+Removed many -02 warnings for GCC-13
+
+===============================================================================
+20.37.2
+#733 Fix etl::expected assignment from etl unexpected.
+#734 Add missing new line at end of files.
+#735 fix(minmax): fix bug in minmax include mismatch detection.
+
+===============================================================================
+20.37.1
+#723 Added missing final CR/LF to result.h.
+Fixed etl::optional arrow and dereference operators.
+Enhanced min/max push/pop headers. Detects mismatched header includes.
+
+===============================================================================
+20.37.0
+#708 Fix missing class key with friend.
+#709 intrusive_list::iterator operator -> should not dereference pointer before return.
+#710 Calling accept on etl::variant visits a copy instead of the original object.
+#711 Added etl::is_forward_link, etl::is_bidirectional_link and etl::is_tree_link to intrusive links.
+     Added Constructors, access and status member functions to intrusive links.
+#712 Unable to use etl::optional with non-default-constructible POD objects.
+#716 etl::variant (variant_varadic) default constructed state
+#720 etl::optional rvalue value_or() broken
+#722 Bitset accesses memory out of bounds
+#725 variant_pool create method should use std::forward
+Modified etl::visitor to allow direct specification of the argument type.
+Added etl::is_visitor trait.
+Removed default link type for etl::intrusive_list and etl::intrusive_forward_list
+
+===============================================================================
+20.36.2
+#707 parameter_pack: Fix C++17 pedantic build
+
+===============================================================================
+20.36.1
+#700 Compilation error for [] map operator. Fixed map const placement new issue.
+Re-enabled memcast tests.
+
+===============================================================================
 20.36.0
 #663 Make unit tests compile for C++20
 #675 Compilation error in optional.h
 #684 Added sanitization fix for MinGW
-#687 Build failure
+#687 Build failure. constexpr keyword before template keyword 
 #689 Add as_bytes and as_writable_bytes
+#690 Add rvalue accessors to expected and optional and update constructors
+#692 operator [] for flat_map always calls default constructor for mapped_type
+#695 Visiting a const variant (variadic)
+#698 Behaviour of bidirectional_link nodes. Links are now cleared when unlinked
+#699 Optional(POD) operator bool explicit
+Optimised map/flat_map/unordered_map [] operator and insert()
+Removed [] operator for reference_flat_map
 Unit tests compile for C++11
 Fixed C++11 constexpr compatibility
 Removed redundant 'const' in template parameters
 Updated CI scripts to enable C++ standard and optimisation selection
-Updated static definitions
+Updated static constant definitions
 Fixed incorrect return types for reverse iterator begin() & end()
 Updated C++ standard conditional compilation for reverse iterator functions
 Fixed latest Address Sanitizer issues
@@ -25,6 +120,13 @@ Changed native char8_t check
 Renamed Github vs2022.yml to visual-studio.yml
 Updated Unittest++ checks
 Comments and noexcept updates to placement new
+etl::variant (variadic) refactor and updates for C++ standards compatibility
+etl::overload available in C++17 only
+map/flat_map speed optimisations
+Various C++03 compatibilty updates for maps
+Refactored Bash compilation scripts to allow selection of C++ standard and optimisation level
+Renamed Bash compilation scripts. Changed 'sanity checks' to 'syntax checks
+Some internal constant case changes from all upper to capital case
 
 ===============================================================================
 20.35.15

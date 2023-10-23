@@ -37,8 +37,7 @@ SOFTWARE.
 
 namespace etl
 {
-#if ETL_USING_CPP17 && !defined(ETL_OVERLOAD_FORCE_CPP14)
-
+#if ETL_USING_CPP17
   //*************************************************************************
   /// Variadic template definition of overload for C++17 and above.
   //*************************************************************************
@@ -53,27 +52,6 @@ namespace etl
   //*************************************************************************
   template<typename... TOverloads> overload(TOverloads...)->overload<TOverloads...>;
 
-#else
-
-  //*************************************************************************
-  /// Variadic template definition of overload for C++14.
-  //*************************************************************************
-  template <typename TFirst, typename... TOthers>
-  struct overload : TFirst, overload<TOthers...>
-  {
-    using TFirst::operator();
-    using overload<TOthers...>::operator();
-  };
-
-  template <typename TFirst> 
-  struct overload<TFirst> : TFirst
-  {
-    using TFirst::operator();
-  };
-
-#endif
-
-#if ETL_USING_CPP17
   //*************************************************************************
   /// Make an overload.
   //*************************************************************************
@@ -81,6 +59,48 @@ namespace etl
   constexpr overload<TOverloads...> make_overload(TOverloads&&... overloads)
   {
     return overload<TOverloads...>{ etl::forward<TOverloads>(overloads)... };
+  }
+#elif ETL_USING_CPP11
+  //*************************************************************************
+  /// Variadic template definition of overload for C++11 & C++14.
+  //*************************************************************************
+  template <typename... TRest>
+  struct overload;
+
+  //*************************************************************************
+  /// Specialisation for multiple overloads.
+  //*************************************************************************
+  template <typename TOverload, typename... TRest>
+  struct overload<TOverload, TRest...> : TOverload, overload<TRest...>
+  {
+    overload(TOverload first, TRest... rest) : TOverload(first), overload<TRest...>(rest...) 
+    {
+    }
+
+    using TOverload::operator();
+    using overload<TRest...>::operator();
+  };
+
+  //*************************************************************************
+  /// Specialisation for one overload.
+  //*************************************************************************
+  template <typename TOverload>
+  struct overload<TOverload> : TOverload
+  {
+    overload(TOverload first) : TOverload(first) 
+    {
+    }
+
+    using TOverload::operator();
+  };
+
+  //*************************************************************************
+  /// Make an overload.
+  //*************************************************************************
+  template <typename... TRest>
+  overload<TRest...> make_overload(TRest... overloads)
+  {
+    return overload<TRest...>(overloads...);
   }
 #endif
 }

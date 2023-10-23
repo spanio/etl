@@ -28,6 +28,10 @@ SOFTWARE.
 
 #include "unit_test_framework.h"
 
+#include "etl/platform.h"
+
+#if ETL_HAS_VIRTUAL_MESSAGES
+
 #include "etl/message_packet.h"
 
 #include <string>
@@ -62,7 +66,7 @@ namespace
     }
 
     Message1(Message1&& other)
-      : x(other.x)
+      : x(std::move(other.x))
       , moved(true)
       , copied(false)
     {
@@ -78,7 +82,7 @@ namespace
 
     Message1& operator =(Message1&& other)
     {
-      x = other.x;
+      x = std::move(other.x);
       moved = true;
       copied = false;
       return *this;
@@ -106,7 +110,7 @@ namespace
     }
 
     Message2(Message2&& other)
-      : x(other.x)
+      : x(std::move(other.x))
       , moved(true)
       , copied(false)
     {
@@ -122,7 +126,7 @@ namespace
 
     Message2& operator =(Message2&& other)
     {
-      x = other.x;
+      x = std::move(other.x);
       moved = true;
       copied = false;
       return *this;
@@ -135,9 +139,16 @@ namespace
 
   struct Message3 : public etl::message<MESSAGE3>
   {
-    Message3(std::string x_)
+    Message3(const std::string& x_)
       : x(x_)
       , moved(false)
+      , copied(false)
+    {
+    }
+
+    Message3(std::string&& x_)
+      : x(std::move(x_))
+      , moved(true)
       , copied(false)
     {
     }
@@ -150,7 +161,7 @@ namespace
     }
 
     Message3(Message3&& other)
-      : x(other.x)
+      : x(std::move(other.x))
       , moved(true)
       , copied(false)
     {
@@ -166,7 +177,7 @@ namespace
 
     Message3& operator =(Message3&& other)
     {
-      x = other.x;
+      x = std::move(other.x);
       moved = true;
       copied = false;
       return *this;
@@ -443,3 +454,5 @@ namespace
     }
   };
 }
+
+#endif

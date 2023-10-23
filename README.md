@@ -12,6 +12,7 @@ Embedded Template Library (ETL)
 [![Build status](https://ci.appveyor.com/api/projects/status/b7jgecv7unqjw4u0/branch/master?svg=true)](https://ci.appveyor.com/project/jwellbelove/etl/branch/master)
 [![Codacy Badge](https://api.codacy.com/project/badge/Grade/3c14cd918ccf40008d0bcd7b083d5946)](https://www.codacy.com/manual/jwellbelove/etl?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=ETLCPP/etl&amp;utm_campaign=Badge_Grade)
 
+![GitHub contributors](https://img.shields.io/github/contributors-anon/ETLCPP/etl)
 [![](https://img.shields.io/static/v1?label=Sponsor&message=%E2%9D%A4&logo=GitHub&color=%23fe8e86)](https://github.com/sponsors/ETLCPP)
 
 [Project documentation](https://www.etlcpp.com/)
@@ -30,13 +31,13 @@ The ETL is not designed to completely replace the STL, but complement it.
 Its design objective covers three areas.
 
 - Create a set of containers where the size or maximum size is determined at compile time. These containers are direct equivalents of those supplied in the STL.
-- Be compatible with C++ 03 but implement as many of the C++ 11 additions as possible.
+- Be compatible with C++ 03 but implement as many of the C++ 11/14/17/20 additions as possible.
 - Add other useful components that are not present in the standard library.
 
 The embedded template library has been designed for lower resource embedded applications.
 It contains a set of containers, algorithms and utilities, some of which emulate parts of the STL.
 There is no dynamic memory allocation. The library makes no use of the heap. All of the containers have a fixed capacity allowing all memory allocation to be determined at compile time.
-The library is intended for any compiler that supports C++ 03.
+The library is intended for any compiler that supports C++98/03/11/14/17/20.
 
 ## Main features
 

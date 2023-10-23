@@ -1,9 +1,11 @@
 cmake_minimum_required(VERSION 3.5.0)
-project(etl_14sanity_tests)
+project(etl_14_syntax_check)
 
 add_definitions(-DETL_DEBUG)
 
 option(NO_STL "No STL" OFF)
+
+message(STATUS "Compiling for C++14")
 
 if (NO_STL)
 	message(STATUS "Compiling for No STL")
@@ -23,7 +25,7 @@ if (ETL_USER_DEFINED_TYPE_TRAITS)
 endif()
 
 if (ETL_FORCE_TEST_CPP03_IMPLEMENTATION)
-	message(STATUS "Compiling for C++03 tests")
+	message(STATUS "Force C++03 implementations")
 	add_definitions(-DETL_FORCE_TEST_CPP03_IMPLEMENTATION)
 endif()
 
