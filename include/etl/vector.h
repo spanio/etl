@@ -365,7 +365,7 @@ namespace etl
     /// Returns a const pointer to the beginning of the vector data.
     ///\return A const pointer to the beginning of the vector data.
     //*********************************************************************
-    const_pointer data() const
+    ETL_CONSTEXPR const_pointer data() const
     {
       return p_buffer;
     }
@@ -974,7 +974,7 @@ namespace etl
     /// Gets the current size of the vector.
     ///\return The current size of the vector.
     //*************************************************************************
-    size_type size() const
+    ETL_CONSTEXPR size_type size() const
     {
       return size_t(p_end - p_buffer);
     }
@@ -1346,11 +1346,9 @@ namespace etl
     /// Fix the internal pointers after a low level memory copy.
     //*************************************************************************
 #ifdef ETL_IVECTOR_REPAIR_ENABLE
-    virtual
-#endif
+    virtual void repair() ETL_OVERRIDE
+#else
     void repair()
-#ifdef ETL_IVECTOR_REPAIR_ENABLE
-      ETL_OVERRIDE
 #endif
     {
       ETL_ASSERT_OR_RETURN(etl::is_trivially_copyable<T>::value, ETL_ERROR(etl::vector_incompatible_type));
@@ -1527,9 +1525,10 @@ namespace etl
     //*************************************************************************
     /// Fix the internal pointers after a low level memory copy.
     //*************************************************************************
-    void repair()
 #ifdef ETL_IVECTOR_REPAIR_ENABLE
-      ETL_OVERRIDE
+    virtual void repair() ETL_OVERRIDE
+#else
+    void repair()
 #endif
     {
     }
@@ -1649,9 +1648,10 @@ namespace etl
     //*************************************************************************
     /// Fix the internal pointers after a low level memory copy.
     //*************************************************************************
-    void repair()
 #ifdef ETL_IVECTOR_REPAIR_ENABLE
-      ETL_OVERRIDE
+    virtual void repair() ETL_OVERRIDE
+#else
+    void repair()
 #endif
     {
       etl::ivector<T*>::repair_buffer(buffer);
@@ -1806,9 +1806,10 @@ namespace etl
     //*************************************************************************
     /// Fix the internal pointers after a low level memory copy.
     //*************************************************************************
-    void repair()
 #ifdef ETL_IVECTOR_REPAIR_ENABLE
-      ETL_OVERRIDE
+    virtual void repair() ETL_OVERRIDE
+#else
+    void repair()
 #endif
     {
       etl::ivector<T*>::repair_buffer(this->p_buffer);

@@ -19,6 +19,7 @@ add_executable(etl_tests
 	test_array_view.cpp
 	test_array_wrapper.cpp
 	test_atomic.cpp
+	test_base64.cpp
     test_binary.cpp
 	test_bip_buffer_spsc_atomic.cpp
 	test_bit.cpp
@@ -97,6 +98,8 @@ add_executable(etl_tests
 	test_crc8_ebu.cpp
 	test_crc8_icode.cpp
 	test_crc8_itu.cpp
+	test_crc8_j1850_zero.cpp
+	test_crc8_j1850.cpp
 	test_crc8_maxim.cpp
 	test_crc8_rohc.cpp
 	test_crc8_wcdma.cpp
@@ -151,7 +154,8 @@ add_executable(etl_tests
 	test_list_shared_pool.cpp
 	test_make_string.cpp
 	test_map.cpp
-	test_maths.cpp
+	test_math.cpp
+	test_math_functions.cpp
 	test_mean.cpp
 	test_mem_cast.cpp
 	test_mem_cast_ptr.cpp
@@ -224,18 +228,23 @@ add_executable(etl_tests
 	test_string_char.cpp
 	test_string_char_external_buffer.cpp
 	test_string_stream.cpp
+	test_string_stream_u8.cpp
 	test_string_stream_u16.cpp
 	test_string_stream_u32.cpp
 	test_string_stream_wchar_t.cpp
+	test_string_u8.cpp
+	test_string_u8_external_buffer.cpp
 	test_string_u16.cpp
 	test_string_u16_external_buffer.cpp
 	test_string_u32.cpp
 	test_string_u32_external_buffer.cpp
 	test_string_utilities.cpp
 	test_string_utilities_std.cpp
+	test_string_utilities_std_u8.cpp
 	test_string_utilities_std_u16.cpp
 	test_string_utilities_std_u32.cpp
 	test_string_utilities_std_wchar_t.cpp
+	test_string_utilities_u8.cpp
 	test_string_utilities_u16.cpp
 	test_string_utilities_u32.cpp
 	test_string_utilities_wchar_t.cpp
@@ -246,10 +255,12 @@ add_executable(etl_tests
 	test_task_scheduler.cpp
 	test_threshold.cpp
 	test_to_arithmetic.cpp
+	test_to_arithmetic_u8.cpp
 	test_to_arithmetic_u16.cpp
 	test_to_arithmetic_u32.cpp
 	test_to_arithmetic_wchar_t.cpp
 	test_to_string.cpp
+	test_to_u8string.cpp
 	test_to_u16string.cpp
 	test_to_u32string.cpp
 	test_to_wstring.cpp
@@ -362,7 +373,7 @@ if (CMAKE_CXX_COMPILER_ID MATCHES "Clang")
     message(STATUS "Using Clang compiler")
 endif ()
 
-if ((CMAKE_CXX_COMPILER_ID MATCHES "GNU") OR (CMAKE_CXX_COMPILER_ID MATCHES "Clang"))
+if (CMAKE_CXX_COMPILER_ID MATCHES "GNU")
 	target_compile_options(etl_tests
 			PRIVATE
 			-fno-omit-frame-pointer
@@ -371,9 +382,29 @@ if ((CMAKE_CXX_COMPILER_ID MATCHES "GNU") OR (CMAKE_CXX_COMPILER_ID MATCHES "Cla
 			-Wextra
 			-Wsign-conversion
 			-Werror
+			-Wfloat-equal
+			-Wuseless-cast
+			-Wshadow
+			-Wnull-dereference
 			)
+endif ()
 
-	if (ETL_ENABLE_SANITIZER)
+if (CMAKE_CXX_COMPILER_ID MATCHES "Clang")
+	target_compile_options(etl_tests
+			PRIVATE
+			-fno-omit-frame-pointer
+			-fno-common
+			-Wall
+			-Wextra
+			-Werror
+			-Wfloat-equal
+			-Wshadow
+			-Wnull-dereference
+			)
+endif ()
+
+if ((CMAKE_CXX_COMPILER_ID MATCHES "GNU") OR (CMAKE_CXX_COMPILER_ID MATCHES "Clang"))
+	if (ETL_ENABLE_SANITIZER MATCHES "ON")
 		message(STATUS "Compiling with Sanitizer enabled")
 		# MinGW doesn't presently support sanitization
 		if (NOT MINGW)

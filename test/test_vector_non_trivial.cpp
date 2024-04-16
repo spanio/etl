@@ -34,6 +34,7 @@
 #include <memory>
 
 #include "etl/vector.h"
+#include "etl/math.h"
 #include "data.h"
 
 namespace
@@ -212,8 +213,7 @@ namespace
     //*************************************************************************
     TEST(test_move_constructor)
     {
-      const size_t Size = 10U;
-      typedef etl::vector<std::unique_ptr<uint32_t>, Size> Data;
+      typedef etl::vector<std::unique_ptr<uint32_t>, SIZE> Data;
 
       std::unique_ptr<uint32_t> p1(new uint32_t(1U));
       std::unique_ptr<uint32_t> p2(new uint32_t(2U));
@@ -255,8 +255,7 @@ namespace
     //*************************************************************************
     TEST(test_move_assignment)
     {
-      const size_t Size = 10U;
-      typedef etl::vector<std::unique_ptr<uint32_t>, Size> Data;
+      typedef etl::vector<std::unique_ptr<uint32_t>, SIZE> Data;
 
       std::unique_ptr<uint32_t> p1(new uint32_t(1U));
       std::unique_ptr<uint32_t> p2(new uint32_t(2U));
@@ -302,8 +301,7 @@ namespace
     //*************************************************************************
     TEST(test_move_assignment_interface)
     {
-      const size_t Size = 10U;
-      typedef etl::vector<std::unique_ptr<uint32_t>, Size> Data;
+      typedef etl::vector<std::unique_ptr<uint32_t>, SIZE> Data;
       typedef etl::ivector<std::unique_ptr<uint32_t>> IData;
 
       std::unique_ptr<uint32_t> p1(new uint32_t(1U));
@@ -786,10 +784,12 @@ namespace
         Data(std::string w, size_t x, double y, const char *z) : a(w), b(x), c(y), d(z){}
         bool operator == (const Data &other) const
         {
+#include "etl/private/diagnostic_float_equal_push.h"
           return (a == other.a) &&
                  (b == other.b) &&
                  (c == other.c) &&
                  (((d == nullptr) && (other.d == nullptr)) || (strcmp(d, other.d) == 0));
+#include "etl/private/diagnostic_pop.h"
         }
       };
 
@@ -846,7 +846,7 @@ namespace
         Data(std::string &w, size_t &x, double &y, const char *z) : a(w), b(x), c(y), d(z){}
         bool operator == (const Data &other) const
         {
-          return (a == other.a) && (b == other.b) && (c == other.c) && (d == other.d);
+          return (a == other.a) && (b == other.b) && !(c < other.c) && !(c > other.c) && (d == other.d);
         }
       };
 
