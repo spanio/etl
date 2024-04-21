@@ -3312,7 +3312,7 @@
       <Filter>Tests\CRC</Filter>
     </ClCompile>
     <ClCompile Include="..\test_message.cpp">
-      <Filter>Tests</Filter>
+      <Filter>Tests\Messaging</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
