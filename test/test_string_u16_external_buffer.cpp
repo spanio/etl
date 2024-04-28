@@ -461,6 +461,32 @@ namespace
     }
 
     //*************************************************************************
+    TEST_FIXTURE(SetupFixture, test_move_constructor)
+    {
+      TextBuffer buffer{ 0 };
+      Text text(initial_text.c_str(), buffer.data(), buffer.size());
+
+      size_t original_size     = text.size();
+      size_t original_max_size = text.max_size();
+
+      Text text2(etl::move(text));
+
+      // Check the source string.
+      CHECK_TRUE(text.empty());
+      CHECK_TRUE(text.full());
+      CHECK_EQUAL(0U, text.size());
+      CHECK_EQUAL(0U, text.max_size());
+      CHECK_TRUE(text.data() == nullptr);
+
+      // Check the destination string.
+      CHECK_FALSE(text2.empty());
+      CHECK_TRUE(text2.full());
+      CHECK_EQUAL(original_size, text2.size());
+      CHECK_EQUAL(original_max_size, text2.max_size());
+      CHECK_TRUE(text2.data() != nullptr);
+    }
+
+    //*************************************************************************
     TEST_FIXTURE(SetupFixture, test_construct_position_length)
     {
       CompareText compare_text(initial_text.c_str());
@@ -723,6 +749,34 @@ namespace
 #if ETL_HAS_STRING_TRUNCATION_CHECKS
       CHECK(itext.is_truncated());
 #endif
+    }
+
+    //*************************************************************************
+    TEST_FIXTURE(SetupFixture, test_move_assignment)
+    {
+      TextBuffer buffer{ 0 };
+      Text text(initial_text.begin(), initial_text.end(), buffer.data(), buffer.size());
+
+      Text other_text(nullptr, 0U);
+
+      size_t original_size = text.size();
+      size_t original_max_size = text.max_size();
+
+      other_text = etl::move(text);
+
+      // Check the source string.
+      CHECK_TRUE(text.empty());
+      CHECK_TRUE(text.full());
+      CHECK_EQUAL(0U, text.size());
+      CHECK_EQUAL(0U, text.max_size());
+      CHECK_TRUE(text.data() == nullptr);
+
+      // Check the destination string.
+      CHECK_FALSE(other_text.empty());
+      CHECK_TRUE(other_text.full());
+      CHECK_EQUAL(original_size, other_text.size());
+      CHECK_EQUAL(original_max_size, other_text.max_size());
+      CHECK_TRUE(other_text.data() != nullptr);
     }
 
     //*************************************************************************
