@@ -276,6 +276,18 @@ namespace etl
       this->assign(other);
     }
 
+#if ETL_USING_CPP11
+    //*************************************************************************
+    /// Move constructor from etl::string_ext
+    ///\param other The other string_ext.
+    //*************************************************************************
+    u32string_ext(etl::u32string_ext&& other)
+      : iu32string(other.data(), other.max_size(), other.size())
+    {
+      other.reset_after_move();
+    }
+#endif
+
     //*************************************************************************
     /// From other iu32string.
     ///\param other The other iu32string.
@@ -388,6 +400,20 @@ namespace etl
       return *this;
     }
 
+#if ETL_USING_CPP11
+    //*************************************************************************
+    /// Move assignment operator.
+    //*************************************************************************
+    u32string_ext& operator = (u32string_ext&& rhs)
+    {
+      if (&rhs != this)
+      {
+        this->move_data_from(rhs);
+      }
+
+      return *this;
+    }
+#endif
 
     //*************************************************************************
     /// Assignment operator.

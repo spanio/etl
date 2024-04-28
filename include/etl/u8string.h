@@ -297,6 +297,18 @@ namespace etl
       this->assign(other);
     }
 
+#if ETL_USING_CPP11
+    //*************************************************************************
+    /// Move constructor from etl::u8string_ext.
+    ///\param other The other string_ext.
+    //*************************************************************************
+    u8string_ext(etl::u8string_ext&& other)
+      : iu8string(other.data(), other.max_size(), other.size())
+    {
+      other.reset_after_move();
+    }
+#endif
+
     //*************************************************************************
     /// From other iu8string.
     ///\param other The other iu8string.
@@ -409,6 +421,20 @@ namespace etl
       return *this;
     }
 
+#if ETL_USING_CPP11
+    //*************************************************************************
+    /// Move assignment operator.
+    //*************************************************************************
+    u8string_ext& operator = (u8string_ext&& rhs)
+    {
+      if (&rhs != this)
+      {
+        this->move_data_from(rhs);
+      }
+
+      return *this;
+    }
+#endif
 
     //*************************************************************************
     /// Assignment operator.

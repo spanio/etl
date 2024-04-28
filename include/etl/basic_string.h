@@ -202,7 +202,7 @@ namespace etl
     //*************************************************************************
     bool full() const
     {
-      return current_size == CAPACITY;
+      return current_size == maximum_size;
     }
 
     //*************************************************************************
@@ -211,7 +211,7 @@ namespace etl
     //*************************************************************************
     size_type capacity() const
     {
-      return CAPACITY;
+      return maximum_size;
     }
 
     //*************************************************************************
@@ -220,7 +220,7 @@ namespace etl
     //*************************************************************************
     size_type max_size() const
     {
-      return CAPACITY;
+      return maximum_size;
     }
 
     //*************************************************************************
@@ -272,6 +272,12 @@ namespace etl
     }
 
     //*************************************************************************
+    void set_secure(bool status)
+    {
+      flags.set<CLEAR_AFTER_USE>(status);
+    }
+
+    //*************************************************************************
     /// Gets the 'secure' state flag.
     //*************************************************************************
     bool is_secure() const
@@ -285,9 +291,9 @@ namespace etl
     //*************************************************************************
     /// Constructor.
     //*************************************************************************
-    string_base(size_type max_size_)
-      : current_size(0)
-      , CAPACITY(max_size_)
+    string_base(size_type max_size_, size_t current_size_ = 0)
+      : current_size(current_size_)
+      , maximum_size(max_size_)
     {
     }
 
@@ -308,8 +314,8 @@ namespace etl
     {
     }
 
-    size_type       current_size;   ///< The current number of elements in the string.
-    const size_type CAPACITY;       ///< The maximum number of elements in the string.
+    size_type current_size; ///< The current number of elements in the string.
+    size_type maximum_size;  ///< The maximum number of elements in the string.
 
 #if ETL_HAS_STRING_TRUNCATION_CHECKS || ETL_HAS_STRING_CLEAR_AFTER_USE
     etl::flags<uint_least8_t> flags;
@@ -465,7 +471,7 @@ namespace etl
     //*********************************************************************
     void resize(size_type new_size, T value)
     {
-      if (new_size > CAPACITY)
+      if (new_size > maximum_size)
       {
 #if ETL_HAS_STRING_TRUNCATION_CHECKS
         set_truncated(true);
@@ -476,7 +482,7 @@ namespace etl
 #endif
       }
 
-      new_size = etl::min(new_size, CAPACITY);
+      new_size = etl::min(new_size, maximum_size);
 
       // Size up?
       if (new_size > current_size)
@@ -496,7 +502,7 @@ namespace etl
     //*********************************************************************
     void uninitialized_resize(size_type new_size)
     {
-      new_size = etl::min(new_size, CAPACITY);
+      new_size = etl::min(new_size, maximum_size);
 
       current_size = new_size;
       p_buffer[new_size] = 0;
@@ -704,7 +710,7 @@ namespace etl
     {
       initialise();
 
-      while ((*other != 0) && (current_size < CAPACITY))
+      while ((*other != 0) && (current_size < maximum_size))
       {
         p_buffer[current_size++] = *other++;
       }
@@ -731,14 +737,14 @@ namespace etl
       initialise();
 
 #if ETL_HAS_STRING_TRUNCATION_CHECKS
-      set_truncated(length_ > CAPACITY);
+      set_truncated(length_ > maximum_size);
 
 #if ETL_HAS_ERROR_ON_STRING_TRUNCATION
       ETL_ASSERT(flags.test<IS_TRUNCATED>() == false, ETL_ERROR(string_truncation));
 #endif
 #endif
 
-      length_ = etl::min(length_, CAPACITY);
+      length_ = etl::min(length_, maximum_size);
 
       etl::copy_n(other, length_, begin());
 
@@ -763,7 +769,7 @@ namespace etl
 
       initialise();
 
-      while ((first != last) && (current_size != CAPACITY))
+      while ((first != last) && (current_size != maximum_size))
       {
         p_buffer[current_size++] = *first++;
       }
@@ -790,14 +796,14 @@ namespace etl
       initialise();
 
 #if ETL_HAS_STRING_TRUNCATION_CHECKS
-      set_truncated(n > CAPACITY);
+      set_truncated(n > maximum_size);
 
 #if ETL_HAS_ERROR_ON_STRING_TRUNCATION
       ETL_ASSERT(flags.test<IS_TRUNCATED>() == false, ETL_ERROR(string_truncation));
 #endif
 #endif
 
-      n = etl::min(n, CAPACITY);
+      n = etl::min(n, maximum_size);
 
       etl::fill_n(begin(), n, value);
       current_size = n;
@@ -819,7 +825,7 @@ namespace etl
     //*********************************************************************
     void push_back(T value)
     {
-      if (current_size != CAPACITY)
+      if (current_size != maximum_size)
       {
         p_buffer[current_size++] = value;
         p_buffer[current_size]   = 0;
@@ -939,7 +945,7 @@ namespace etl
       // Quick hack, as iterators are pointers.
       iterator insert_position = to_iterator(position);
 
-      if (current_size < CAPACITY)
+      if (current_size < maximum_size)
       {
         // Not full yet.
         if (position != end())
@@ -1000,7 +1006,7 @@ namespace etl
       const size_type start = etl::distance(cbegin(), position);
 
       // No effect.
-      if (start >= CAPACITY)
+      if (start >= maximum_size)
       {
 #if ETL_HAS_STRING_TRUNCATION_CHECKS
         set_truncated(true);
@@ -1013,9 +1019,9 @@ namespace etl
       }
 
       // Fills the string to the end?
-      if ((start + n) >= CAPACITY)
+      if ((start + n) >= maximum_size)
       {
-        if ((current_size + n) > CAPACITY)
+        if ((current_size + n) > maximum_size)
         {
 #if ETL_HAS_STRING_TRUNCATION_CHECKS
           set_truncated(true);
@@ -1026,7 +1032,7 @@ namespace etl
 #endif
         }
 
-        current_size = CAPACITY;
+        current_size = maximum_size;
         etl::fill(insert_position, end(), value);
       }
       else
@@ -1035,13 +1041,13 @@ namespace etl
         const size_type shift_amount = n;
         const size_type to_position = start + shift_amount;
         const size_type remaining_characters = current_size - start;
-        const size_type max_shift_characters = CAPACITY - start - shift_amount;
+        const size_type max_shift_characters = maximum_size - start - shift_amount;
         const size_type characters_to_shift = etl::min(max_shift_characters, remaining_characters);
 
         // Will the string truncate?
-        if ((start + shift_amount + remaining_characters) > CAPACITY)
+        if ((start + shift_amount + remaining_characters) > maximum_size)
         {
-          current_size = CAPACITY;
+          current_size = maximum_size;
 
 #if ETL_HAS_STRING_TRUNCATION_CHECKS
           set_truncated(true);
@@ -1086,7 +1092,7 @@ namespace etl
       const size_type n = etl::distance(first, last);
 
       // No effect.
-      if (start >= CAPACITY)
+      if (start >= maximum_size)
       {
 #if ETL_HAS_STRING_TRUNCATION_CHECKS
         set_truncated(true);
@@ -1099,9 +1105,9 @@ namespace etl
       }
 
       // Fills the string to the end?
-      if ((start + n) >= CAPACITY)
+      if ((start + n) >= maximum_size)
       {
-        if (((current_size + n) > CAPACITY))
+        if (((current_size + n) > maximum_size))
         {
 #if ETL_HAS_STRING_TRUNCATION_CHECKS
           set_truncated(true);
@@ -1112,7 +1118,7 @@ namespace etl
 #endif
         }
 
-        current_size = CAPACITY;
+        current_size = maximum_size;
 
         while (position_ != end())
         {
@@ -1125,13 +1131,13 @@ namespace etl
         const size_type shift_amount = n;
         const size_type to_position = start + shift_amount;
         const size_type remaining_characters = current_size - start;
-        const size_type max_shift_characters = CAPACITY - start - shift_amount;
+        const size_type max_shift_characters = maximum_size - start - shift_amount;
         const size_type characters_to_shift = etl::min(max_shift_characters, remaining_characters);
 
         // Will the string truncate?
-        if ((start + shift_amount + remaining_characters) > CAPACITY)
+        if ((start + shift_amount + remaining_characters) > maximum_size)
         {
-          current_size = CAPACITY;
+          current_size = maximum_size;
 
 #if ETL_HAS_STRING_TRUNCATION_CHECKS
           set_truncated(true);
@@ -2264,7 +2270,7 @@ namespace etl
 #if ETL_HAS_STRING_TRUNCATION_CHECKS
       set_truncated(false);
 #endif
-      etl::fill(&p_buffer[current_size], &p_buffer[CAPACITY + 1U], T(0));
+      etl::fill(&p_buffer[current_size], &p_buffer[maximum_size + 1U], T(0));
     }
 
     //*********************************************************************
@@ -2275,10 +2281,10 @@ namespace etl
     void trim_to_terminator()
     {
 #if ETL_HAS_STRING_TRUNCATION_CHECKS
-      set_truncated(p_buffer[CAPACITY] != T(0));
+      set_truncated(p_buffer[maximum_size] != T(0));
 #endif
 
-      p_buffer[CAPACITY] = T(0); // Ensure a terminating null.
+      p_buffer[maximum_size] = T(0); // Ensure a terminating null.
       current_size = etl::strlen(p_buffer);
     }
 
@@ -2287,9 +2293,9 @@ namespace etl
     //*********************************************************************
     /// Constructor.
     //*********************************************************************
-    ibasic_string(T* p_buffer_, size_type MAX_SIZE_)
-      : string_base(MAX_SIZE_),
-        p_buffer(p_buffer_)
+    ibasic_string(T* p_buffer_, size_type max_size_, size_type current_size_ = 0)
+      : string_base(max_size_, current_size_)
+      , p_buffer(p_buffer_)
     {
     }
 
@@ -2299,8 +2305,12 @@ namespace etl
     void initialise()
     {
       current_size = 0U;
-      cleanup();
-      p_buffer[0] = 0;
+      
+      if (p_buffer != ETL_NULLPTR)
+      {
+        cleanup();
+        p_buffer[0] = 0;
+      }
 #if ETL_HAS_STRING_TRUNCATION_CHECKS
       set_truncated(false);
 #endif
@@ -2313,6 +2323,35 @@ namespace etl
     {
       p_buffer = p_buffer_;
     }
+
+    //*************************************************************************
+    /// Reset the string after a move.
+    /// Used for _ext string types only.
+    //*************************************************************************
+    void reset_after_move()
+    {
+      current_size = 0U;
+      maximum_size = 0U;
+      p_buffer     = ETL_NULLPTR;
+    }
+
+#if ETL_USING_CPP11
+    //*************************************************************************
+    /// Move a string and reset after.
+    /// Used for _ext string types only.
+    //*************************************************************************
+    template <typename TString>
+    void move_data_from(TString&& other)
+    {
+      // Steal the data.
+      current_size = other.current_size;
+      maximum_size = other.maximum_size;
+      p_buffer     = other.p_buffer;
+
+      // Reset the moved string
+      other.reset_after_move();
+    }
+#endif
 
   private:
 
@@ -2364,7 +2403,7 @@ namespace etl
 #if ETL_HAS_STRING_CLEAR_AFTER_USE
       if (is_secure())
       {
-        etl::memory_clear_range(&p_buffer[current_size], &p_buffer[CAPACITY]);
+        etl::memory_clear_range(&p_buffer[current_size], &p_buffer[maximum_size]);
       }
 #endif
     }
