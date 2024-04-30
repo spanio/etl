@@ -305,7 +305,7 @@ namespace etl
     u8string_ext(etl::u8string_ext&& other)
       : iu8string(other.data(), other.max_size(), other.size())
     {
-      other.reset_after_move();
+      other.string_ext_reset_after_move_contruction();
     }
 #endif
 
@@ -429,7 +429,7 @@ namespace etl
     {
       if (&rhs != this)
       {
-        this->move_data_from(rhs);
+        this->string_ext_move_assignment(rhs);
       }
 
       return *this;

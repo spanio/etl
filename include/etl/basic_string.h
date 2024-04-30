@@ -2328,7 +2328,7 @@ namespace etl
     /// Reset the string after a move.
     /// Used for _ext string types only.
     //*************************************************************************
-    void reset_after_move()
+    void string_ext_reset_after_move_contruction()
     {
       current_size = 0U;
       maximum_size = 0U;
@@ -2341,15 +2341,20 @@ namespace etl
     /// Used for _ext string types only.
     //*************************************************************************
     template <typename TString>
-    void move_data_from(TString&& other)
+    void string_ext_move_assignment(TString&& rhs)
     {
+      // Make sure we eradicate the old string data.
+      clear();
+
       // Steal the data.
-      current_size = other.current_size;
-      maximum_size = other.maximum_size;
-      p_buffer     = other.p_buffer;
+      current_size = rhs.current_size;
+      maximum_size = rhs.maximum_size;
+      using ETL_OR_STD::swap;
+      swap(p_buffer, rhs.p_buffer); // We swap so that the destination buffer is still accessible via the source string.
 
       // Reset the moved string
-      other.reset_after_move();
+      rhs.current_size = 0U;
+      rhs.maximum_size = 0U;
     }
 #endif
 
@@ -2565,7 +2570,6 @@ namespace etl
     return etl::lexicographical_compare(lhs, lhs + etl::strlen(lhs), rhs.begin(), rhs.end());
   }
 
-
   //***************************************************************************
   /// Greater than operator.
   ///\param lhs Reference to the first string.
@@ -2605,7 +2609,6 @@ namespace etl
     return (rhs < lhs);
   }
 
-
   //***************************************************************************
   /// Less than or equal operator.
   ///\param lhs Reference to the first string.
@@ -2644,7 +2647,6 @@ namespace etl
   {
     return !(lhs > rhs);
   }
-
 
   //***************************************************************************
   /// Greater than or equal operator.

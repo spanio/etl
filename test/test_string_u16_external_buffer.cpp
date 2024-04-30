@@ -754,29 +754,30 @@ namespace
     //*************************************************************************
     TEST_FIXTURE(SetupFixture, test_move_assignment)
     {
-      TextBuffer buffer{ 0 };
-      Text text(initial_text.begin(), initial_text.end(), buffer.data(), buffer.size());
+      TextBuffer src_buffer{ 0 };
+      Text src(initial_text.begin(), initial_text.end(), src_buffer.data(), src_buffer.size());
 
-      Text other_text(nullptr, 0U);
+      TextBuffer dst_buffer{ 0 };
+      Text dst(dst_buffer.data(), dst_buffer.size());
 
-      size_t original_size = text.size();
-      size_t original_max_size = text.max_size();
+      size_t original_size = src.size();
+      size_t original_max_size = src.max_size();
 
-      other_text = etl::move(text);
+      dst = etl::move(src);
 
       // Check the source string.
-      CHECK_TRUE(text.empty());
-      CHECK_TRUE(text.full());
-      CHECK_EQUAL(0U, text.size());
-      CHECK_EQUAL(0U, text.max_size());
-      CHECK_TRUE(text.data() == nullptr);
+      CHECK_TRUE(src.empty());
+      CHECK_TRUE(src.full());
+      CHECK_EQUAL(0U, src.size());
+      CHECK_EQUAL(0U, src.max_size());
+      CHECK_TRUE(src.data() == dst_buffer.data());
 
       // Check the destination string.
-      CHECK_FALSE(other_text.empty());
-      CHECK_TRUE(other_text.full());
-      CHECK_EQUAL(original_size, other_text.size());
-      CHECK_EQUAL(original_max_size, other_text.max_size());
-      CHECK_TRUE(other_text.data() != nullptr);
+      CHECK_FALSE(dst.empty());
+      CHECK_TRUE(dst.full());
+      CHECK_EQUAL(original_size, dst.size());
+      CHECK_EQUAL(original_max_size, dst.max_size());
+      CHECK_TRUE(dst.data() == src_buffer.data());
     }
 
     //*************************************************************************
