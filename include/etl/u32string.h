@@ -278,7 +278,18 @@ namespace etl
 
 #if ETL_USING_CPP11
     //*************************************************************************
-    /// Move constructor from etl::string_ext
+    /// Move constructor from etl::u32string_ext. Copies the text.
+    ///\param other The other string_ext.
+    //*************************************************************************
+    u32string_ext(etl::u32string_ext&& other, value_type* buffer, size_type buffer_size)
+      : iu32string(buffer, buffer_size - 1U)
+    {
+      this->assign(other);
+      other.clear();
+    }
+
+    //*************************************************************************
+    /// Move constructor from etl::u32string_ext. Steals the buffer.
     ///\param other The other string_ext.
     //*************************************************************************
     u32string_ext(etl::u32string_ext&& other)

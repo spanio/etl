@@ -446,16 +446,44 @@ namespace
     }
 
     //*************************************************************************
-    TEST_FIXTURE(SetupFixture, test_move_constructor)
+    TEST_FIXTURE(SetupFixture, test_move_constructor_move_the_string)
     {
-      TextBuffer buffer{ 0 };
-      Text text(initial_text.c_str(), buffer.data(), buffer.size());
+      TextBuffer buffer1{ 0 };
+      Text text(initial_text.c_str(), buffer1.data(), buffer1.size());
 
       size_t original_size     = text.size();
       size_t original_max_size = text.max_size();
 
-      Text text2(etl::move(text));
+      TextBuffer buffer2{ 0 };
+      Text text2(etl::move(text), buffer2.data(), buffer2.size());
       
+      // Check the source string.
+      CHECK_TRUE(text.empty());
+      CHECK_FALSE(text.full());
+      CHECK_EQUAL(0U, text.size());
+      CHECK_EQUAL(original_max_size, text.max_size());
+      CHECK_TRUE(text.data() != nullptr);
+
+      // Check the destination string.
+      CHECK_FALSE(text2.empty());
+      CHECK_TRUE(text2.full());
+      CHECK_EQUAL(original_size, text2.size());
+      CHECK_EQUAL(original_max_size, text2.max_size());
+      CHECK_TRUE(text2.data() != nullptr);
+      CHECK_TRUE(std::equal(initial_text.begin(), initial_text.end(), text2.begin()));
+    }
+
+    //*************************************************************************
+    TEST_FIXTURE(SetupFixture, test_move_constructor_steal_the_string)
+    {
+      TextBuffer buffer{ 0 };
+      Text text(initial_text.c_str(), buffer.data(), buffer.size());
+
+      size_t original_size = text.size();
+      size_t original_max_size = text.max_size();
+
+      Text text2(etl::move(text));
+
       // Check the source string.
       CHECK_TRUE(text.empty());
       CHECK_TRUE(text.full());
@@ -469,6 +497,7 @@ namespace
       CHECK_EQUAL(original_size, text2.size());
       CHECK_EQUAL(original_max_size, text2.max_size());
       CHECK_TRUE(text2.data() != nullptr);
+      CHECK_TRUE(std::equal(initial_text.begin(), initial_text.end(), text2.begin()));
     }
 
     //*************************************************************************
@@ -752,9 +781,9 @@ namespace
 
       // Check the source string.
       CHECK_TRUE(src.empty());
-      CHECK_TRUE(src.full());
+      CHECK_FALSE(src.full());
       CHECK_EQUAL(0U, src.size());
-      CHECK_EQUAL(0U, src.max_size());
+      CHECK_EQUAL(original_max_size, src.max_size());
       CHECK_TRUE(src.data() == dst_buffer.data());
 
       // Check the destination string.
@@ -763,6 +792,7 @@ namespace
       CHECK_EQUAL(original_size, dst.size());
       CHECK_EQUAL(original_max_size, dst.max_size());
       CHECK_TRUE(dst.data() == src_buffer.data());
+      CHECK_TRUE(std::equal(initial_text.begin(), initial_text.end(), dst.begin()));
     }
 
     //*************************************************************************
