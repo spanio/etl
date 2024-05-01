@@ -299,8 +299,19 @@ namespace etl
 
 #if ETL_USING_CPP11
     //*************************************************************************
-    /// Move constructor from etl::u8string_ext.
-    ///\param other The other string_ext.
+    /// Move constructor from etl::u8string_ext. Copies the text.
+    ///\param other The other u8string_ext.
+    //*************************************************************************
+    u8string_ext(etl::u8string_ext&& other, value_type* buffer, size_type buffer_size)
+      : iu8string(buffer, buffer_size - 1U)
+    {
+      this->assign(other);
+      other.clear();
+    }
+
+    //*************************************************************************
+    /// Move constructor from etl::string_ext. Steals the buffer.
+    ///\param other The other u8string_ext.
     //*************************************************************************
     u8string_ext(etl::u8string_ext&& other)
       : iu8string(other.data(), other.max_size(), other.size())

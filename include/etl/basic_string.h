@@ -2343,18 +2343,18 @@ namespace etl
     template <typename TString>
     void string_ext_move_assignment(TString&& rhs)
     {
+      using ETL_OR_STD::swap;
+
       // Make sure we eradicate the old string data.
       clear();
 
       // Steal the data.
       current_size = rhs.current_size;
-      maximum_size = rhs.maximum_size;
-      using ETL_OR_STD::swap;
-      swap(p_buffer, rhs.p_buffer); // We swap so that the destination buffer is still accessible via the source string.
+      swap(maximum_size, rhs.maximum_size);
+      swap(p_buffer,     rhs.p_buffer);
 
       // Reset the moved string
       rhs.current_size = 0U;
-      rhs.maximum_size = 0U;
     }
 #endif
 
