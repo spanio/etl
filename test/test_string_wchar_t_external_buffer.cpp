@@ -478,14 +478,14 @@ namespace
       CHECK_FALSE(text.full());
       CHECK_EQUAL(0U, text.size());
       CHECK_EQUAL(original_max_size, text.max_size());
-      CHECK_TRUE(text.data() != nullptr);
+      CHECK_TRUE(text.data() == buffer1.data());
 
       // Check the destination string.
       CHECK_FALSE(text2.empty());
       CHECK_TRUE(text2.full());
       CHECK_EQUAL(original_size, text2.size());
       CHECK_EQUAL(original_max_size, text2.max_size());
-      CHECK_TRUE(text2.data() != nullptr);
+      CHECK_TRUE(text2.data() == buffer2.data());
       CHECK_TRUE(std::equal(initial_text.begin(), initial_text.end(), text2.begin()));
     }
 
@@ -512,7 +512,7 @@ namespace
       CHECK_TRUE(text2.full());
       CHECK_EQUAL(original_size, text2.size());
       CHECK_EQUAL(original_max_size, text2.max_size());
-      CHECK_TRUE(text2.data() != nullptr);
+      CHECK_TRUE(text2.data() == buffer.data());
       CHECK_TRUE(std::equal(initial_text.begin(), initial_text.end(), text2.begin()));
     }
 
