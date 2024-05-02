@@ -178,6 +178,21 @@ namespace
     {
     }
 
+    MotorControl(MotorControl&& other)
+      : hfsm(etl::move(other))
+    {
+    }
+
+    MotorControl& operator =(MotorControl&& other)
+    {
+      if (&other != this)
+      {
+        etl::hfsm::operator=(etl::move(other));
+      }
+
+      return *this;
+    }
+
     //***********************************
     void Initialise(etl::ifsm_state** p_states, size_t size)
     {
@@ -985,6 +1000,57 @@ namespace
       MotorControl mc;
 
       CHECK_THROW(mc.receive(Start()), etl::fsm_not_started);
+    }
+
+    //*************************************************************************
+    TEST(test_fsm_move_construct)
+    {
+      MotorControl motorControl;
+
+      motorControl.Initialise(stateList, ETL_OR_STD17::size(stateList));
+      motorControl.reset();
+      motorControl.ClearStatistics();
+
+      // Start the FSM.
+      motorControl.start(true);
+
+      // Execute event.
+      motorControl.receive(Start());
+
+      etl::ifsm_state* current_state = &motorControl.get_state();
+
+      MotorControl motorControl2(etl::move(motorControl));
+
+      CHECK_FALSE(motorControl.is_started());
+      CHECK_TRUE(motorControl2.is_started());
+      CHECK(current_state == &motorControl2.get_state());
+      CHECK(current_state->get_state_id() == motorControl2.get_state_id());
+    }
+
+    //*************************************************************************
+    TEST(test_fsm_move_assignment)
+    {
+      MotorControl motorControl;
+
+      motorControl.Initialise(stateList, ETL_OR_STD17::size(stateList));
+      motorControl.reset();
+      motorControl.ClearStatistics();
+
+      // Start the FSM.
+      motorControl.start(true);
+
+      // Execute event.
+      motorControl.receive(Start());
+
+      etl::ifsm_state* current_state = &motorControl.get_state();
+
+      MotorControl motorControl2;
+      motorControl2 = etl::move(motorControl);
+
+      CHECK_FALSE(motorControl.is_started());
+      CHECK_TRUE(motorControl2.is_started());
+      CHECK(current_state == &motorControl2.get_state());
+      CHECK(current_state->get_state_id() == motorControl2.get_state_id());
     }
   };
 }

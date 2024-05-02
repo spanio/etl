@@ -358,6 +358,41 @@ namespace etl
     {
     }
 
+#if ETL_USING_CPP11
+    //*******************************************
+    /// Move constructor.
+    //*******************************************
+    fsm(etl::fsm&& other) ETL_NOEXCEPT
+      : imessage_router(other.get_message_router_id())
+      , p_state(other.p_state)
+      , state_list(other.state_list)
+      , number_of_states(other.number_of_states)
+    {
+      other.p_state          = ETL_NULLPTR;
+      other.state_list       = ETL_NULLPTR;
+      other.number_of_states = 0U;
+    }
+
+    //*******************************************
+    /// Move assignment.
+    //*******************************************
+    fsm& operator =(etl::fsm&& other) ETL_NOEXCEPT
+    {
+      if (&other != this)
+      {
+        using ETL_OR_STD::swap;
+
+        set_message_router_id(other.get_message_router_id());
+        p_state = other.p_state;
+        other.p_state = ETL_NULLPTR;
+        number_of_states = other.number_of_states;
+        swap(state_list, other.state_list);
+      }
+      
+      return *this;
+    }
+#endif
+
     //*******************************************
     /// Set the states for the FSM
     //*******************************************
@@ -508,6 +543,15 @@ namespace etl
         p_state->on_exit_state();
       }
 
+      p_state = ETL_NULLPTR;
+    }
+
+    //*******************************************
+    /// Reset the FSM to pre-started state.
+    ///\param call_on_exit_state If true will call on_exit_state() for the current state. Default = false.
+    //*******************************************
+    void abort()
+    {
       p_state = ETL_NULLPTR;
     }
 

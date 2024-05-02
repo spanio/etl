@@ -177,6 +177,12 @@ namespace etl
     {
     }
 
+    //********************************************
+    void set_message_router_id(etl::message_router_id_t message_router_id_)
+    {
+      message_router_id = message_router_id_;
+    }
+
   private:
 
     // Disabled.

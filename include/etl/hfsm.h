@@ -43,19 +43,59 @@ namespace etl
   public:
 
     //*******************************************
-    /// Constructor.
+    /// \brief Constructor.
+    ///
+    /// This constructor is used to create a new `hfsm` object with a specified message router ID.
+    ///
+    /// \param id The message router ID to be assigned to this `hfsm` object.
     //*******************************************
     hfsm(etl::message_router_id_t id)
       : fsm(id)
     {
     }
 
+#if ETL_USING_CPP11
     //*******************************************
-    /// Starts the HFSM.
-    /// Can only be called once.
-    /// Subsequent calls will do nothing.
-    ///\param call_on_enter_state If true will call on_enter_state() for the first state. Default = true.
-    /// If the first state has child states then they will be recursively entered.
+    /// \brief Move constructor.
+    ///
+    /// This constructor is used to create a new `hfsm` object by taking the resources from another `hfsm` object.
+    /// It is noexcept because it should not throw any exceptions.
+    ///
+    /// \param other Another `hfsm` object to move data from.
+    //*******************************************
+    hfsm(etl::hfsm&& other) ETL_NOEXCEPT
+      : fsm(etl::move(other))
+    {
+    }
+
+    //*******************************************
+    /// \brief Move assignment operator.
+    ///
+    /// This operator is used to transfer the contents of 'other' to this object.
+    /// It is noexcept because it should not throw any exceptions.
+    ///
+    /// \param other Another hfsm object to move data from.
+    /// \return A reference to this object.
+    //*******************************************
+    hfsm& operator =(etl::hfsm&& other) ETL_NOEXCEPT
+    {
+      if (&other != this)
+      {
+        etl::fsm::operator=(etl::move(other));
+      }
+
+      return *this;
+    }
+#endif
+
+    //*******************************************
+    /// \brief Starts the HFSM.
+    ///
+    /// This function is used to start the Hierarchical Finite State Machine (HFSM). 
+    /// It can only be called once. Subsequent calls will do nothing.
+    ///
+    /// \param call_on_enter_state If true, will call on_enter_state() for the first state. 
+    /// If the first state has child states then they will be recursively entered. Default is true.
     //*******************************************
     void start(bool call_on_enter_state = true) ETL_OVERRIDE
     {
