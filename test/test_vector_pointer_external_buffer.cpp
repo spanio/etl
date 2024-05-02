@@ -295,15 +295,53 @@ namespace
     }
 
     //*************************************************************************
-    TEST_FIXTURE(SetupFixture, test_move_constructor)
+    TEST_FIXTURE(SetupFixture, test_move_constructor_move_the_data)
     {
       Data data(initial_data.begin(), initial_data.end(), buffer1, SIZE);
+
+      size_t original_size = data.size();
+      size_t original_max_size = data.max_size();
+
       Data data2(std::move(data), buffer2, SIZE);
 
+      // Check the source data.
+      CHECK_TRUE(data.empty());
+      CHECK_FALSE(data.full());
       CHECK_EQUAL(0U, data.size());
-      CHECK_EQUAL(initial_data.size(), data2.size());
+      CHECK_EQUAL(original_max_size, data.max_size());
+      CHECK_TRUE(data.data() == buffer1);
 
-      CHECK_EQUAL(initial_data.size(), data2.size());
+      // Check the destination data.
+      CHECK_FALSE(data2.empty());
+      CHECK_TRUE(data2.full());
+      CHECK_EQUAL(original_size, data2.size());
+      CHECK_EQUAL(original_max_size, data2.max_size());
+      CHECK_TRUE(data2.data() == buffer2);
+    }
+
+    //*************************************************************************
+    TEST_FIXTURE(SetupFixture, test_move_constructor_steal_the_data)
+    {
+      Data data(initial_data.begin(), initial_data.end(), buffer1, SIZE);
+
+      size_t original_size = data.size();
+      size_t original_max_size = data.max_size();
+
+      Data data2(etl::move(data));
+
+      // Check the source string.
+      CHECK_TRUE(data.empty());
+      CHECK_TRUE(data.full());
+      CHECK_EQUAL(0U, data.size());
+      CHECK_EQUAL(0U, data.max_size());
+      CHECK_TRUE(data.data() == nullptr);
+
+      // Check the destination string.
+      CHECK_FALSE(data2.empty());
+      CHECK_TRUE(data2.full());
+      CHECK_EQUAL(original_size, data2.size());
+      CHECK_EQUAL(original_max_size, data2.max_size());
+      CHECK_TRUE(data2.data() == buffer1);
     }
 
     //*************************************************************************
@@ -348,16 +386,27 @@ namespace
     //*************************************************************************
     TEST_FIXTURE(SetupFixture, test_move_assignment)
     {
-      Data data(initial_data.begin(), initial_data.end(), buffer1, SIZE);
-      Data other_data(buffer2, SIZE);
+      Data src(initial_data.begin(), initial_data.end(), buffer1, SIZE);
+      Data dst(buffer2, SIZE);
 
-      other_data = std::move(data);
+      size_t original_size     = src.size();
+      size_t original_max_size = src.max_size();
 
-      CHECK_EQUAL(0U, data.size());
-      CHECK_EQUAL(initial_data.size(), other_data.size());
+      dst = etl::move(src);
 
-      bool is_equal = std::equal(data.begin(), data.end(), other_data.begin());
-      CHECK(is_equal);
+      // Check the source string.
+      CHECK_TRUE(src.empty());
+      CHECK_FALSE(src.full());
+      CHECK_EQUAL(0U, src.size());
+      CHECK_EQUAL(original_max_size, src.max_size());
+      CHECK_TRUE(src.data() == buffer2);
+
+      // Check the destination string.
+      CHECK_FALSE(dst.empty());
+      CHECK_TRUE(dst.full());
+      CHECK_EQUAL(original_size, dst.size());
+      CHECK_EQUAL(original_max_size, dst.max_size());
+      CHECK_TRUE(dst.data() == buffer1);
     }
 
     //*************************************************************************

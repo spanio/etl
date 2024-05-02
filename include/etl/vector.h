@@ -1036,11 +1036,11 @@ namespace etl
     /// Reset the vector after a move.
     /// Used for _ext vector types only.
     //*************************************************************************
-    void reset_after_move()
+    void vector_ext_reset_after_move_contruction()
     {
       maximum_size = 0U;
-      p_buffer     = ETL_NULLPTR;
-      p_end        = ETL_NULLPTR;
+      p_buffer = ETL_NULLPTR;
+      p_end    = ETL_NULLPTR;
     }
 
 #if ETL_USING_CPP11
@@ -1049,15 +1049,17 @@ namespace etl
     /// Used for _ext vector types only.
     //*************************************************************************
     template <typename TVector>
-    void move_data_from(TVector&& other)
+    void vector_ext_move_assignment(TVector&& rhs)
     {
-      // Steal the data.
-      maximum_size = other.maximum_size;
-      p_buffer     = other.p_buffer;
-      p_end        = other.p_buffer;
+      using ETL_OR_STD::swap;
 
-      // Reset the moved string
-      other.reset_after_move();
+      // Make sure we eradicate the old vector data.
+      clear();
+
+      // Steal the data.
+      swap(maximum_size, rhs.maximum_size);
+      swap(p_buffer, rhs.p_buffer);
+      swap(p_end, rhs.p_end);
     }
 #endif
 
@@ -1233,7 +1235,7 @@ namespace etl
   //***************************************************************************
   /// A vector implementation that uses a fixed size buffer.
   ///\tparam T The element type.
-  ///\tparam MAX_SIZE_ The maximum number of elements that can be stored.
+  ///\tparam maximum_size_ The maximum number of elements that can be stored.
   ///\ingroup vector
   //***************************************************************************
   template <typename T, const size_t MAX_SIZE_>
@@ -1507,7 +1509,7 @@ namespace etl
 
 #if ETL_USING_CPP11
     //*************************************************************************
-    /// Move constructor (data).
+    /// Move constructor. Move the data.
     //*************************************************************************
     vector_ext(vector_ext&& other, void* buffer, size_t max_size)
       : etl::ivector<T>(reinterpret_cast<T*>(buffer), max_size)
@@ -1527,35 +1529,21 @@ namespace etl
       }
     }
 
-#if ETL_USING_CPP11
     //*************************************************************************
-    /// Move constructor (container).
+    /// Move constructor. Steal the data.
     //*************************************************************************
     vector_ext(vector_ext&& other)
       : etl::ivector<T>(other.data(), other.max_size(), other.size())
     {
-      other.reset_after_move();
+      other.vector_ext_reset_after_move_contruction();
     }
-#endif
 
     //*************************************************************************
     /// Move assignment operator.
     //*************************************************************************
     vector_ext& operator = (vector_ext&& rhs)
     {
-      if (&rhs != this)
-      {
-        this->clear();
-
-        typename etl::ivector<T>::iterator itr = rhs.begin();
-        while (itr != rhs.end())
-        {
-          this->push_back(etl::move(*itr));
-          ++itr;
-        }
-
-        rhs.initialise();
-      }
+      this->vector_ext_move_assignment(rhs);
 
       return *this;
     }
@@ -1678,7 +1666,8 @@ namespace etl
     vector(vector&& other)
       : etl::ivector<T*>(reinterpret_cast<T**>(&buffer), MAX_SIZE)
     {
-      (void)etl::ivector<T*>::operator = (etl::move(other));
+      etl::ivector<T*>::assign(other.begin(), other.end());
+      other.clear();
     }
 
     //*************************************************************************
@@ -1818,18 +1807,34 @@ namespace etl
 
 #if ETL_USING_CPP11
     //*************************************************************************
-    /// Move constructor.
+    /// Move constructor. Move the data.
     //*************************************************************************
     vector_ext(vector_ext&& other, void* buffer, size_t max_size)
       : etl::ivector<T*>(reinterpret_cast<T**>(buffer), max_size)
     {
-      (void)etl::ivector<T*>::operator = (etl::move(other));
+      if (this != &other)
+      {
+        this->initialise();
+
+        typename etl::ivector<T*>::iterator itr = other.begin();
+        while (itr != other.end())
+        {
+          this->push_back(etl::move(*itr));
+          ++itr;
+        }
+
+        other.initialise();
+      }
     }
 
     //*************************************************************************
-    /// Move constructor (Deleted)
+    /// Move constructor. Steal The data.
     //*************************************************************************
-    vector_ext(vector_ext&& other) ETL_DELETE;
+    vector_ext(vector_ext&& other)
+      : etl::ivector<T*>(other.data(), other.max_size(), other.size())
+    {
+      other.vector_ext_reset_after_move_contruction();
+    }
 
     //*************************************************************************
     /// Move assignment operator.

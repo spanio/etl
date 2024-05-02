@@ -306,8 +306,7 @@ namespace
 
       CHECK_EQUAL(0U, data.size());
       CHECK_EQUAL(initial_data.size(), data2.size());
-
-      CHECK_EQUAL(initial_data.size(), data2.size());
+      CHECK_TRUE(std::equal(initial_data.begin(), initial_data.end(), data2.begin()));
     }
 
     //*************************************************************************

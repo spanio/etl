@@ -501,8 +501,13 @@ namespace etl
     //*********************************************************************
     /// Constructor.
     //*********************************************************************
-    ivector(T** p_buffer_, size_t MAX_SIZE_)
-      : pvoidvector(reinterpret_cast<void**>(p_buffer_), MAX_SIZE_)
+    ivector(T** p_buffer_, size_t maximum_size_)
+      : pvoidvector(reinterpret_cast<void**>(p_buffer_), maximum_size_)
+    {
+    }
+
+    ivector(T** p_buffer_, size_t maximum_size_, size_t current_size_)
+      : pvoidvector(reinterpret_cast<void**>(p_buffer_), maximum_size_, current_size_)
     {
     }
   };
@@ -924,8 +929,13 @@ namespace etl
     //*********************************************************************
     /// Constructor.
     //*********************************************************************
-    ivector(const T** p_buffer_, size_t MAX_SIZE_)
-      : pvoidvector(reinterpret_cast<void**>(const_cast<T**>(p_buffer_)), MAX_SIZE_)
+    ivector(const T** p_buffer_, size_t maximum_size_)
+      : pvoidvector(reinterpret_cast<void**>(const_cast<T**>(p_buffer_)), maximum_size_)
+    {
+    }
+
+    ivector(T* p_buffer_, size_t maximum_size_, size_t current_size_)
+      : pvoidvector(reinterpret_cast<void**>(const_cast<T**>(p_buffer_)), maximum_size_, current_size_)
     {
     }
   };

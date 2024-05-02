@@ -185,7 +185,7 @@ namespace etl
     //*********************************************************************
     void resize(size_t new_size)
     {
-      ETL_ASSERT_OR_RETURN(new_size <= CAPACITY, ETL_ERROR(vector_full));
+      ETL_ASSERT_OR_RETURN(new_size <= maximum_size, ETL_ERROR(vector_full));
 
       p_end = p_buffer + new_size;
     }
@@ -199,7 +199,7 @@ namespace etl
     //*********************************************************************
     void resize(size_t new_size, value_type value)
     {
-      ETL_ASSERT_OR_RETURN(new_size <= CAPACITY, ETL_ERROR(vector_full));
+      ETL_ASSERT_OR_RETURN(new_size <= maximum_size, ETL_ERROR(vector_full));
 
       pointer p_new_end = p_buffer + new_size;
 
@@ -218,7 +218,7 @@ namespace etl
     //*********************************************************************
     void uninitialized_resize(size_t new_size)
     {
-      ETL_ASSERT_OR_RETURN(new_size <= CAPACITY, ETL_ERROR(vector_full));
+      ETL_ASSERT_OR_RETURN(new_size <= maximum_size, ETL_ERROR(vector_full));
 
       p_end = p_buffer + new_size;
     }
@@ -334,7 +334,7 @@ namespace etl
     {
 #if ETL_IS_DEBUG_BUILD
       difference_type d = etl::distance(first, last);
-      ETL_ASSERT_OR_RETURN(static_cast<size_t>(d) <= CAPACITY, ETL_ERROR(vector_full));
+      ETL_ASSERT_OR_RETURN(static_cast<size_t>(d) <= maximum_size, ETL_ERROR(vector_full));
 #endif
 
       initialise();
@@ -359,7 +359,7 @@ namespace etl
     {
 #if ETL_IS_DEBUG_BUILD     
       difference_type d = etl::distance(first, last);
-      ETL_ASSERT_OR_RETURN(static_cast<size_t>(d) <= CAPACITY, ETL_ERROR(vector_full));
+      ETL_ASSERT_OR_RETURN(static_cast<size_t>(d) <= maximum_size, ETL_ERROR(vector_full));
 #endif
 
       initialise();
@@ -378,7 +378,7 @@ namespace etl
     //*********************************************************************
     void assign(size_t n, value_type value)
     {
-      ETL_ASSERT_OR_RETURN(n <= CAPACITY, ETL_ERROR(vector_full));
+      ETL_ASSERT_OR_RETURN(n <= maximum_size, ETL_ERROR(vector_full));
 
       initialise();
 
@@ -401,7 +401,7 @@ namespace etl
     void push_back(value_type value)
     {
 #if defined(ETL_CHECK_PUSH_POP)
-      ETL_ASSERT_OR_RETURN(size() != CAPACITY, ETL_ERROR(vector_full));
+      ETL_ASSERT_OR_RETURN(size() != maximum_size, ETL_ERROR(vector_full));
 #endif
       *p_end++ = value;
     }
@@ -414,7 +414,7 @@ namespace etl
     void emplace_back(value_type value)
     {
 #if defined(ETL_CHECK_PUSH_POP)
-      ETL_ASSERT_OR_RETURN(size() != CAPACITY, ETL_ERROR(vector_full));
+      ETL_ASSERT_OR_RETURN(size() != maximum_size, ETL_ERROR(vector_full));
 #endif
       * p_end++ = value;
     }
@@ -442,11 +442,11 @@ namespace etl
 #endif
     iterator insert(const_iterator position, value_type value)
     {
-      ETL_ASSERT(size() != CAPACITY, ETL_ERROR(vector_full));
+      ETL_ASSERT(size() != maximum_size, ETL_ERROR(vector_full));
 
       iterator position_ = to_iterator(position);
       
-      if (size() != CAPACITY)
+      if (size() != maximum_size)
       {
         if (position_ != end())
         {
@@ -475,7 +475,7 @@ namespace etl
 #endif
     iterator emplace(const_iterator position)
     {
-      ETL_ASSERT(size() != CAPACITY, ETL_ERROR(vector_full));
+      ETL_ASSERT(size() != maximum_size, ETL_ERROR(vector_full));
 
       iterator position_ = to_iterator(position);
 
@@ -505,7 +505,7 @@ namespace etl
 #endif
     iterator emplace(const_iterator position, value_type value)
     {
-      ETL_ASSERT(size() != CAPACITY, ETL_ERROR(vector_full));
+      ETL_ASSERT(size() != maximum_size, ETL_ERROR(vector_full));
 
       iterator position_ = to_iterator(position);
 
@@ -538,7 +538,7 @@ namespace etl
 #endif
     void insert(const_iterator position, size_t n, value_type value)
     {
-      ETL_ASSERT_OR_RETURN((size() + n) <= CAPACITY, ETL_ERROR(vector_full));
+      ETL_ASSERT_OR_RETURN((size() + n) <= maximum_size, ETL_ERROR(vector_full));
 
       iterator position_ = to_iterator(position);
 
@@ -566,7 +566,7 @@ namespace etl
 
       iterator position_ = to_iterator(position);
 
-      ETL_ASSERT_OR_RETURN((size() + count) <= CAPACITY, ETL_ERROR(vector_full));
+      ETL_ASSERT_OR_RETURN((size() + count) <= maximum_size, ETL_ERROR(vector_full));
 
       etl::copy_backward(position_, p_end, p_end + count);
       etl::copy(first, last, position_);
@@ -644,13 +644,7 @@ namespace etl
     //*************************************************************************
     etl::pvoidvector& operator = (etl::pvoidvector&& rhs)
     {
-      if (&rhs != this)
-      {
-        this->initialise();
-        this->resize(rhs.size());
-        etl::copy_n(rhs.data(), rhs.size(), this->data());
-        rhs.initialise();
-      }
+      vector_ext_move_assignment(rhs);
 
       return *this;
     }
@@ -680,7 +674,7 @@ namespace etl
     //*************************************************************************
     bool full() const
     {
-      return size() == CAPACITY;
+      return size() == maximum_size;
     }
 
     //*************************************************************************
@@ -697,12 +691,50 @@ namespace etl
     //*********************************************************************
     /// Constructor.
     //*********************************************************************
-    pvoidvector(void** p_buffer_, size_t MAX_SIZE)
-      : vector_base(MAX_SIZE)
+    pvoidvector(void** p_buffer_, size_t maximum_size_)
+      : vector_base(maximum_size_)
       , p_buffer(p_buffer_)
       , p_end(p_buffer_)
     {
     }
+
+    pvoidvector(void** p_buffer_, size_t maximum_size_, size_t current_size_)
+      : vector_base(maximum_size_)
+      , p_buffer(p_buffer_)
+      , p_end(p_buffer_ + current_size_)
+    {
+    }
+
+    //*************************************************************************
+    /// Reset the vector after a move.
+    /// Used for _ext vector types only.
+    //*************************************************************************
+    void vector_ext_reset_after_move_contruction()
+    {
+      maximum_size = 0U;
+      p_buffer = ETL_NULLPTR;
+      p_end    = ETL_NULLPTR;
+    }
+
+#if ETL_USING_CPP11
+    //*************************************************************************
+    /// Move a vector and reset after.
+    /// Used for _ext vector types only.
+    //*************************************************************************
+    template <typename TVector>
+    void vector_ext_move_assignment(TVector&& rhs)
+    {
+      using ETL_OR_STD::swap;
+
+      // Make sure we eradicate the old vector data.
+      clear();
+
+      // Steal the data.
+      swap(maximum_size, rhs.maximum_size);
+      swap(p_buffer, rhs.p_buffer);
+      swap(p_end, rhs.p_end);
+    }
+#endif
 
     //*********************************************************************
     /// Initialise the vector.
