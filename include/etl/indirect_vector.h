@@ -451,7 +451,7 @@ namespace etl
     //*********************************************************************
     iterator begin()
     {
-      return iterator(lookup.begin());
+      return iterator(lookup->begin());
     }
 
     //*********************************************************************
@@ -460,7 +460,7 @@ namespace etl
     //*********************************************************************
     const_iterator begin() const
     {
-      return const_iterator(lookup.begin());
+      return const_iterator(lookup->begin());
     }
 
     //*********************************************************************
@@ -469,7 +469,7 @@ namespace etl
     //*********************************************************************
     iterator end()
     {
-      return iterator(lookup.end());
+      return iterator(lookup->end());
     }
 
     //*********************************************************************
@@ -478,7 +478,7 @@ namespace etl
     //*********************************************************************
     const_iterator end() const
     {
-      return const_iterator(lookup.end());
+      return const_iterator(lookup->end());
     }
 
     //*********************************************************************
@@ -487,7 +487,7 @@ namespace etl
     //*********************************************************************
     const_iterator cbegin() const
     {
-      return const_iterator(lookup.begin());
+      return const_iterator(lookup->begin());
     }
 
     //*********************************************************************
@@ -496,7 +496,7 @@ namespace etl
     //*********************************************************************
     const_iterator cend() const
     {
-      return const_iterator(lookup.cend());
+      return const_iterator(lookup->cend());
     }
 
     //*********************************************************************
@@ -583,8 +583,8 @@ namespace etl
 
           while (n-- != 0U)
           {
-            T* p = storage.create<T>(value);
-            lookup.push_back(p);
+            T* p = storage->create<T>(value);
+            lookup->push_back(p);
           }
         }
         else
@@ -616,7 +616,7 @@ namespace etl
     //*********************************************************************
     reference operator [](size_t i)
     {
-      return *lookup[i];
+      return *(*lookup)[i];
     }
 
     //*********************************************************************
@@ -626,7 +626,7 @@ namespace etl
     //*********************************************************************
     const_reference operator [](size_t i) const
     {
-      return *lookup[i];
+      return *(*lookup)[i];
     }
 
     //*********************************************************************
@@ -637,7 +637,7 @@ namespace etl
     //*********************************************************************
     reference at(size_t i)
     {
-      return *lookup.at(i);
+      return *lookup->at(i);
     }
 
     //*********************************************************************
@@ -648,7 +648,7 @@ namespace etl
     //*********************************************************************
     const_reference at(size_t i) const
     {
-      return *lookup.at(i);
+      return *lookup->at(i);
     }
 
     //*********************************************************************
@@ -657,7 +657,7 @@ namespace etl
     //*********************************************************************
     reference front()
     {
-      return *(lookup.front());
+      return *(lookup->front());
     }
 
     //*********************************************************************
@@ -666,7 +666,7 @@ namespace etl
     //*********************************************************************
     const_reference front() const
     {
-      return *(lookup.front());
+      return *(lookup->front());
     }
 
     //*********************************************************************
@@ -675,7 +675,7 @@ namespace etl
     //*********************************************************************
     reference back()
     {
-      return *(lookup.back());
+      return *(lookup->back());
     }
 
     //*********************************************************************
@@ -684,7 +684,7 @@ namespace etl
     //*********************************************************************
     const_reference back() const
     {
-      return *(lookup.back());
+      return *(lookup->back());
     }
 
     //*********************************************************************
@@ -708,8 +708,8 @@ namespace etl
 
       while (first != last)
       {
-        T* p = storage.create<T>(*first);
-        lookup.push_back(p);
+        T* p = storage->create<T>(*first);
+        lookup->push_back(p);
         ++first;
       }
     }
@@ -728,8 +728,8 @@ namespace etl
 
       while (n-- != 0U)
       {
-        T* p = storage.create<T>(value);
-        lookup.push_back(p);
+        T* p = storage->create<T>(value);
+        lookup->push_back(p);
       }
     }
 
@@ -738,7 +738,10 @@ namespace etl
     //*************************************************************************
     void clear()
     {
-      initialise();
+      if (lookup != ETL_NULLPTR)
+      {
+        initialise();
+      }
     }
 
     //*************************************************************************
@@ -759,8 +762,8 @@ namespace etl
 #if defined(ETL_CHECK_PUSH_POP)
       ETL_ASSERT(size() != capacity(), ETL_ERROR(vector_full));
 #endif
-      T* p = storage.create<T>(value);
-      lookup.push_back(p);
+      T* p = storage->create<T>(value);
+      lookup->push_back(p);
     }
 
 #if ETL_USING_CPP11
@@ -774,8 +777,8 @@ namespace etl
 #if defined(ETL_CHECK_PUSH_POP)
       ETL_ASSERT(size() != capacity(), ETL_ERROR(vector_full));
 #endif
-      T* p = storage.create<T>(etl::move(value));
-      lookup.push_back(p);
+      T* p = storage->create<T>(etl::move(value));
+      lookup->push_back(p);
     }
 #endif
 
@@ -788,8 +791,8 @@ namespace etl
     template <typename ... Args>
     reference emplace_back(Args && ... args)
     {
-      T* p = storage.create<T>(etl::forward<Args>(args)...);
-      lookup.push_back(p);
+      T* p = storage->create<T>(etl::forward<Args>(args)...);
+      lookup->push_back(p);
       return back();
     }
 #else
@@ -800,8 +803,8 @@ namespace etl
     //*********************************************************************
     reference emplace_back()
     {
-      T* p = storage.create<T>(T());
-      lookup.push_back(p);
+      T* p = storage->create<T>(T());
+      lookup->push_back(p);
       return back();
     }
 
@@ -813,8 +816,8 @@ namespace etl
     template <typename T1>
     reference emplace_back(const T1& value1)
     {
-      T* p = storage.create<T>(T(value1));
-      lookup.push_back(p);
+      T* p = storage->create<T>(T(value1));
+      lookup->push_back(p);
       return back();
     }
 
@@ -826,8 +829,8 @@ namespace etl
     template <typename T1, typename T2>
     reference emplace_back(const T1& value1, const T2& value2)
     {
-      T* p = storage.create<T>(T(value1, value2));
-      lookup.push_back(p);
+      T* p = storage->create<T>(T(value1, value2));
+      lookup->push_back(p);
       return back();
     }
 
@@ -839,8 +842,8 @@ namespace etl
     template <typename T1, typename T2, typename T3>
     reference emplace_back(const T1& value1, const T2& value2, const T3& value3)
     {
-      T* p = storage.create<T>(T(value1, value2, value3));
-      lookup.push_back(p);
+      T* p = storage->create<T>(T(value1, value2, value3));
+      lookup->push_back(p);
       return back();
     }
 
@@ -852,8 +855,8 @@ namespace etl
     template <typename T1, typename T2, typename T3, typename T4>
     reference emplace_back(const T1& value1, const T2& value2, const T3& value3, const T4& value4)
     {
-      T* p = storage.create<T>(T(value1, value2, value3, value4));
-      lookup.push_back(p);
+      T* p = storage->create<T>(T(value1, value2, value3, value4));
+      lookup->push_back(p);
       return back();
     }
 #endif
@@ -866,8 +869,8 @@ namespace etl
       ETL_ASSERT(!empty(), ETL_ERROR(vector_empty));
 
       reference object = back();
-      storage.destroy<T>(etl::addressof(object));
-      lookup.pop_back();
+      storage->destroy<T>(etl::addressof(object));
+      lookup->pop_back();
     }
 
     //*********************************************************************
@@ -880,8 +883,8 @@ namespace etl
     {
       ETL_ASSERT(size() != capacity(), ETL_ERROR(vector_full));
 
-      T* p = storage.create<T>(T(value));
-      position = iterator(lookup.insert(position.lookup_itr, p));
+      T* p = storage->create<T>(T(value));
+      position = iterator(lookup->insert(position.lookup_itr, p));
 
       return to_iterator(position);
     }
@@ -897,8 +900,8 @@ namespace etl
     {
       ETL_ASSERT(size() != capacity(), ETL_ERROR(vector_full));
 
-      T* p = storage.create<T>(T(etl::move(value)));
-      position = iterator(lookup.insert(position.lookup_itr, p));
+      T* p = storage->create<T>(T(etl::move(value)));
+      position = iterator(lookup->insert(position.lookup_itr, p));
 
       return to_iterator(position);
     }
@@ -913,8 +916,8 @@ namespace etl
     {
       ETL_ASSERT(!full(), ETL_ERROR(vector_full));
 
-      T* p = storage.create<T>(T(etl::forward<Args>(args)...));
-      position = iterator(lookup.insert(position.lookup_itr, p));
+      T* p = storage->create<T>(T(etl::forward<Args>(args)...));
+      position = iterator(lookup->insert(position.lookup_itr, p));
 
       return position;
     }
@@ -923,8 +926,8 @@ namespace etl
     {
       ETL_ASSERT(!full(), ETL_ERROR(vector_full));
 
-      T* p = storage.create<T>(T());
-      position = iterator(lookup.insert(position.lookup_itr, p));
+      T* p = storage->create<T>(T());
+      position = iterator(lookup->insert(position.lookup_itr, p));
 
       return position;
     }
@@ -934,8 +937,8 @@ namespace etl
     {
       ETL_ASSERT(!full(), ETL_ERROR(vector_full));
 
-      T* p = storage.create<T>(T(value1));
-      position = iterator(lookup.insert(position.lookup_itr, p));
+      T* p = storage->create<T>(T(value1));
+      position = iterator(lookup->insert(position.lookup_itr, p));
 
       return position;
     }
@@ -945,8 +948,8 @@ namespace etl
     {
       ETL_ASSERT(!full(), ETL_ERROR(vector_full));
 
-      T* p = storage.create<T>(T(value1, value2));
-      position = iterator(lookup.insert(position.lookup_itr, p));
+      T* p = storage->create<T>(T(value1, value2));
+      position = iterator(lookup->insert(position.lookup_itr, p));
 
       return position;
     }
@@ -956,8 +959,8 @@ namespace etl
     {
       ETL_ASSERT(!full(), ETL_ERROR(vector_full));
 
-      T* p = storage.create<T>(T(value1, value2, value3));
-      position = iterator(lookup.insert(position.lookup_itr, p));
+      T* p = storage->create<T>(T(value1, value2, value3));
+      position = iterator(lookup->insert(position.lookup_itr, p));
 
       return position;
     }
@@ -967,8 +970,8 @@ namespace etl
     {
       ETL_ASSERT(!full(), ETL_ERROR(vector_full));
 
-      T* p = storage.create<T>(T(value1, value2, value3, value4));
-      position = iterator(lookup.insert(position.lookup_itr, p));
+      T* p = storage->create<T>(T(value1, value2, value3, value4));
+      position = iterator(lookup->insert(position.lookup_itr, p));
 
       return position;
     }
@@ -989,11 +992,11 @@ namespace etl
 
       // Make space for the new lookup pointers.
       typename etl::ivector<T*>::iterator lookup_itr = position_.lookup_itr;
-      lookup.insert(lookup_itr, n, ETL_NULLPTR);
+      lookup->insert(lookup_itr, n, ETL_NULLPTR);
 
       while (n-- != 0U)
       {
-        T* p = storage.create<T>(value);
+        T* p = storage->create<T>(value);
         *lookup_itr++ = p;
       }
 
@@ -1016,11 +1019,11 @@ namespace etl
 
       // Make space for the new lookup pointers.
       typename etl::ivector<T*>::iterator lookup_itr = to_iterator(position).lookup_itr;
-      lookup.insert(lookup_itr, count, ETL_NULLPTR);
+      lookup->insert(lookup_itr, count, ETL_NULLPTR);
 
       while (first != last)
       {
-        T* p = storage.create<T>(*first);
+        T* p = storage->create<T>(*first);
         *lookup_itr++ =  p;
         ++first;
       }
@@ -1035,9 +1038,9 @@ namespace etl
     //*********************************************************************
     iterator erase(iterator i_element)
     {
-      storage.destroy<T>(etl::addressof(*i_element));
+      storage->destroy<T>(etl::addressof(*i_element));
 
-      return iterator(lookup.erase(i_element.lookup_itr));
+      return iterator(lookup->erase(i_element.lookup_itr));
     }
 
     //*********************************************************************
@@ -1047,9 +1050,9 @@ namespace etl
     //*********************************************************************
     iterator erase(const_iterator i_element)
     {
-      storage.destroy<T>(etl::addressof(*i_element));
+      storage->destroy<T>(etl::addressof(*i_element));
 
-      return iterator(lookup.erase(i_element.lookup_itr));
+      return iterator(lookup->erase(i_element.lookup_itr));
     }
 
     //*********************************************************************
@@ -1066,11 +1069,11 @@ namespace etl
 
       while (element != last)
       {
-        storage.destroy<T>(etl::addressof(*element));
+        storage->destroy<T>(etl::addressof(*element));
         ++element;
       }
 
-      lookup.erase(first.lookup_itr, last.lookup_itr);
+      lookup->erase(first.lookup_itr, last.lookup_itr);
 
       return to_iterator(last);
     }
@@ -1117,7 +1120,7 @@ namespace etl
     //*************************************************************************
     size_type size() const
     {
-      return lookup.size();
+      return lookup->size();
     }
 
     //*************************************************************************
@@ -1126,7 +1129,7 @@ namespace etl
     //*************************************************************************
     size_type capacity() const
     {
-      return lookup.capacity();
+      return lookup->capacity();
     }
 
     //*************************************************************************
@@ -1135,7 +1138,7 @@ namespace etl
     //*************************************************************************
     bool empty() const
     {
-      return lookup.empty();
+      return lookup->empty();
     }
 
     //*************************************************************************
@@ -1144,7 +1147,7 @@ namespace etl
     //*************************************************************************
     bool full() const
     {
-      return lookup.full();
+      return lookup->full();
     }
 
     //*************************************************************************
@@ -1153,7 +1156,7 @@ namespace etl
     //*************************************************************************
     size_type max_size() const
     {
-      return lookup.max_size();
+      return lookup->max_size();
     }
 
     //*************************************************************************
@@ -1162,7 +1165,7 @@ namespace etl
     //*************************************************************************
     size_type available() const
     {
-      return lookup.available();
+      return lookup->available();
     }
 
   protected:
@@ -1171,8 +1174,8 @@ namespace etl
     /// Constructor.
     //*********************************************************************
     iindirect_vector(etl::ivector<T*>& lookup_, etl::ipool& storage_)
-      : lookup(lookup_)
-      , storage(storage_)
+      : lookup(&lookup_)
+      , storage(&storage_)
     {
     }
 
@@ -1185,11 +1188,11 @@ namespace etl
 
       while (itr != end())
       {
-        storage.destroy<T>(etl::addressof(*itr));
+        storage->destroy<T>(etl::addressof(*itr));
         ++itr;
       }
 
-      lookup.clear();
+      lookup->clear();
     }
 
 #if ETL_USING_CPP11
@@ -1215,8 +1218,8 @@ namespace etl
     }
 #endif
 
-    etl::ivector<T*>& lookup;
-    etl::ipool&       storage;
+    etl::ivector<T*>* lookup;
+    etl::ipool*       storage;
 
   private:
 
@@ -1245,6 +1248,35 @@ namespace etl
     {
       return iterator(const_cast<indirect_iterator>(itr.lookup_itr));
     }
+
+    //*************************************************************************
+    /// Reset the indirect_vector after a move.
+    /// Used for _ext indirect_vector types only.
+    //*************************************************************************
+    void indirect_vector_ext_reset_after_move_contruction()
+    {
+      lookup  = ETL_NULLPTR;
+      storage = ETL_NULLPTR;
+    }
+
+#if ETL_USING_CPP11
+    //*************************************************************************
+    /// Move a vector and reset after.
+    /// Used for _ext indirect_vector types only.
+    //*************************************************************************
+    template <typename TVector>
+    void indirect_vector_ext_move_assignment(TVector&& rhs)
+    {
+      using ETL_OR_STD::swap;
+
+      // Make sure we eradicate the old vector data.
+      clear();
+
+      // Steal the data.
+      swap(lookup,  rhs.lookup);
+      swap(storage, rhs.storage);
+    }
+#endif
   };
 
   //***************************************************************************
@@ -1552,6 +1584,26 @@ namespace etl
       this->assign(other.begin(), other.end());
     }
 
+#if ETL_USING_CPP11
+    //*************************************************************************
+    /// Move constructor. Move the data.
+    //*************************************************************************
+    indirect_vector_ext(indirect_vector_ext&& other, etl::ivector<T*>& lookup_, etl::ipool& pool_)
+      : etl::iindirect_vector<T>(lookup_, pool_)
+    {
+      this->move_container(etl::move(other));
+    }
+
+    //*************************************************************************
+    /// Move constructor. Steal the data.
+    //*************************************************************************
+    indirect_vector_ext(indirect_vector_ext&& other)
+      : etl::iindirect_vector<T>(*other.lookup, *other.storage)
+    {
+      other.indirect_vector_ext_reset_after_move_contruction();
+    }
+#endif
+
     //*************************************************************************
     /// Copy constructor (Deleted)
     //*************************************************************************
@@ -1572,26 +1624,11 @@ namespace etl
 
 #if ETL_USING_CPP11
     //*************************************************************************
-    /// Move construct.
-    //*************************************************************************
-    indirect_vector_ext(indirect_vector_ext&& other, etl::ivector<T*>& lookup_, etl::ipool& pool_)
-      : etl::iindirect_vector<T>(lookup_, pool_)
-    {
-      ETL_ASSERT(lookup_.capacity() <= pool_.capacity(), ETL_ERROR(indirect_vector_buffer_missmatch));
-      this->move_container(etl::move(other));
-    }
-
-    //*************************************************************************
-    /// Move constructor.
-    //*************************************************************************
-    indirect_vector_ext(indirect_vector_ext&& other) ETL_DELETE;
-
-    //*************************************************************************
     /// Move assignment operator.
     //*************************************************************************
     indirect_vector_ext& operator = (indirect_vector_ext&& rhs)
     {
-      this->move_container(etl::move(rhs));
+      this->indirect_vector_ext_move_assignment(rhs);
 
       return *this;
     }

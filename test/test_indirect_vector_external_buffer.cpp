@@ -291,7 +291,7 @@ namespace
     }
 
     //*************************************************************************
-    TEST(test_move_constructor)
+    TEST(test_move_constructor_move_the_data)
     {
       typedef etl::indirect_vector_ext<std::unique_ptr<uint32_t>> Data;
 
@@ -321,6 +321,38 @@ namespace
 
       CHECK_EQUAL(0U, data1.size());
       CHECK_EQUAL(4U, data2.size());
+
+      CHECK_EQUAL(1U, *data2[0]);
+      CHECK_EQUAL(2U, *data2[1]);
+      CHECK_EQUAL(3U, *data2[2]);
+      CHECK_EQUAL(4U, *data2[3]);
+    }
+
+    //*************************************************************************
+    TEST(test_move_constructor_steal_the_data)
+    {
+      typedef etl::indirect_vector_ext<std::unique_ptr<uint32_t>> Data;
+
+      LookupUniquePtr lookup1;
+      PoolUniquePtr   pool1;
+
+      std::unique_ptr<uint32_t> p1(new uint32_t(1U));
+      std::unique_ptr<uint32_t> p2(new uint32_t(2U));
+      std::unique_ptr<uint32_t> p3(new uint32_t(3U));
+      std::unique_ptr<uint32_t> p4(new uint32_t(4U));
+
+      Data data1(lookup1, pool1);
+      data1.push_back(std::move(p1));
+      data1.push_back(std::move(p2));
+      data1.push_back(std::move(p3));
+      data1.push_back(std::move(p4));
+
+      CHECK(!bool(p1));
+      CHECK(!bool(p2));
+      CHECK(!bool(p3));
+      CHECK(!bool(p4));
+
+      Data data2(std::move(data1));
 
       CHECK_EQUAL(1U, *data2[0]);
       CHECK_EQUAL(2U, *data2[1]);
@@ -380,6 +412,9 @@ namespace
       Data data2(lookup2, pool2);
       data2.push_back(std::move(p5));
       data2 = std::move(data1);
+
+      size_t s1 = data1.size();
+      size_t s2 = data2.size();
 
       CHECK_EQUAL(0U, data1.size());
       CHECK_EQUAL(4U, data2.size());
