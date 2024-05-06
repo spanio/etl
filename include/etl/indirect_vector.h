@@ -1196,25 +1196,48 @@ namespace etl
     }
 
 #if ETL_USING_CPP11
-    //*********************************************************************
-    /// Move from a container.
-    //*********************************************************************
-    void move_container(iindirect_vector&& other)
+    //*************************************************************************
+    /// Move from another by stealing the data.
+    /// Only called from _ext containers.
+    //*************************************************************************
+    template <typename TSource>
+    void steal_from(TSource&& other)
     {
-      if (this != &other)
+      if (lookup == other.lookup)
       {
-        initialise();
-
-        typename iindirect_vector<T>::iterator itr = other.begin();
-
-        while (itr != other.end())
-        {
-          push_back(etl::move(*itr));
-          ++itr;
-        }
-
-        other.initialise();
+        // Move construction.
+        // We've already copied the buffer info in the base constructor.
+        other.lookup  = ETL_NULLPTR;
+        other.storage = ETL_NULLPTR;
       }
+      else
+      {
+        // Move assignment.
+        using ETL_OR_STD::swap;
+
+        // Make sure we eradicate the old vector data.
+        clear();
+
+        // Steal the data.
+        swap(lookup,  other.lookup);
+        swap(storage, other.storage);
+      }
+    }
+
+    //*************************************************************************
+    /// Move from another by moving the elements.
+    //*************************************************************************
+    template <typename TSource>
+    void move_from(TSource&& other)
+    {
+      clear();
+
+      for (auto itr = other.begin(); itr != other.end(); ++itr)
+      {
+        push_back(etl::move(*itr));
+      }
+
+      other.clear();
     }
 #endif
 
@@ -1253,7 +1276,7 @@ namespace etl
     /// Reset the indirect_vector after a move.
     /// Used for _ext indirect_vector types only.
     //*************************************************************************
-    void indirect_vector_ext_reset_after_move_contruction()
+    void indirect_vector_ext_reset_after_move_construction()
     {
       lookup  = ETL_NULLPTR;
       storage = ETL_NULLPTR;
@@ -1449,20 +1472,20 @@ namespace etl
 
 #if ETL_USING_CPP11
     //*************************************************************************
-    /// Move constructor.
+    /// Move constructor. Move the data.
     //*************************************************************************
     indirect_vector(indirect_vector&& other)
       : etl::iindirect_vector<T>(lookup_vector, storage_pool)
     {
-      this->move_container(etl::move(other));
+      this->move_from(other);
     }
 
     //*************************************************************************
-    /// Move assignment operator.
+    /// Move assignment operator. Move the data.
     //*************************************************************************
     indirect_vector& operator = (indirect_vector&& rhs)
     {
-      this->move_container(etl::move(rhs));
+      this->move_from(rhs);
 
       return *this;
     }
@@ -1591,7 +1614,7 @@ namespace etl
     indirect_vector_ext(indirect_vector_ext&& other, etl::ivector<T*>& lookup_, etl::ipool& pool_)
       : etl::iindirect_vector<T>(lookup_, pool_)
     {
-      this->move_container(etl::move(other));
+      this->move_from(other);
     }
 
     //*************************************************************************
@@ -1600,7 +1623,7 @@ namespace etl
     indirect_vector_ext(indirect_vector_ext&& other)
       : etl::iindirect_vector<T>(*other.lookup, *other.storage)
     {
-      other.indirect_vector_ext_reset_after_move_contruction();
+      this->steal_from(other);
     }
 #endif
 
@@ -1628,7 +1651,7 @@ namespace etl
     //*************************************************************************
     indirect_vector_ext& operator = (indirect_vector_ext&& rhs)
     {
-      this->indirect_vector_ext_move_assignment(rhs);
+      this->steal_from(rhs);
 
       return *this;
     }
