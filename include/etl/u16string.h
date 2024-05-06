@@ -295,7 +295,7 @@ namespace etl
     u16string_ext(etl::u16string_ext&& other)
       : iu16string(other.data(), other.max_size(), other.size())
     {
-      other.string_ext_reset_after_move_contruction();
+      this->move(other);
     }
 #endif
 
@@ -420,7 +420,7 @@ namespace etl
     {
       if (&rhs != this)
       {
-        this->string_ext_move_assignment(rhs);
+        this->move(rhs);
       }
 
       return *this;

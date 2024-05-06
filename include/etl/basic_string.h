@@ -2324,37 +2324,39 @@ namespace etl
       p_buffer = p_buffer_;
     }
 
-    //*************************************************************************
-    /// Reset the string after a move.
-    /// Used for _ext string types only.
-    //*************************************************************************
-    void string_ext_reset_after_move_contruction()
-    {
-      current_size = 0U;
-      maximum_size = 0U;
-      p_buffer     = ETL_NULLPTR;
-    }
-
 #if ETL_USING_CPP11
     //*************************************************************************
-    /// Move a string and reset after.
-    /// Used for _ext string types only.
+    /// Move a string.
+    /// Only called from _ext containers.
     //*************************************************************************
-    template <typename TString>
-    void string_ext_move_assignment(TString&& rhs)
+    template <typename TSource>
+    void move(TSource&& other)
     {
-      using ETL_OR_STD::swap;
+      // 
+      if (data() == other.data())
+      {
+        // Move construction.
+        // We've already copied the buffer info in the base constructor.
+        other.current_size = 0U;
+        other.maximum_size = 0U;
+        other.p_buffer     = ETL_NULLPTR;
+      }
+      else
+      {
+        // Move assignment.
+        using ETL_OR_STD::swap;
 
-      // Make sure we eradicate the old string data.
-      clear();
+        // Make sure we eradicate the old data.
+        clear();
 
-      // Steal the data.
-      current_size = rhs.current_size;
-      swap(maximum_size, rhs.maximum_size);
-      swap(p_buffer,     rhs.p_buffer);
+        // Steal the data.
+        current_size = other.current_size;
+        swap(maximum_size, other.maximum_size);
+        swap(p_buffer,     other.p_buffer);
 
-      // Reset the moved string
-      rhs.current_size = 0U;
+        // Reset the moved string
+        other.current_size = 0U;
+      }
     }
 #endif
 

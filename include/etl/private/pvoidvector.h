@@ -773,6 +773,7 @@ namespace etl
     template <typename TSource>
     void move_from(TSource&& other)
     {
+      // These are just pointers, so we can simply copy.
       assign(other.begin(), other.end());
       other.clear();
     }

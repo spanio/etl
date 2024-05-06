@@ -314,7 +314,7 @@ namespace etl
     string_ext(etl::string_ext&& other)
       : istring(other.data(), other.max_size(), other.size())
     {
-      other.string_ext_reset_after_move_contruction();
+      this->move(other);
     }
 #endif
 
@@ -420,7 +420,7 @@ namespace etl
     //*************************************************************************
     /// Assignment operator.
     //*************************************************************************
-    string_ext& operator = (const string_ext& rhs)
+    string_ext& operator = (const etl::string_ext& rhs)
     {
       if (&rhs != this)
       {
@@ -434,11 +434,11 @@ namespace etl
     //*************************************************************************
     /// Move assignment operator.
     //*************************************************************************
-    string_ext& operator = (string_ext&& rhs)
+    string_ext& operator = (etl::string_ext&& rhs)
     {
       if (&rhs != this)
       {
-        this->string_ext_move_assignment(rhs);
+        this->move(rhs);
       }
 
       return *this;
@@ -448,7 +448,7 @@ namespace etl
     //*************************************************************************
     /// Assignment operator.
     //*************************************************************************
-    string_ext& operator = (const istring& rhs)
+    string_ext& operator = (const etl::istring& rhs)
     {
       if (&rhs != this)
       {
@@ -484,7 +484,7 @@ namespace etl
     //*************************************************************************
     /// Deleted.
     //*************************************************************************
-    string_ext(const string_ext& other) ETL_DELETE;
+    string_ext(const etl::string_ext& other) ETL_DELETE;
   };
 
   //*************************************************************************

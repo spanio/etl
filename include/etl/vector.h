@@ -1069,7 +1069,13 @@ namespace etl
     template <typename TSource>
     void move_from(TSource&& other)
     {
-      this->assign(other.begin(), other.end());
+      clear();
+
+      for (auto itr = other.begin(); itr != other.end(); ++itr)
+      {
+        push_back(etl::move(*itr));
+      }
+
       other.clear();
     }
 #endif
@@ -1343,19 +1349,7 @@ namespace etl
     vector(vector&& other)
       : etl::ivector<T>(reinterpret_cast<T*>(&buffer), MAX_SIZE)
     {
-      if (this != &other)
-      {
-        this->initialise();
-
-        typename etl::ivector<T>::iterator itr = other.begin();
-        while (itr != other.end())
-        {
-          this->push_back(etl::move(*itr));
-          ++itr;
-        }
-
-        other.initialise();
-      }
+      this->move_from(other);
     }
 
     //*************************************************************************
@@ -1365,15 +1359,7 @@ namespace etl
     {
       if (&rhs != this)
       {
-        this->clear();
-        typename etl::ivector<T>::iterator itr = rhs.begin();
-        while (itr != rhs.end())
-        {
-          this->push_back(etl::move(*itr));
-          ++itr;
-        }
-
-        rhs.initialise();
+        this->move_from(rhs);
       }
 
       return *this;
@@ -1645,7 +1631,7 @@ namespace etl
     vector(const vector& other)
       : etl::ivector<T*>(reinterpret_cast<T**>(&buffer), MAX_SIZE)
     {
-      (void)etl::ivector<T*>::operator = (other);
+      this->assign(other.begin(), other.end());
     }
 
     //*************************************************************************
@@ -1653,7 +1639,7 @@ namespace etl
     //*************************************************************************
     vector& operator = (const vector& rhs)
     {
-      (void)etl::ivector<T*>::operator = (rhs);
+      this->assign(rhs.begin(), rhs.end());
 
       return *this;
     }
@@ -1665,8 +1651,8 @@ namespace etl
     vector(vector&& other)
       : etl::ivector<T*>(reinterpret_cast<T**>(&buffer), MAX_SIZE)
     {
-      etl::ivector<T*>::assign(other.begin(), other.end());
-      other.clear();
+      this->assign(other.begin(), other.end());
+      other.initialise();
     }
 
     //*************************************************************************
@@ -1674,7 +1660,8 @@ namespace etl
     //*************************************************************************
     vector& operator = (vector&& rhs)
     {
-      (void)etl::ivector<T*>::operator = (etl::move(rhs));
+      this->assign(rhs.begin(), rhs.end());
+      rhs.initialise();
 
       return *this;
     }
@@ -1689,7 +1676,7 @@ namespace etl
     void repair()
 #endif
     {
-      etl::ivector<T*>::repair_buffer(buffer);
+      this->repair_buffer(buffer);
     }
 
   private:
@@ -1786,7 +1773,7 @@ namespace etl
     vector_ext(const vector_ext& other, void* buffer, size_t max_size)
       : etl::ivector<T*>(reinterpret_cast<T**>(buffer), max_size)
     {
-      (void)etl::ivector<T*>::operator = (other);
+      this->assign(other.begin(), other.end());
     }
 
     //*************************************************************************
@@ -1799,7 +1786,7 @@ namespace etl
     //*************************************************************************
     vector_ext& operator = (const vector_ext& rhs)
     {
-      (void)etl::ivector<T*>::operator = (rhs);
+      this->assign(rhs.begin(), rhs.end());
 
       return *this;
     }
