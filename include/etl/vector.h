@@ -1032,34 +1032,45 @@ namespace etl
     {
     }
 
-    //*************************************************************************
-    /// Reset the vector after a move.
-    /// Used for _ext vector types only.
-    //*************************************************************************
-    void vector_ext_reset_after_move_contruction()
-    {
-      maximum_size = 0U;
-      p_buffer = ETL_NULLPTR;
-      p_end    = ETL_NULLPTR;
-    }
-
 #if ETL_USING_CPP11
     //*************************************************************************
-    /// Move a vector and reset after.
-    /// Used for _ext vector types only.
+    /// Move from another by stealing the data.
+    /// Only called from _ext containers.
     //*************************************************************************
-    template <typename TVector>
-    void vector_ext_move_assignment(TVector&& rhs)
+    template <typename TSource>
+    void steal_from(TSource&& other)
     {
-      using ETL_OR_STD::swap;
+      if (data() == other.data())
+      {
+        // Move construction.
+        // We've already copied the buffer info in the base constructor.
+        other.maximum_size = 0U;
+        other.p_buffer     = ETL_NULLPTR;
+        other.p_end        = ETL_NULLPTR;
+      }
+      else
+      {
+        // Move assignment.
+        using ETL_OR_STD::swap;
 
-      // Make sure we eradicate the old vector data.
-      clear();
+        // Make sure we eradicate the old vector data.
+        clear();
 
-      // Steal the data.
-      swap(maximum_size, rhs.maximum_size);
-      swap(p_buffer, rhs.p_buffer);
-      swap(p_end, rhs.p_end);
+        // Steal the data.
+        swap(maximum_size, other.maximum_size);
+        swap(p_buffer,     other.p_buffer);
+        swap(p_end,        other.p_end);
+      }
+    }
+
+    //*************************************************************************
+    /// Move from another by moving the elements.
+    //*************************************************************************
+    template <typename TSource>
+    void move_from(TSource&& other)
+    {
+      this->assign(other.begin(), other.end());
+      other.clear();
     }
 #endif
 
@@ -1514,19 +1525,7 @@ namespace etl
     vector_ext(vector_ext&& other, void* buffer, size_t max_size)
       : etl::ivector<T>(reinterpret_cast<T*>(buffer), max_size)
     {
-      if (this != &other)
-      {
-        this->initialise();
-
-        typename etl::ivector<T>::iterator itr = other.begin();
-        while (itr != other.end())
-        {
-          this->push_back(etl::move(*itr));
-          ++itr;
-        }
-
-        other.initialise();
-      }
+      this->move_from(other);
     }
 
     //*************************************************************************
@@ -1535,7 +1534,7 @@ namespace etl
     vector_ext(vector_ext&& other)
       : etl::ivector<T>(other.data(), other.max_size(), other.size())
     {
-      other.vector_ext_reset_after_move_contruction();
+      this->steal_from(other);
     }
 
     //*************************************************************************
@@ -1543,7 +1542,7 @@ namespace etl
     //*************************************************************************
     vector_ext& operator = (vector_ext&& rhs)
     {
-      this->vector_ext_move_assignment(rhs);
+      this->steal_from(rhs);
 
       return *this;
     }
@@ -1814,16 +1813,7 @@ namespace etl
     {
       if (this != &other)
       {
-        this->initialise();
-
-        typename etl::ivector<T*>::iterator itr = other.begin();
-        while (itr != other.end())
-        {
-          this->push_back(etl::move(*itr));
-          ++itr;
-        }
-
-        other.initialise();
+        this->move_from(other);
       }
     }
 
@@ -1833,7 +1823,7 @@ namespace etl
     vector_ext(vector_ext&& other)
       : etl::ivector<T*>(other.data(), other.max_size(), other.size())
     {
-      other.vector_ext_reset_after_move_contruction();
+      this->steal_from(other);
     }
 
     //*************************************************************************
@@ -1841,7 +1831,7 @@ namespace etl
     //*************************************************************************
     vector_ext& operator = (vector_ext&& rhs)
     {
-      (void)etl::ivector<T*>::operator = (etl::move(rhs));
+      this->steal_from(rhs);
 
       return *this;
     }

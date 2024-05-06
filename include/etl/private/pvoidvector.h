@@ -736,6 +736,48 @@ namespace etl
     }
 #endif
 
+#if ETL_USING_CPP11
+    //*************************************************************************
+    /// Move from another by stealing the data.
+    /// Only called from _ext containers.
+    //*************************************************************************
+    template <typename TSource>
+    void steal_from(TSource&& other)
+    {
+      if (p_buffer == other.p_buffer)
+      {
+        // Move construction.
+        // We've already copied the buffer info in the base constructor.
+        other.maximum_size = 0U;
+        other.p_buffer     = ETL_NULLPTR;
+        other.p_end        = ETL_NULLPTR;
+      }
+      else
+      {
+        // Move assignment.
+        using ETL_OR_STD::swap;
+
+        // Make sure we eradicate the old vector data.
+        clear();
+
+        // Steal the data.
+        swap(maximum_size, other.maximum_size);
+        swap(p_buffer,     other.p_buffer);
+        swap(p_end,        other.p_end);
+      }
+    }
+
+    //*************************************************************************
+    /// Move from another by moving the elements.
+    //*************************************************************************
+    template <typename TSource>
+    void move_from(TSource&& other)
+    {
+      assign(other.begin(), other.end());
+      other.clear();
+    }
+#endif
+
     //*********************************************************************
     /// Initialise the vector.
     //*********************************************************************
