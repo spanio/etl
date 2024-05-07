@@ -1077,6 +1077,58 @@ namespace etl
       }
     }
 
+#if ETL_USING_CPP11
+    //*************************************************************************
+    /// Move from another by stealing the data.
+    /// Only called from _ext containers.
+    //*************************************************************************
+    template <typename TSource>
+    void steal_from(TSource&& other)
+    {
+      if (pbuffer == other.pbuffer)
+      {
+        // Move construction.
+        // We've already copied the buffer info in the base constructor.
+        in                = other.in;
+        out               = other.out;
+        other.in          = 0U;
+        other.out         = 0U;
+        other.buffer_size = 0U;
+        other.pbuffer     = ETL_NULLPTR;
+      }
+      else
+      {
+        // Move assignment.
+        using ETL_OR_STD::swap;
+
+        // Make sure we eradicate the old vector data.
+        clear();
+
+        // Steal the data.
+        other.in  = 0U;
+        other.out = 0U;
+        swap(buffer_size, other.buffer_size);
+        swap(pbuffer,     other.pbuffer);
+      }
+    }
+
+    //*************************************************************************
+    /// Move from another by moving the elements.
+    //*************************************************************************
+    template <typename TSource>
+    void move_from(TSource&& other)
+    {
+      clear();
+
+      for (auto itr = other.begin(); itr != other.end(); ++itr)
+      {
+        push(etl::move(*itr));
+      }
+
+      other.clear();
+    }
+#endif
+
     //*************************************************************************
     /// Fix the internal pointers after a low level memory copy.
     //*************************************************************************
@@ -1185,15 +1237,7 @@ namespace etl
     circular_buffer(circular_buffer&& other)
       : icircular_buffer<T>(reinterpret_cast<T*>(buffer.raw), MAX_SIZE)
     {
-      if (this != &other)
-      {
-        typename etl::icircular_buffer<T>::iterator itr = other.begin();
-        while (itr != other.end())
-        {
-          this->push(etl::move(*itr));
-          ++itr;
-        }
-      }
+      this->move_from(other);
     }
 
     //*************************************************************************
@@ -1203,12 +1247,7 @@ namespace etl
     {
       if (this != &other)
       {
-        this->clear();
-
-        for (typename etl::icircular_buffer<T>::const_iterator itr = other.begin(); itr != other.end(); ++itr)
-        {
-          this->push(etl::move(*itr));
-        }
+        this->move_from(other);
       }
 
       return *this;
@@ -1333,20 +1372,21 @@ namespace etl
 
 #if ETL_USING_CPP11
     //*************************************************************************
-    /// Move Constructor.
+    /// Move Constructor. Move the data.
     //*************************************************************************
     circular_buffer_ext(circular_buffer_ext&& other, void* buffer, size_t max_size)
       : icircular_buffer<T>(reinterpret_cast<T*>(buffer), max_size)
     {
-      if (this != &other)
-      {
-        typename etl::icircular_buffer<T>::iterator itr = other.begin();
-        while (itr != other.end())
-        {
-          this->push(etl::move(*itr));
-          ++itr;
-        }
-      }
+      this->move_from(other);
+    }
+
+    //*************************************************************************
+    /// Move Constructor. Steal the data.
+    //*************************************************************************
+    circular_buffer_ext(circular_buffer_ext&& other)
+      : icircular_buffer<T>(other.pbuffer, other.buffer_size)
+    {
+      this->steal_from(other);
     }
 
     //*************************************************************************
@@ -1356,12 +1396,7 @@ namespace etl
     {
       if (this != &other)
       {
-        this->clear();
-
-        for (typename etl::icircular_buffer<T>::iterator itr = other.begin(); itr != other.end(); ++itr)
-        {
-          this->push(etl::move(*itr));
-        }
+        this->move_from(other);
       }
 
       return *this;

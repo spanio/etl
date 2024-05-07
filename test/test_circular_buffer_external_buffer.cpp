@@ -819,7 +819,7 @@ namespace
     }
 
     //*************************************************************************
-    TEST(test_move_constructor)
+    TEST(test_move_constructor_move_the_data)
     {
       BufferM_t bufferm1;
       BufferM_t bufferm2;
@@ -849,6 +849,42 @@ namespace
       {
         data1.push(std::move(v));
       }
+
+      CHECK(data2.begin() != data2.end());
+      CHECK(data2.cbegin() != data2.cend());
+      CHECK_EQUAL(input1.size(), data2.size());
+
+      bool isEqual = std::equal(compare.begin(), compare.end(), data2.begin());
+      CHECK(isEqual);
+    }
+
+    //*************************************************************************
+    TEST(test_move_constructor_steal_the_data)
+    {
+      BufferM_t bufferm1;
+      CompareM input1;
+      CompareM input2;
+      CompareM compare;
+
+      for (uint32_t i = 0UL; i < SIZE; ++i)
+      {
+        input1.push_back(ItemM(std::to_string(i)));
+        input2.push_back(ItemM(std::to_string(SIZE - i)));
+        compare.push_back(ItemM(std::to_string(i)));
+      }
+
+      DataM data1(bufferm1.raw, SIZE);
+      for (auto&& v : input1)
+      {
+        data1.push(std::move(v));
+      }
+
+      // Move construct from data1
+      DataM data2(std::move(data1));
+
+      CHECK_TRUE(data1.empty());
+      CHECK_TRUE(data1.size() == 0U);
+      CHECK_TRUE(data2.size() == SIZE);
 
       CHECK(data2.begin() != data2.end());
       CHECK(data2.cbegin() != data2.cend());
