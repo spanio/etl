@@ -723,6 +723,20 @@ namespace etl
     }
 
     //*************************************************************************
+    /// operator assignment
+    /// Gives the rhs buffer to lhs
+    //*************************************************************************
+    ETL_CONSTEXPR14
+    static
+    void operator_move_assignment(pointer& lhs_pbuffer,
+                                  pointer& rhs_pbuffer) ETL_NOEXCEPT
+    {
+      using ETL_OR_STD::swap;
+
+      swap(lhs_pbuffer, rhs_pbuffer);
+    }
+
+    //*************************************************************************
     /// operator and
     /// AND lhs and rhs and put the result in lhs
     //*************************************************************************
@@ -1559,6 +1573,20 @@ namespace etl
         ++lhs_pbuffer;
         ++rhs_pbuffer;
       }
+    }
+
+    //*************************************************************************
+    /// operator assignment
+    /// Gives the rhs buffer to lhs
+    //*************************************************************************
+    ETL_CONSTEXPR14
+    static
+    void operator_move_assignment(pointer& lhs_pbuffer,
+                                  pointer& rhs_pbuffer) ETL_NOEXCEPT
+    {
+      using ETL_OR_STD::swap;
+
+      swap(lhs_pbuffer, rhs_pbuffer);
     }
 
     //*************************************************************************
@@ -2990,6 +3018,24 @@ namespace etl
     }
 
     //*************************************************************************
+    /// Construct move. Move the data.
+    //*************************************************************************
+    ETL_CONSTEXPR14 bitset_ext(bitset_ext<Active_Bits, TElement>& other, buffer_type& buffer) ETL_NOEXCEPT
+      : pbuffer(buffer.data())
+    {
+      implementation::operator_assignment(pbuffer, other.pbuffer, Number_Of_Elements);
+    }
+
+    //*************************************************************************
+    /// Construct move. Steal the data.
+    //*************************************************************************
+    ETL_CONSTEXPR14 bitset_ext(bitset_ext<Active_Bits, TElement>&& other) ETL_NOEXCEPT
+      : pbuffer(other.pbuffer)
+    {
+      other.pbuffer = ETL_NULLPTR;
+    }
+
+    //*************************************************************************
     /// Copy Constructor (Deleted).
     //*************************************************************************
     ETL_CONSTEXPR14 bitset_ext(const bitset_ext<Active_Bits, TElement>& other) ETL_NOEXCEPT ETL_DELETE;
@@ -3104,6 +3150,16 @@ namespace etl
     ETL_CONSTEXPR14 bitset_ext& operator =(const bitset_ext<Active_Bits, TElement>& other) ETL_NOEXCEPT
     {
       implementation::operator_assignment(pbuffer, other.pbuffer, Number_Of_Elements);
+
+      return *this;
+    }
+
+    //*************************************************************************
+    /// Move assignment operator.
+    //*************************************************************************
+    ETL_CONSTEXPR14 bitset_ext& operator =(bitset_ext<Active_Bits, TElement>&& other) ETL_NOEXCEPT
+    {
+      implementation::operator_move_assignment(pbuffer, other.pbuffer);
 
       return *this;
     }
