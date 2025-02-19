@@ -145,6 +145,26 @@ namespace etl
       return container.front();
     }
 
+    /* ****************************** SpanIO ****************************** */
+    //*************************************************************************
+    /// Gets a reference to the lowest priority value in the priority queue.<br>
+    /// \return A reference to the lowest priority value in the priority queue.
+    //*************************************************************************
+    reference bottom()
+    {
+      return container.back();
+    }
+
+    //*************************************************************************
+    /// Gets a const reference to the lowest priority value in the priority queue.<br>
+    /// \return A const reference to the lowest priority value in the priority queue.
+    //*************************************************************************
+    const_reference bottom() const
+    {
+      return container.back();
+    }
+    /* ****************************** SpanIO ****************************** */
+
     //*************************************************************************
     /// Adds a value to the queue.
     /// If asserts or exceptions are enabled, throws an etl::priority_queue_full
