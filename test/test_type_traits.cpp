@@ -122,6 +122,24 @@ namespace
     NotDefaultConstructible(NotDefaultConstructible&&) = delete;
     NotDefaultConstructible& operator =(NotDefaultConstructible&) = delete;
   };
+
+  // A function to test etl::type_identity.
+  template <typename T>
+  T type_identity_test_add(T first, typename etl::type_identity<T>::type second)
+  {
+    return first + second;
+  }
+
+  // Structs to test is_specialized
+  template <typename T>
+  struct specialized
+  {
+  };
+
+  template <typename T>
+  struct other_specialized
+  {
+  };
 }
 
 // Definitions for when the STL and compiler built-ins are not available.
@@ -594,7 +612,7 @@ namespace
         Two
       };
 
-      CHECK((etl::is_same<etl::make_signed<__underlying_type(ue)>::type, std::make_signed<ue>::type>::value));
+      CHECK((etl::is_same<etl::make_signed<typename std::underlying_type<ue>::type>::type, std::make_signed<ue>::type>::value));
 
       enum class se : int8_t
       {
@@ -602,7 +620,7 @@ namespace
         Two
       };
 
-      CHECK((etl::is_same<etl::make_signed<__underlying_type(se)>::type, std::make_signed<se>::type>::value));
+      CHECK((etl::is_same<etl::make_signed<typename std::underlying_type<se>::type>::type, std::make_signed<se>::type>::value));
     }
 
     //*************************************************************************
@@ -636,7 +654,7 @@ namespace
         Two
       };
 
-      CHECK((etl::is_same<etl::make_unsigned<__underlying_type(ue)>::type, std::make_unsigned<ue>::type>::value));
+      CHECK((etl::is_same<etl::make_unsigned<typename std::underlying_type<ue>::type>::type, std::make_unsigned<ue>::type>::value));
 
       enum class se : int8_t
       {
@@ -644,7 +662,7 @@ namespace
         Two
       };
 
-      CHECK((etl::is_same<etl::make_unsigned<__underlying_type(se)>::type, std::make_unsigned<se>::type>::value));
+      CHECK((etl::is_same<etl::make_unsigned<typename std::underlying_type<se>::type>::type, std::make_unsigned<se>::type>::value));
     }
 
     //*************************************************************************
@@ -1091,11 +1109,11 @@ namespace
   TEST(test_conjunction)
   {
 #if ETL_USING_CPP17
-    CHECK((etl::conjunction_v<etl::true_type, etl::true_type, etl::true_type>));
-    CHECK((!etl::conjunction_v<etl::true_type, etl::false_type, etl::true_type>));
+    CHECK_TRUE((etl::conjunction_v<etl::true_type, etl::true_type, etl::true_type>));
+    CHECK_FALSE((etl::conjunction_v<etl::true_type, etl::false_type, etl::true_type>));
 #else
-    CHECK((etl::conjunction<etl::true_type, etl::true_type, etl::true_type>::value));
-    CHECK((!etl::conjunction<etl::true_type, etl::false_type, etl::true_type>::value));
+    CHECK_TRUE((etl::conjunction<etl::true_type, etl::true_type, etl::true_type>::value));
+    CHECK_FALSE((etl::conjunction<etl::true_type, etl::false_type, etl::true_type>::value));
 #endif
   }
 
@@ -1103,11 +1121,25 @@ namespace
   TEST(test_disjunction)
   {
 #if ETL_USING_CPP17
-    CHECK((etl::disjunction_v<etl::false_type, etl::true_type, etl::false_type>));
-    CHECK((!etl::disjunction_v<etl::false_type, etl::false_type, etl::false_type>));
+    CHECK_TRUE((etl::disjunction_v<etl::false_type, etl::true_type, etl::false_type>));
+    CHECK_FALSE((etl::disjunction_v<etl::false_type, etl::false_type, etl::false_type>));
 #else
-    CHECK((etl::disjunction<etl::false_type, etl::true_type, etl::false_type>::value));
-    CHECK((!etl::disjunction<etl::false_type, etl::false_type, etl::false_type>::value));
+    CHECK_TRUE((etl::disjunction<etl::false_type, etl::true_type, etl::false_type>::value));
+    CHECK_FALSE((etl::disjunction<etl::false_type, etl::false_type, etl::false_type>::value));
+#endif
+  }
+
+  //*************************************************************************
+  TEST(test_exclusive_disjunction)
+  {
+#if ETL_USING_CPP17
+    CHECK_TRUE((etl::exclusive_disjunction_v<etl::false_type, etl::true_type, etl::false_type>));
+    CHECK_FALSE((etl::exclusive_disjunction_v<etl::true_type, etl::false_type, etl::true_type>));
+    CHECK_FALSE((etl::exclusive_disjunction_v<etl::false_type, etl::false_type, etl::false_type>));
+#else
+    CHECK_TRUE((etl::exclusive_disjunction<etl::false_type, etl::true_type, etl::false_type>::value));
+    CHECK_FALSE((etl::exclusive_disjunction<etl::true_type, etl::false_type, etl::true_type>::value));
+    CHECK_FALSE((etl::exclusive_disjunction<etl::false_type, etl::false_type, etl::false_type>::value));
 #endif
   }
 
@@ -1318,6 +1350,126 @@ namespace
 #else
     CHECK_TRUE(bool(etl::is_base_of_all<Base, D1, D2, D3>::value));
     CHECK_FALSE(bool(etl::is_base_of_all<Base, D1, D2, D3, D4>::value));
+#endif
+  }
+
+  //*************************************************************************
+  TEST(test_nth_base)
+  {
+    struct D0 { };
+    struct D1 : D0 { using base_type = D0; };
+    struct D2 : D1 { using base_type = D1; };
+    struct D3 : D2 { using base_type = D2; };
+    struct D4 : D3 { using base_type = D3; };
+
+    CHECK_TRUE((std::is_same<D4, etl::nth_base_t<0, D4>>::value));
+    CHECK_TRUE((std::is_same<D3, etl::nth_base_t<1, D4>>::value));
+    CHECK_TRUE((std::is_same<D2, etl::nth_base_t<2, D4>>::value));
+    CHECK_TRUE((std::is_same<D1, etl::nth_base_t<3, D4>>::value));
+    CHECK_TRUE((std::is_same<D0, etl::nth_base_t<4, D4>>::value));
+  }
+
+  //*************************************************************************
+  TEST(test_type_identity) 
+  {
+    CHECK_CLOSE(type_identity_test_add(1.5f, 2), 3.5f, 0.01f);
+  }
+
+  //*************************************************************************
+#if ETL_USING_BUILTIN_UNDERLYING_TYPE
+  TEST(test_underlying_type)
+  {
+    enum enum0_t : char
+    {
+    };
+
+    enum enum1_t : uint32_t
+    {
+    };
+
+    enum class enum2_t : short
+    {
+    };
+
+    enum class enum3_t : size_t
+    {
+    };
+
+    using enum4_t = enum1_t;
+    using enum5_t = std::add_const<enum2_t>::type;
+
+    CHECK_TRUE((std::is_same<etl::underlying_type<enum0_t>::type, char>::value));
+    CHECK_TRUE((std::is_same<etl::underlying_type<enum1_t>::type, uint32_t>::value));
+    CHECK_TRUE((std::is_same<etl::underlying_type<enum2_t>::type, short>::value));
+    CHECK_TRUE((std::is_same<etl::underlying_type<enum3_t>::type, size_t>::value));
+    CHECK_TRUE((std::is_same<etl::underlying_type<enum4_t>::type, uint32_t>::value));
+    CHECK_TRUE((std::is_same<etl::underlying_type<enum5_t>::type, short>::value));
+#if ETL_USING_CPP11
+    CHECK_TRUE((std::is_same<etl::underlying_type_t<enum0_t>, char>::value));
+    CHECK_TRUE((std::is_same<etl::underlying_type_t<enum1_t>, uint32_t>::value));
+    CHECK_TRUE((std::is_same<etl::underlying_type_t<enum2_t>, short>::value));
+    CHECK_TRUE((std::is_same<etl::underlying_type_t<enum3_t>, size_t>::value));
+    CHECK_TRUE((std::is_same<etl::underlying_type_t<enum4_t>, uint32_t>::value));
+    CHECK_TRUE((std::is_same<etl::underlying_type_t<enum5_t>, short>::value));
+#endif
+  }
+#endif
+
+  //*************************************************************************
+  TEST(test_has_duplicates)
+  {
+#if ETL_USING_CPP17
+    CHECK_FALSE((etl::has_duplicates_v<char>));
+    CHECK_FALSE((etl::has_duplicates_v<char, int, double>));
+    CHECK_TRUE((etl::has_duplicates_v<char, int, char>));
+#else
+    CHECK_FALSE((etl::has_duplicates<char>::value));
+    CHECK_FALSE((etl::has_duplicates<char, int, double>::value));
+    CHECK_TRUE((etl::has_duplicates<char, int, char>::value));
+#endif
+  }
+
+  //*************************************************************************
+  TEST(test_has_duplicates_of)
+  {
+#if ETL_USING_CPP17
+    CHECK_FALSE((etl::has_duplicates_of_v<char>));
+    CHECK_TRUE((etl::has_duplicates_of_v<char, char, int, char>)); // char is duplicated.
+    CHECK_FALSE((etl::has_duplicates_of_v<int, char, int, char>)); // int is not duplicated.
+#else
+    CHECK_FALSE((etl::has_duplicates_of<char>::value));
+    CHECK_TRUE((etl::has_duplicates_of<char, char, int, char>::value)); // char is duplicated.
+    CHECK_FALSE((etl::has_duplicates_of<int, char, int, char>::value)); // int is not duplicated.
+#endif
+  }
+
+  //*************************************************************************
+  TEST(test_count_of)
+  {
+#if ETL_USING_CPP17
+    CHECK_EQUAL(0, (etl::count_of_v<char>));
+    CHECK_EQUAL(0, (etl::count_of_v<char, int>));
+    CHECK_EQUAL(1, (etl::count_of_v<char, char>));
+    CHECK_EQUAL(1, (etl::count_of_v<char, int, char>));
+    CHECK_EQUAL(2, (etl::count_of_v<char, int, char, double, char>));
+#else
+    CHECK_EQUAL(0, (etl::count_of<char>::value));
+    CHECK_EQUAL(0, (etl::count_of<char, int>::value));
+    CHECK_EQUAL(1, (etl::count_of<char, char>::value));
+    CHECK_EQUAL(1, (etl::count_of<char, int, char>::value));
+    CHECK_EQUAL(2, (etl::count_of<char, int, char, double, char>::value));
+#endif
+  }
+
+  //*************************************************************************
+  TEST(test_is_specialization)
+  {
+#if ETL_USING_CPP17
+    CHECK_TRUE((etl::is_specialization_v<specialized<int>, specialized>));
+    CHECK_FALSE((etl::is_specialization_v<other_specialized<int>, specialized>));
+#else
+    CHECK_TRUE((etl::is_specialization<specialized<int>, specialized>::value));
+    CHECK_FALSE((etl::is_specialization<other_specialized<int>, specialized>::value));
 #endif
   }
 }

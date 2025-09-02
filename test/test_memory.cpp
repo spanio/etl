@@ -29,7 +29,9 @@ SOFTWARE.
 #include "unit_test_framework.h"
 
 #include "etl/memory.h"
+#include "etl/list.h"
 #include "etl/debug_count.h"
+#include "etl/endianness.h"
 
 #include "data.h"
 
@@ -40,14 +42,12 @@ SOFTWARE.
 #include <numeric>
 #include <stdint.h>
 #include <vector>
-
 #include <memory>
-
 
 namespace
 {
-  typedef std::string non_trivial_t;
-  typedef uint32_t    trivial_t;
+  typedef std::string    non_trivial_t;
+  typedef uint32_t       trivial_t;
   typedef TestDataM<int> moveable_t;
 
   const size_t SIZE = 10UL;
@@ -1177,9 +1177,20 @@ namespace
       uint32_t src[8] = { 0x12345678, 0x76543210, 0x01452367, 0x23670145, 0x67234501, 0x45016723, 0x01324576, 0x76453201 };
       uint32_t dst[8] = { 0, 0, 0, 0, 0, 0, 0, 0 };
 
-      etl::mem_copy(src, src + 8, dst);
-
+      uint32_t* result = etl::mem_copy(src, src + 8, dst);
       CHECK(std::equal(src, src + 8, dst));
+      CHECK(result == dst);
+    }
+
+    //*************************************************************************
+    TEST(test_mem_copy_const_pointer_const_pointer_pointer)
+    {
+      const uint32_t src[8] = { 0x12345678, 0x76543210, 0x01452367, 0x23670145, 0x67234501, 0x45016723, 0x01324576, 0x76453201 };
+      uint32_t dst[8] = { 0, 0, 0, 0, 0, 0, 0, 0 };
+
+      uint32_t* result = etl::mem_copy(src, src + 8, dst);
+      CHECK(std::equal(src, src + 8, dst));
+      CHECK(result == dst);
     }
 
     //*************************************************************************
@@ -1188,9 +1199,20 @@ namespace
       uint32_t src[8] = { 0x12345678, 0x76543210, 0x01452367, 0x23670145, 0x67234501, 0x45016723, 0x01324576, 0x76453201 };
       uint32_t dst[8] = { 0, 0, 0, 0, 0, 0, 0, 0 };
 
-      etl::mem_copy(src, 8, dst);
-
+      uint32_t* result = etl::mem_copy(src, 8, dst);
       CHECK(std::equal(src, src + 8, dst));
+      CHECK(result == dst);
+    }
+
+    //*************************************************************************
+    TEST(test_mem_copy_const_pointer_length_pointer)
+    {
+      const uint32_t src[8] = { 0x12345678, 0x76543210, 0x01452367, 0x23670145, 0x67234501, 0x45016723, 0x01324576, 0x76453201 };
+      uint32_t dst[8] = { 0, 0, 0, 0, 0, 0, 0, 0 };
+
+      uint32_t* result = etl::mem_copy(src, 8, dst);
+      CHECK(std::equal(src, src + 8, dst));
+      CHECK(result == dst);
     }
 
     //*************************************************************************
@@ -1199,9 +1221,22 @@ namespace
       uint32_t expected[8] = { 0x12345678, 0x76543210, 0x01452367, 0x23670145, 0x67234501, 0x45016723, 0x01324576, 0x76453201 };
       uint32_t data[12]    = { 0x12345678, 0x76543210, 0x01452367, 0x23670145, 0x67234501, 0x45016723, 0x01324576, 0x76453201, 0, 0, 0, 0 };
 
-      etl::mem_move(data, data + 8, data + 4);
-
+      uint32_t* result = etl::mem_move(data, data + 8, data + 4);
       CHECK(std::equal(expected, expected + 8, data + 4));
+      CHECK(result == data + 4);
+    }
+
+    //*************************************************************************
+    TEST(test_mem_move_const_pointer_const_pointer_pointer)
+    {
+      uint32_t expected[8] = { 0x12345678, 0x76543210, 0x01452367, 0x23670145, 0x67234501, 0x45016723, 0x01324576, 0x76453201 };
+      uint32_t data[12]    = { 0x12345678, 0x76543210, 0x01452367, 0x23670145, 0x67234501, 0x45016723, 0x01324576, 0x76453201, 0, 0, 0, 0 };
+      const uint32_t* data_begin = &data[0];
+      const uint32_t* data_end = &data[8];
+
+      uint32_t* result = etl::mem_move(data_begin, data_end, data + 4);
+      CHECK(std::equal(expected, expected + 8, data + 4));
+      CHECK(result == data + 4);
     }
 
     //*************************************************************************
@@ -1210,9 +1245,21 @@ namespace
       uint32_t expected[8] = { 0x12345678, 0x76543210, 0x01452367, 0x23670145, 0x67234501, 0x45016723, 0x01324576, 0x76453201 };
       uint32_t data[12]    = { 0x12345678, 0x76543210, 0x01452367, 0x23670145, 0x67234501, 0x45016723, 0x01324576, 0x76453201, 0, 0, 0, 0 };
 
-      etl::mem_move(data, 8, data + 4);
-
+      uint32_t* result = etl::mem_move(data, 8, data + 4);
       CHECK(std::equal(expected, expected + 8, data + 4));
+      CHECK(result == data + 4);
+    }
+
+    //*************************************************************************
+    TEST(test_mem_move_const_pointer_length_pointer)
+    {
+      uint32_t expected[8] = { 0x12345678, 0x76543210, 0x01452367, 0x23670145, 0x67234501, 0x45016723, 0x01324576, 0x76453201 };
+      uint32_t data[12]    = { 0x12345678, 0x76543210, 0x01452367, 0x23670145, 0x67234501, 0x45016723, 0x01324576, 0x76453201, 0, 0, 0, 0 };
+      const uint32_t* data_begin = &data[0];
+      
+      uint32_t* result = etl::mem_move(data_begin, 8, data + 4);
+      CHECK(std::equal(expected, expected + 8, data + 4));
+      CHECK(result == data + 4);
     }
 
     //*************************************************************************
@@ -1223,6 +1270,32 @@ namespace
       uint32_t grtr[8] = { 0x12345678, 0x76543210, 0x01452367, 0x23670145, 0x67235501, 0x45016723, 0x01324576, 0x76453201 };
       uint32_t less[8] = { 0x12345678, 0x76543210, 0x01452367, 0x23670145, 0x67134501, 0x45016723, 0x01324576, 0x76453201 };
       
+      CHECK(etl::mem_compare(data, data + 8, same) == 0);
+      CHECK(etl::mem_compare(data, data + 8, grtr) > 0);
+      CHECK(etl::mem_compare(data, data + 8, less) < 0);
+    }
+
+    //*************************************************************************
+    TEST(test_mem_compare_const_pointer_const_pointer_pointer)
+    {
+      const uint32_t data[8] = { 0x12345678, 0x76543210, 0x01452367, 0x23670145, 0x67234501, 0x45016723, 0x01324576, 0x76453201 };
+      uint32_t same[8] = { 0x12345678, 0x76543210, 0x01452367, 0x23670145, 0x67234501, 0x45016723, 0x01324576, 0x76453201 };
+      uint32_t grtr[8] = { 0x12345678, 0x76543210, 0x01452367, 0x23670145, 0x67235501, 0x45016723, 0x01324576, 0x76453201 };
+      uint32_t less[8] = { 0x12345678, 0x76543210, 0x01452367, 0x23670145, 0x67134501, 0x45016723, 0x01324576, 0x76453201 };
+
+      CHECK(etl::mem_compare(data, data + 8, same) == 0);
+      CHECK(etl::mem_compare(data, data + 8, grtr) > 0);
+      CHECK(etl::mem_compare(data, data + 8, less) < 0);
+    }
+
+    //*************************************************************************
+    TEST(test_mem_compare_const_pointer_const_pointer_const_pointer)
+    {
+      const uint32_t data[8] = { 0x12345678, 0x76543210, 0x01452367, 0x23670145, 0x67234501, 0x45016723, 0x01324576, 0x76453201 };
+      const uint32_t same[8] = { 0x12345678, 0x76543210, 0x01452367, 0x23670145, 0x67234501, 0x45016723, 0x01324576, 0x76453201 };
+      uint32_t grtr[8] = { 0x12345678, 0x76543210, 0x01452367, 0x23670145, 0x67235501, 0x45016723, 0x01324576, 0x76453201 };
+      uint32_t less[8] = { 0x12345678, 0x76543210, 0x01452367, 0x23670145, 0x67134501, 0x45016723, 0x01324576, 0x76453201 };
+
       CHECK(etl::mem_compare(data, data + 8, same) == 0);
       CHECK(etl::mem_compare(data, data + 8, grtr) > 0);
       CHECK(etl::mem_compare(data, data + 8, less) < 0);
@@ -1242,12 +1315,38 @@ namespace
     }
 
     //*************************************************************************
+    TEST(test_mem_compare_const_pointer_length_pointer)
+    {
+      const uint32_t data[8] = { 0x12345678, 0x76543210, 0x01452367, 0x23670145, 0x67234501, 0x45016723, 0x01324576, 0x76453201 };
+      uint32_t same[8] = { 0x12345678, 0x76543210, 0x01452367, 0x23670145, 0x67234501, 0x45016723, 0x01324576, 0x76453201 };
+      uint32_t grtr[8] = { 0x12345678, 0x76543210, 0x01452367, 0x23670145, 0x67235501, 0x45016723, 0x01324576, 0x76453201 };
+      uint32_t less[8] = { 0x12345678, 0x76543210, 0x01452367, 0x23670145, 0x67134501, 0x45016723, 0x01324576, 0x76453201 };
+
+      CHECK(etl::mem_compare(data, 8, same) == 0);
+      CHECK(etl::mem_compare(data, 8, grtr) > 0);
+      CHECK(etl::mem_compare(data, 8, less) < 0);
+    }
+
+    //*************************************************************************
+    TEST(test_mem_compare_const_pointer_length_const_pointer)
+    {
+      const uint32_t data[8] = { 0x12345678, 0x76543210, 0x01452367, 0x23670145, 0x67234501, 0x45016723, 0x01324576, 0x76453201 };
+      const uint32_t same[8] = { 0x12345678, 0x76543210, 0x01452367, 0x23670145, 0x67234501, 0x45016723, 0x01324576, 0x76453201 };
+      const uint32_t grtr[8] = { 0x12345678, 0x76543210, 0x01452367, 0x23670145, 0x67235501, 0x45016723, 0x01324576, 0x76453201 };
+      const uint32_t less[8] = { 0x12345678, 0x76543210, 0x01452367, 0x23670145, 0x67134501, 0x45016723, 0x01324576, 0x76453201 };
+
+      CHECK(etl::mem_compare(data, 8, same) == 0);
+      CHECK(etl::mem_compare(data, 8, grtr) > 0);
+      CHECK(etl::mem_compare(data, 8, less) < 0);
+    }
+
+    //*************************************************************************
     TEST(test_mem_set_pointer_pointer)
     {
       uint32_t data[8]     = { 0, 0, 0, 0, 0, 0, 0, 0 };
       uint32_t expected[8] = { 0, 0x5A5A5A5A, 0x5A5A5A5A, 0x5A5A5A5A, 0x5A5A5A5A, 0, 0, 0 };
 
-      etl::mem_set(data + 1, data + 5, 0x5A);
+      etl::mem_set(data + 1, data + 5, (char)0x5A);
 
       CHECK(std::equal(expected, expected + 8, data));
     }
@@ -1258,7 +1357,7 @@ namespace
       uint32_t data[8] = { 0, 0, 0, 0, 0, 0, 0, 0 };
       uint32_t expected[8] = { 0, 0x5A5A5A5A, 0x5A5A5A5A, 0x5A5A5A5A, 0x5A5A5A5A, 0, 0, 0 };
 
-      etl::mem_set(data + 1, 4, 0x5A);
+      etl::mem_set(data + 1, 4, (char)0x5A);
 
       CHECK(std::equal(expected, expected + 8, data));
     }
@@ -1268,11 +1367,18 @@ namespace
     {
       uint32_t data[8] = { 0x12345678, 0x76543210, 0x01452367, 0x23670145, 0x67294501, 0x45016723, 0x01324576, 0x76453201 };
 
-      char *p1 = etl::mem_char(data, data + 8, 0x29);
-      char* p2 = etl::mem_char(data, data + 8, 0x99);
+      char *p1 = etl::mem_char(data, data + 8, (char)0x29);
+      char* p2 = etl::mem_char(data, data + 8, (char)0x99);
 
       CHECK_EQUAL(uint32_t(0x29), uint32_t(*p1));
-      CHECK((reinterpret_cast<char*>(data) + 18) == p1);
+      if (etl::endianness::value() == etl::endian::little)
+      {
+        CHECK((reinterpret_cast<char*>(data) + 18) == p1);
+      }
+      else
+      {
+        CHECK((reinterpret_cast<char*>(data) + 17) == p1);
+      }
       CHECK((reinterpret_cast<char*>(data) + 32) == p2);
     }
 
@@ -1281,11 +1387,18 @@ namespace
     {
       const uint32_t data[8] = { 0x12345678, 0x76543210, 0x01452367, 0x23670145, 0x67294501, 0x45016723, 0x01324576, 0x76453201 };
 
-      const char* p1 = etl::mem_char(data, data + 8, 0x29);
-      const char* p2 = etl::mem_char(data, data + 8, 0x99);
+      const char* p1 = etl::mem_char(data, data + 8, (char)0x29);
+      const char* p2 = etl::mem_char(data, data + 8, (char)0x99);
 
       CHECK_EQUAL(uint32_t(0x29), uint32_t(*p1));
-      CHECK((reinterpret_cast<const char*>(data) + 18) == p1);
+      if (etl::endianness::value() == etl::endian::little)
+      {
+        CHECK((reinterpret_cast<const char*>(data) + 18) == p1);
+      }
+      else
+      {
+        CHECK((reinterpret_cast<const char*>(data) + 17) == p1);
+      }
       CHECK((reinterpret_cast<const char*>(data) + 32) == p2);
     }
 
@@ -1294,11 +1407,18 @@ namespace
     {
       uint32_t data[8] = { 0x12345678, 0x76543210, 0x01452367, 0x23670145, 0x67294501, 0x45016723, 0x01324576, 0x76453201 };
 
-      char* p1 = etl::mem_char(data, 8, 0x29);
-      char* p2 = etl::mem_char(data, 8, 0x99);
+      char* p1 = etl::mem_char(data, 8, (char)0x29);
+      char* p2 = etl::mem_char(data, 8, (char)0x99);
 
       CHECK_EQUAL(uint32_t(0x29), uint32_t(*p1));
-      CHECK((reinterpret_cast<char*>(data) + 18) == p1);
+      if (etl::endianness::value() == etl::endian::little)
+      {
+        CHECK((reinterpret_cast<char*>(data) + 18) == p1);
+      }
+      else
+      {
+        CHECK((reinterpret_cast<char*>(data) + 17) == p1);
+      }
       CHECK((reinterpret_cast<char*>(data) + 32) == p2);
     }
 
@@ -1307,11 +1427,18 @@ namespace
     {
       const uint32_t data[8] = { 0x12345678, 0x76543210, 0x01452367, 0x23670145, 0x67294501, 0x45016723, 0x01324576, 0x76453201 };
 
-      const char* p1 = etl::mem_char(data, 8, 0x29);
-      const char* p2 = etl::mem_char(data, 8, 0x99);
+      const char* p1 = etl::mem_char(data, 8, (char)0x29);
+      const char* p2 = etl::mem_char(data, 8, (char)0x99);
 
       CHECK_EQUAL(uint32_t(0x29), uint32_t(*p1));
-      CHECK((reinterpret_cast<const char*>(data) + 18) == p1);
+      if (etl::endianness::value() == etl::endian::little)
+      {
+        CHECK((reinterpret_cast<const char*>(data) + 18) == p1);
+      }
+      else
+      {
+        CHECK((reinterpret_cast<const char*>(data) + 17) == p1);
+      }
       CHECK((reinterpret_cast<const char*>(data) + 32) == p2);
     }
 
@@ -1356,7 +1483,7 @@ namespace
       CHECK(ptr.get() == ETL_NULLPTR);
     }
 
-    //*************************************************************************
+    
     struct Flags
     {
       Flags()
@@ -1528,6 +1655,21 @@ namespace
       CHECK_THROW(etl::get_object_at<Data>(pbuffer1), etl::alignment_error);
 
       CHECK_THROW(etl::destroy_object_at<Data>(pbuffer1), etl::alignment_error);
+    }
+
+    //*************************************************************************
+    TEST(test_to_address)
+    {
+      int  i;
+      int* pi = &i;
+
+      etl::list<int, 4> container = { 1, 2, 3, 4 };
+      etl::list<int, 4>::iterator itr = container.begin();
+      std::advance(itr, 2);
+      int* plist_item = &*itr;
+
+      CHECK_EQUAL(&i, etl::to_address(pi));
+      CHECK_EQUAL(plist_item, etl::to_address(itr));
     }
   };
 }

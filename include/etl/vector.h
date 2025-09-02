@@ -47,7 +47,6 @@ SOFTWARE.
 #include "functional.h"
 #include "static_assert.h"
 #include "placement_new.h"
-#include "algorithm.h"
 #include "initializer_list.h"
 
 #include <stddef.h>
@@ -269,6 +268,7 @@ namespace etl
     //*********************************************************************
     void reserve(size_t n)
     {
+      (void)n; // Stop 'unused parameter' warning in release mode.
       ETL_ASSERT(n <= CAPACITY, ETL_ERROR(vector_out_of_bounds));
     }
 
@@ -1030,8 +1030,15 @@ namespace etl
     //*********************************************************************
     void initialise()
     {
-      etl::destroy(p_buffer, p_end);
-      ETL_SUBTRACT_DEBUG_COUNT(int32_t(etl::distance(p_buffer, p_end)));
+      if ETL_IF_CONSTEXPR(etl::is_trivially_destructible<T>::value)
+      {
+        ETL_RESET_DEBUG_COUNT;
+      }
+      else
+      {
+        etl::destroy(p_buffer, p_end);
+        ETL_SUBTRACT_DEBUG_COUNT(int32_t(etl::distance(p_buffer, p_end)));
+      }
 
       p_end = p_buffer;
     }
@@ -1376,7 +1383,7 @@ namespace etl
   template <typename... T>
   constexpr auto make_vector(T&&... t) -> etl::vector<typename etl::common_type_t<T...>, sizeof...(T)>
   {
-    return { { etl::forward<T>(t)... } };
+    return { etl::forward<T>(t)... };
   }
 #endif
 
@@ -1674,7 +1681,7 @@ namespace etl
   template <typename... T>
   constexpr auto make_vector(T*... t) -> etl::vector<typename etl::common_type_t<T*...>, sizeof...(T)>
   {
-    return { { etl::forward<T*>(t)... } };
+    return { etl::forward<T*>(t)... };
   }
 #endif
 

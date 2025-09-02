@@ -606,6 +606,7 @@ namespace etl
     //*********************************************************************
     void reserve(size_t n)
     {
+      (void)n;  // Stop 'unused parameter' warning in release mode.
       ETL_ASSERT(n <= capacity(), ETL_ERROR(vector_out_of_bounds));
     }
 
@@ -1181,12 +1182,19 @@ namespace etl
     //*********************************************************************
     void initialise()
     {
-      iterator itr = begin();
-
-      while (itr != end())
+      if ETL_IF_CONSTEXPR(etl::is_trivially_destructible<T>::value)
       {
-        storage.destroy<T>(etl::addressof(*itr));
-        ++itr;
+        storage.release_all();
+      }
+      else
+      {
+        iterator itr = begin();
+
+        while (itr != end())
+        {
+          storage.destroy<T>(etl::addressof(*itr));
+          ++itr;
+        }
       }
 
       lookup.clear();
@@ -1469,7 +1477,7 @@ namespace etl
   template <typename... T>
   constexpr auto make_indirect_vector(T&&... t) -> etl::indirect_vector<typename etl::common_type_t<T...>, sizeof...(T)>
   {
-    return { { etl::forward<T>(t)... } };
+    return { etl::forward<T>(t)... };
   }
 #endif
 

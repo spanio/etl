@@ -40,6 +40,7 @@ SOFTWARE.
 #include "../error_handler.h"
 #include "../null_type.h"
 #include "../placement_new.h"
+#include "../monostate.h"
 
 #include <stdint.h>
 
@@ -55,7 +56,7 @@ SOFTWARE.
 //*****************************************************************************
 namespace etl
 {
-#if ETL_USING_CPP11 && !defined(ETL_USE_LEGACY_VARIANT)
+#if ETL_NOT_USING_LEGACY_VARIANT
   namespace legacy
   {
 #endif
@@ -65,7 +66,7 @@ namespace etl
       /// Placeholder for unused template parameters.
       /// This class is never instantiated.
       //*************************************************************************
-      template <size_t ID>
+      template <size_t Id>
       struct no_type
       {
       };
@@ -75,9 +76,7 @@ namespace etl
     /// Monostate for variants.
     ///\ingroup variant
     //***************************************************************************
-    struct monostate
-    {
-    };
+    typedef etl::monostate monostate;
 
     //***************************************************************************
     /// Base exception for the variant class.
@@ -478,6 +477,19 @@ namespace etl
 
         ::new (static_cast<T*>(data)) T(value);
         type_id = Type_Id_Lookup<T>::type_id;
+      }
+
+      //***************************************************************************
+      /// Constructor that catches any types that are not supported.
+      /// Forces a ETL_STATIC_ASSERT.
+      //***************************************************************************
+      template <size_t Index, typename T>
+      explicit variant(etl::in_place_index_t<Index>, T const& value)
+        : type_id(Index)
+      {
+        ETL_STATIC_ASSERT(Type_Id_Lookup<T>::type_id == Index, "Missmatched type");
+        ::new (static_cast<T*>(data)) T(value);
+        type_id = Index;
       }
 
       //***************************************************************************
@@ -1005,7 +1017,7 @@ namespace etl
 
 #undef ETL_GEN_LEGACY_VISIT
 
-#if ETL_USING_CPP11 && !defined(ETL_USE_LEGACY_VARIANT)
+#if ETL_NOT_USING_LEGACY_VARIANT
   }
 #endif
 }

@@ -1803,20 +1803,10 @@ namespace
 
       span_t s = b.span();
 
-      if (etl::endianness::value() == etl::endian::little)
-      {
-        CHECK_EQUAL(0x78UL, s[0]);
-        CHECK_EQUAL(0x56UL, s[1]);
-        CHECK_EQUAL(0x34UL, s[2]);
-        CHECK_EQUAL(0x12UL, s[3]);
-      }
-      else
-      {
-        CHECK_EQUAL(0x78UL, s[3]);
-        CHECK_EQUAL(0x56UL, s[2]);
-        CHECK_EQUAL(0x34UL, s[1]);
-        CHECK_EQUAL(0x12UL, s[0]);
-      }
+      CHECK_EQUAL(0x78UL, s[0]);
+      CHECK_EQUAL(0x56UL, s[1]);
+      CHECK_EQUAL(0x34UL, s[2]);
+      CHECK_EQUAL(0x12UL, s[3]);
 
       s[2] = 0x9AU;
       uint32_t value = b.value<uint32_t>();
@@ -1833,20 +1823,10 @@ namespace
       bs32 b(0x12345678UL, buffer);
 
       span_t s = b.span();
-      if (etl::endianness::value() == etl::endian::little)
-      {
-        CHECK_EQUAL(0x78UL, s[0]);
-        CHECK_EQUAL(0x56UL, s[1]);
-        CHECK_EQUAL(0x34UL, s[2]);
-        CHECK_EQUAL(0x12UL, s[3]);
-      }
-      else
-      {
-        CHECK_EQUAL(0x78UL, s[3]);
-        CHECK_EQUAL(0x56UL, s[2]);
-        CHECK_EQUAL(0x34UL, s[1]);
-        CHECK_EQUAL(0x12UL, s[0]);
-      }
+      CHECK_EQUAL(0x78UL, s[0]);
+      CHECK_EQUAL(0x56UL, s[1]);
+      CHECK_EQUAL(0x34UL, s[2]);
+      CHECK_EQUAL(0x12UL, s[3]);
     }
 
     //*************************************************************************
@@ -2470,6 +2450,14 @@ namespace
       CHECK_EQUAL(test_bit(5), t5);
       CHECK_EQUAL(test_bit(6), t6);
       CHECK_EQUAL(test_bit(7), t7);
+    }
+
+    //*************************************************************************
+    TEST(test_global_size)
+    {
+      etl::bitset<32> b(0x12345678UL);
+
+      CHECK_EQUAL(32, ETL_OR_STD17::size(b));
     }
   };
 }

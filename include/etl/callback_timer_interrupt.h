@@ -1,4 +1,4 @@
-/******************************************************************************
+ /******************************************************************************
 The MIT License(MIT)
 
 Embedded Template Library.
@@ -61,12 +61,12 @@ namespace etl
     {
       etl::timer::id::type id = etl::timer::id::NO_TIMER;
 
-      bool is_space = (number_of_registered_timers < MAX_TIMERS);
+      bool is_space = (number_of_registered_timers < Max_Timers);
 
       if (is_space)
       {
         // Search for the free space.
-        for (uint_least8_t i = 0U; i < MAX_TIMERS; ++i)
+        for (uint_least8_t i = 0U; i < Max_Timers; ++i)
         {
           timer_data& timer = timer_array[i];
 
@@ -148,7 +148,7 @@ namespace etl
         number_of_registered_timers = 0;
       }
 
-      for (uint8_t i = 0U; i < MAX_TIMERS; ++i)
+      for (uint8_t i = 0U; i < Max_Timers; ++i)
       {
         ::new (&timer_array[i]) timer_data();
       }
@@ -329,6 +329,33 @@ namespace etl
       return delta;
     }
 
+    //*******************************************
+    /// Checks if a timer is currently active.
+    /// Returns <b>true</b> if the timer is active, otherwise <b>false</b>.
+    //*******************************************
+    bool is_active(etl::timer::id::type id_) const
+    {
+      // Valid timer id?
+      if (is_valid_timer_id(id_))
+      {
+        if (has_active_timer())
+        {
+          TInterruptGuard guard;
+          (void)guard;  // Silence 'unused variable warnings.
+
+          const timer_data& timer = timer_array[id_];
+
+          // Registered timer?
+          if (timer.id != etl::timer::id::NO_TIMER)
+          {
+            return timer.is_active();
+          }
+        }
+      }
+
+      return false;
+    }
+
   protected:
 
     //*************************************************************************
@@ -398,16 +425,24 @@ namespace etl
     //*******************************************
     /// Constructor.
     //*******************************************
-    icallback_timer_interrupt(timer_data* const timer_array_, const uint_least8_t  MAX_TIMERS_)
+    icallback_timer_interrupt(timer_data* const timer_array_, const uint_least8_t  Max_Timers_)
       : timer_array(timer_array_)
       , active_list(timer_array_)
       , enabled(false)
       , number_of_registered_timers(0U)
-      , MAX_TIMERS(MAX_TIMERS_)
+      , Max_Timers(Max_Timers_)
     {
     }
 
   private:
+
+    //*******************************************
+    /// Check that the timer id is valid.
+    //*******************************************
+    bool is_valid_timer_id(etl::timer::id::type id_) const
+    {
+      return (id_ < Max_Timers);
+    }
 
     //*************************************************************************
     /// A specialised intrusive linked list for timer data.
@@ -604,18 +639,18 @@ namespace etl
 
   public:
 
-    const uint_least8_t MAX_TIMERS;
+    const uint_least8_t Max_Timers;
   };
 
   //***************************************************************************
   /// The callback timer
   //***************************************************************************
-  template <uint_least8_t MAX_TIMERS_, typename TInterruptGuard>
+  template <uint_least8_t Max_Timers_, typename TInterruptGuard>
   class callback_timer_interrupt : public etl::icallback_timer_interrupt<TInterruptGuard>
   {
   public:
 
-    ETL_STATIC_ASSERT(MAX_TIMERS_ <= 254U, "No more than 254 timers are allowed");
+    ETL_STATIC_ASSERT(Max_Timers_ <= 254U, "No more than 254 timers are allowed");
 
     typedef typename icallback_timer_interrupt<TInterruptGuard>::callback_type callback_type;
 
@@ -623,13 +658,13 @@ namespace etl
     /// Constructor.
     //*******************************************
     callback_timer_interrupt()
-      : icallback_timer_interrupt<TInterruptGuard>(timer_array, MAX_TIMERS_)
+      : icallback_timer_interrupt<TInterruptGuard>(timer_array, Max_Timers_)
     {
     }
 
   private:
 
-    typename icallback_timer_interrupt<TInterruptGuard>::timer_data timer_array[MAX_TIMERS_];
+    typename icallback_timer_interrupt<TInterruptGuard>::timer_data timer_array[Max_Timers_];
   };
 }
 

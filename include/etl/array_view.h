@@ -133,8 +133,8 @@ namespace etl
     //*************************************************************************
     /// Construct from etl::array.
     //*************************************************************************
-    template <typename U, size_t N, typename = typename etl::enable_if<etl::is_same<etl::remove_cv_t<T>, etl::remove_cv_t<U>>::value, void>::type>
-    ETL_CONSTEXPR array_view(etl::array<U, N>& a) ETL_NOEXCEPT
+    template <typename U, size_t Size, typename = typename etl::enable_if<etl::is_same<etl::remove_cv_t<T>, etl::remove_cv_t<U>>::value, void>::type>
+    ETL_CONSTEXPR array_view(etl::array<U, Size>& a) ETL_NOEXCEPT
       : mbegin(a.data())
       , mend(a.data() + a.size())
     {
@@ -143,8 +143,8 @@ namespace etl
     //*************************************************************************
     /// Construct from etl::array.
     //*************************************************************************
-    template <typename U, size_t N, typename = typename etl::enable_if<etl::is_same<etl::remove_cv_t<T>, etl::remove_cv_t<U>>::value, void>::type>
-    ETL_CONSTEXPR array_view(const etl::array<U, N>& a) ETL_NOEXCEPT
+    template <typename U, size_t Size, typename = typename etl::enable_if<etl::is_same<etl::remove_cv_t<T>, etl::remove_cv_t<U>>::value, void>::type>
+    ETL_CONSTEXPR array_view(const etl::array<U, Size>& a) ETL_NOEXCEPT
       : mbegin(a.data())
       , mend(a.data() + a.size())
     {
@@ -153,8 +153,8 @@ namespace etl
     //*************************************************************************
     /// Construct from etl::array.
     //*************************************************************************
-    template <typename U, size_t N>
-    ETL_CONSTEXPR array_view(etl::array<U, N>& a, typename etl::enable_if<etl::is_same<typename etl::remove_cv<T>::type, typename etl::remove_cv<U>::type>::value, void>::type* = 0) ETL_NOEXCEPT
+    template <typename U, size_t Size>
+    ETL_CONSTEXPR array_view(etl::array<U, Size>& a, typename etl::enable_if<etl::is_same<typename etl::remove_cv<T>::type, typename etl::remove_cv<U>::type>::value, void>::type* = 0) ETL_NOEXCEPT
       : mbegin(a.data())
       , mend(a.data() + a.size())
     {
@@ -163,8 +163,8 @@ namespace etl
     //*************************************************************************
     /// Construct from etl::array.
     //*************************************************************************
-    template <typename U, size_t N>
-    ETL_CONSTEXPR array_view(const etl::array<U, N>& a, typename etl::enable_if<etl::is_same<typename etl::remove_cv<T>::type, typename etl::remove_cv<U>::type>::value, void>::type* = 0) ETL_NOEXCEPT
+    template <typename U, size_t Size>
+    ETL_CONSTEXPR array_view(const etl::array<U, Size>& a, typename etl::enable_if<etl::is_same<typename etl::remove_cv<T>::type, typename etl::remove_cv<U>::type>::value, void>::type* = 0) ETL_NOEXCEPT
       : mbegin(a.data())
       , mend(a.data() + a.size())
     {
@@ -175,8 +175,8 @@ namespace etl
     //*************************************************************************
     /// Construct from std::array.
     //*************************************************************************
-    template <typename U, size_t N, typename = typename etl::enable_if<etl::is_same<etl::remove_cv_t<T>, etl::remove_cv_t<U>>::value, void>::type>
-    ETL_CONSTEXPR array_view(std::array<U, N>& a) ETL_NOEXCEPT
+    template <typename U, size_t Size, typename = typename etl::enable_if<etl::is_same<etl::remove_cv_t<T>, etl::remove_cv_t<U>>::value, void>::type>
+    ETL_CONSTEXPR array_view(std::array<U, Size>& a) ETL_NOEXCEPT
       : mbegin(a.data())
       , mend(a.data() + a.size())
     {
@@ -185,8 +185,8 @@ namespace etl
     //*************************************************************************
     /// Construct from std::array.
     //*************************************************************************
-    template <typename U, size_t N, typename = typename etl::enable_if<etl::is_same<etl::remove_cv_t<T>, etl::remove_cv_t<U>>::value, void>::type>
-    ETL_CONSTEXPR array_view(const std::array<U, N>& a) ETL_NOEXCEPT
+    template <typename U, size_t Size, typename = typename etl::enable_if<etl::is_same<etl::remove_cv_t<T>, etl::remove_cv_t<U>>::value, void>::type>
+    ETL_CONSTEXPR array_view(const std::array<U, Size>& a) ETL_NOEXCEPT
       : mbegin(a.data())
       , mend(a.data() + a.size())
     {
@@ -239,19 +239,19 @@ namespace etl
     //*************************************************************************
     template <typename TIterator>
     ETL_CONSTEXPR array_view(const TIterator begin_, const TIterator end_)
-      : mbegin(etl::addressof(*begin_)),
-        mend(etl::addressof(*begin_) + etl::distance(begin_, end_))
+      : mbegin(etl::to_address(begin_)),
+        mend(etl::to_address(begin_) + etl::distance(begin_, end_))
     {
     }
 
     //*************************************************************************
-    /// Construct from C array
+    /// Construct from iterator and size
     //*************************************************************************
     template <typename TIterator,
               typename TSize>
     ETL_CONSTEXPR array_view(const TIterator begin_, const TSize size_)
-      : mbegin(etl::addressof(*begin_)),
-        mend(etl::addressof(*begin_) + size_)
+      : mbegin(etl::to_address(begin_)),
+        mend(etl::to_address(begin_) + size_)
     {
     }
 
@@ -458,8 +458,8 @@ namespace etl
     template <typename TIterator>
     void assign(const TIterator begin_, const TIterator end_)
     {
-      mbegin = etl::addressof(*begin_);
-      mend   = etl::addressof(*begin_) + etl::distance(begin_, end_);
+      mbegin = etl::to_address(begin_);
+      mend   = etl::to_address(begin_) + etl::distance(begin_, end_);
     }
 
     //*************************************************************************
@@ -469,8 +469,8 @@ namespace etl
               typename TSize>
     void assign(const TIterator begin_, const TSize size_)
     {
-      mbegin = etl::addressof(*begin_);
-      mend   = etl::addressof(*begin_) + size_;
+      mbegin = etl::to_address(begin_);
+      mend   = etl::to_address(begin_) + size_;
     }
 
 #if defined(ETL_ARRAY_VIEW_IS_MUTABLE)

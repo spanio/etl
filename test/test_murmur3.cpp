@@ -34,8 +34,12 @@ SOFTWARE.
 #include <string>
 #include <vector>
 #include <stdint.h>
+#include <string.h>
 
 #include "etl/murmur3.h"
+
+#include "etl/alignment.h"
+#include "etl/endianness.h"
 
 namespace
 {
@@ -44,7 +48,7 @@ namespace
     //*************************************************************************
     TEST(test_murmur3_32_constructor)
     {
-      typename std::aligned_storage<sizeof(char), std::alignment_of<uint32_t>::value>::type storage[10];
+      typename etl::aligned_storage<sizeof(char), std::alignment_of<uint32_t>::value>::type storage[10];
       std::string data("123456789");      
 
       char* begin = (char*)&storage[0];
@@ -61,7 +65,7 @@ namespace
     //*************************************************************************
     TEST(test_murmur3_32_add_values)
     {
-      typename std::aligned_storage<sizeof(char), std::alignment_of<uint32_t>::value>::type storage[10];
+      typename etl::aligned_storage<sizeof(char), std::alignment_of<uint32_t>::value>::type storage[10];
       std::string data("123456789");
 
       char* begin = (char*)&storage[0];
@@ -85,7 +89,7 @@ namespace
     //*************************************************************************
     TEST(test_murmur3_32_add_range)
     {
-      typename std::aligned_storage<sizeof(char), std::alignment_of<uint32_t>::value>::type storage[10];
+      typename etl::aligned_storage<sizeof(char), std::alignment_of<uint32_t>::value>::type storage[10];
       std::string data("123456789");
 
       char* begin = (char*)&storage[0];
@@ -107,7 +111,15 @@ namespace
     TEST(test_murmur3_32_add_range_endian)
     {
       std::vector<uint8_t>  data1 = { 0x01U, 0x02U, 0x03U, 0x04U, 0x05U, 0x06U, 0x07U, 0x08U };
-      std::vector<uint32_t> data2 = { 0x04030201UL, 0x08070605UL };
+      std::vector<uint32_t> data2;
+      if (etl::endianness::value() == etl::endian::little)
+      {
+        data2 = { 0x04030201UL, 0x08070605UL };
+      }
+      else
+      {
+        data2 = { 0x01020304UL, 0x05060708UL };
+      }
 
       uint32_t hash1 = etl::murmur3<uint32_t>(data1.begin(), data1.end());
       uint32_t hash2 = etl::murmur3<uint32_t>((uint8_t*)&data2[0], (uint8_t*)&data2[0] + (data2.size() * sizeof(uint32_t)));

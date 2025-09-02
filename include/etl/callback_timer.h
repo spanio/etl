@@ -732,12 +732,36 @@ namespace etl
       return delta;
     }
 
+    //*******************************************
+    /// Checks if a timer is currently active.
+    /// Returns <b>true</b> if the timer is active, otherwise <b>false</b>.
+    //*******************************************
+    bool is_active(etl::timer::id::type id_) const
+    {
+      // Valid timer id?
+      if (is_valid_timer_id(id_))
+      {
+        if (has_active_timer())
+        {
+          const etl::callback_timer_data& timer = timer_array[id_];
+
+          // Registered timer?
+          if (timer.id != etl::timer::id::NO_TIMER)
+          {
+            return timer.is_active();
+          }
+        }
+      }
+
+      return false;
+    }
+
   protected:
 
     //*******************************************
     /// Constructor.
     //*******************************************
-    icallback_timer(callback_timer_data* const timer_array_, const uint_least8_t  MAX_TIMERS_)
+    icallback_timer(callback_timer_data* const timer_array_, const uint_least8_t  Max_Timers_)
       : timer_array(timer_array_),
         active_list(timer_array_),
         enabled(false),
@@ -745,11 +769,19 @@ namespace etl
         process_semaphore(0),
 #endif
         registered_timers(0),
-        MAX_TIMERS(MAX_TIMERS_)
+        MAX_TIMERS(Max_Timers_)
     {
     }
 
   private:
+
+    //*******************************************
+    /// Check that the timer id is valid.
+    //*******************************************
+    bool is_valid_timer_id(etl::timer::id::type id_) const
+    {
+      return (id_ < MAX_TIMERS);
+    }
 
     // The array of timer data structures.
     callback_timer_data* const timer_array;
@@ -782,24 +814,24 @@ namespace etl
   //***************************************************************************
   /// The callback timer
   //***************************************************************************
-  template <const uint_least8_t MAX_TIMERS_>
+  template <const uint_least8_t Max_Timers_>
   class callback_timer : public etl::icallback_timer
   {
   public:
 
-    ETL_STATIC_ASSERT(MAX_TIMERS_ <= 254, "No more than 254 timers are allowed");
+    ETL_STATIC_ASSERT(Max_Timers_ <= 254, "No more than 254 timers are allowed");
 
     //*******************************************
     /// Constructor.
     //*******************************************
     callback_timer()
-      : icallback_timer(timer_array, MAX_TIMERS_)
+      : icallback_timer(timer_array, Max_Timers_)
     {
     }
 
   private:
 
-    callback_timer_data timer_array[MAX_TIMERS_];
+    callback_timer_data timer_array[Max_Timers_];
   };
 }
 
